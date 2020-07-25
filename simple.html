@@ -1,0 +1,80 @@
+<html>
+<head>
+    <title>Delegated signin test</title>
+</head>
+<body>
+<!--login form shown if no sso session found -->
+<div id="loginform"  style="display:none">
+    <label for="tenant">Tenant&nbsp;<input id="tenant" checked="checked"></label>
+    <select id="idp">
+        <option value="employee">Employee</option>
+        <option value="consumer">Consumer</option>
+    </select>
+    <button onclick="signin()">Sign In</button>
+</div>
+<div id="error"></div>
+
+<!-- page displayed if an sso session is initiated -->
+<button id="signout" onclick="signout()" style="display:none">Sign Out</button>
+<h3 id="info"></h3>
+<h5 id="resp-details" style="white-space: pre"></h5>
+<div id="resp-data" style="font-family: monospace;white-space: pre"></div>
+
+<script>
+    const set = (s, t) => document.getElementById(s).innerText = t;
+    const show = id => document.getElementById(id).style.display = "initial";
+    const hide = id => document.getElementById(id).style.display = "none";
+    const val = id => document.getElementById(id).value;
+
+    const SERVER = new URLSearchParams(window.location.href).get("fficaas") || "https://go.fficaas.net";
+    const API = "total-lending/documents/v2/document-types";
+    const REQ = {credentials: "include", cache: "no-cache",}
+    const ENCODED_URI = encodeURIComponent(window.location);
+
+    let currentUser = undefined;
+    fetch(`${SERVER}/user`, {cache: "no-cache", ...REQ})
+        .then(resp => checkLogin(resp))
+
+
+    function signin() {
+        document.location = `${SERVER}/signin/${val("tenant")}/${val("idp")}?redirect_uri=${ENCODED_URI}`
+    }
+
+    function signout(){
+        document.location = `${SERVER}/signout/${currentUser.tenant}/${currentUser.idp}?redirect_uri=${ENCODED_URI}`
+    }
+
+    function checkLogin(resp) {
+        if (!resp.ok) show("loginform")
+        else resp.json().then(u => init(u))
+    }
+
+    function init(user) {
+        currentUser = user;
+        hide("loginform")
+        set("error","")
+        set("info", `Welcome ! You are signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`);
+        show('signout');
+        fetch(`${SERVER}/api/${user.tenant}/${user.idp}/${API}`, REQ)
+            .then(resp => displayDetails(resp))
+            .then(resp => resp.json())
+            .then(j => set("resp-data", JSON.stringify(j, null, 2)))
+            .catch(e => set("resp-data", e));
+    }
+
+    function displayDetails(resp) {
+        const h = h => resp.headers.get(h)
+        set("resp-details", `Got response from ${API}:
+
+        Response status : ${resp.status} - [${resp.statusText}]
+
+        Some Headers :
+          ff-trace-id : ${h('ff-trace-id')}
+          ff-tenant-id : ${h('ff-tenant-id')}
+          ff-apim-reason: ${h('ff-apim-reason')}`)
+        return resp
+    }
+
+</script>
+</body>
+</html>
