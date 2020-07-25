@@ -1,11 +1,13 @@
-<html>
+<html lang="en">
 <head>
     <title>Delegated signin test</title>
 </head>
 <body>
 <!--login form shown if no sso session found -->
-<div id="loginform"  style="display:none">
-    <label for="tenant">Tenant&nbsp;<input id="tenant" checked="checked"></label>
+<div id="loginform" style="display: none;">
+    <label for="tenant">Tenant&nbsp;</label>
+    <input id="tenant" checked="checked"/>
+    <label for="idp">Idp Channel&nbsp;</label>
     <select id="idp">
         <option value="employee">Employee</option>
         <option value="consumer">Consumer</option>
@@ -15,66 +17,76 @@
 <div id="error"></div>
 
 <!-- page displayed if an sso session is initiated -->
-<button id="signout" onclick="signout()" style="display:none">Sign Out</button>
+<button id="signout" style="display: none;">Sign Out</button>
 <h3 id="info"></h3>
-<h5 id="resp-details" style="white-space: pre"></h5>
-<div id="resp-data" style="font-family: monospace;white-space: pre"></div>
+<h5 id="resp-details" style="white-space: pre;"></h5>
+<div id="resp-data" style="font-family: monospace; white-space: pre;"></div>
 
 <script>
-    const set = (s, t) => document.getElementById(s).innerText = t;
-    const show = id => document.getElementById(id).style.display = "initial";
-    const hide = id => document.getElementById(id).style.display = "none";
-    const val = id => document.getElementById(id).value;
+    const params = new URLSearchParams(window.location.href);
 
-    const SERVER = new URLSearchParams(window.location.href).get("fficaas") || "https://go.fficaas.net";
+    const getById = (id) => document.getElementById(id);
+    const val = (id) => getById(id).value;
+    const show = (id) => (getById(id).style.display = "initial");
+    const hide = (id) => (getById(id).style.display = "none");
+    const set = (id, t) => (getById(id).innerText = t);
+
+    const server = () => params.get("fficaas") || "https://go.fficaas.net";
+    const tenant = () => params.get("tenant") || val("tenant");
+    const idp = () => params.get("idp") || val("idp");
+    const nav = (url) => (document.location = url);
+
     const API = "total-lending/documents/v2/document-types";
-    const REQ = {credentials: "include", cache: "no-cache",}
-    const ENCODED_URI = encodeURIComponent(window.location);
-
-    let currentUser = undefined;
-    fetch(`${SERVER}/user`, {cache: "no-cache", ...REQ})
-        .then(resp => checkLogin(resp))
+    const REQ = {credentials: "include", cache: "no-cache"};
+    const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
 
 
-    function signin() {
-        document.location = `${SERVER}/signin/${val("tenant")}/${val("idp")}?redirect_uri=${ENCODED_URI}`
-    }
+    const signin = () =>
+        nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
 
-    function signout(){
-        document.location = `${SERVER}/signout/${currentUser.tenant}/${currentUser.idp}?redirect_uri=${ENCODED_URI}`
-    }
+    const signout = (user) =>
+        nav(`${server()}/signout/${user.tenant}/${user.idp}?${URI_PARAM}`);
 
-    function checkLogin(resp) {
-        if (!resp.ok) show("loginform")
-        else resp.json().then(u => init(u))
-    }
+    const checkLogin = (resp) => {
+        if (!resp.ok) show("loginform");
+        else resp.json().then(init);
+    };
 
     function init(user) {
-        currentUser = user;
-        hide("loginform")
-        set("error","")
-        set("info", `Welcome ! You are signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`);
-        show('signout');
-        fetch(`${SERVER}/api/${user.tenant}/${user.idp}/${API}`, REQ)
-            .then(resp => displayDetails(resp))
-            .then(resp => resp.json())
-            .then(j => set("resp-data", JSON.stringify(j, null, 2)))
-            .catch(e => set("resp-data", e));
+        welcome(user);
+        getById("signout").onclick = () => signout(user);
+        fetch(`${server()}/api/${user.tenant}/${user.idp}/${API}`, REQ)
+            .then(displayHeaders)
+            .then((resp) => resp.json())
+            .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
+            .catch((e) => set("resp-data", e));
     }
 
-    function displayDetails(resp) {
-        const h = h => resp.headers.get(h)
-        set("resp-details", `Got response from ${API}:
+    function welcome(user) {
+        hide("loginform");
+        set("error", "");
+        const banner = `Signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`;
+        set("info", banner);
+        show("signout");
+    }
+
+    function displayHeaders(resp) {
+        const header = (h) => resp.headers.get(h);
+        set(
+            "resp-details",
+            `Got response from ${API}:
 
         Response status : ${resp.status} - [${resp.statusText}]
 
         Some Headers :
-          ff-trace-id : ${h('ff-trace-id')}
-          ff-tenant-id : ${h('ff-tenant-id')}
-          ff-apim-reason: ${h('ff-apim-reason')}`)
-        return resp
+          ff-trace-id : ${header("ff-trace-id")}
+          ff-tenant-id : ${header("ff-tenant-id")}
+          ff-apim-reason: ${header("ff-apim-reason")}`
+        );
+        return resp;
     }
 
+    fetch(`${server()}/user`, REQ).then(checkLogin);
 </script>
 </body>
 </html>
