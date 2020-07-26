@@ -4,6 +4,7 @@
 </head>
 <body>
 <!--login form shown if no sso session found -->
+<h1 id="host"></h1>
 <div id="loginform" style="display: none;">
     <label for="tenant">Tenant&nbsp;</label>
     <input id="tenant" checked="checked"/>
@@ -81,7 +82,7 @@
         );
         return resp;
     }
-
+    set("host",`Welcome on ${document.location.host}`)
     fetch(`${server()}/user`, REQ).then(checkLogin);
 </script>
 </body>
