@@ -23,7 +23,7 @@
 <div id="resp-data" style="font-family: monospace; white-space: pre;"></div>
 
 <script>
-    const params = new URLSearchParams(window.location.href);
+    const params = new URLSearchParams(window.location.search);
 
     const getById = (id) => document.getElementById(id);
     const val = (id) => getById(id).value;
