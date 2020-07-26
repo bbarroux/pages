@@ -40,12 +40,8 @@
     const REQ = {credentials: "include", cache: "no-cache"};
     const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
 
-
     const signin = () =>
         nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
-
-    const signout = (user) =>
-        nav(`${server()}/signout/${user.tenant}/${user.idp}?${URI_PARAM}`);
 
     const checkLogin = (resp) => {
         if (!resp.ok) show("loginform");
@@ -54,8 +50,8 @@
 
     function init(user) {
         welcome(user);
-        getById("signout").onclick = () => signout(user);
-        fetch(`${server()}/api/${user.tenant}/${user.idp}/${API}`, REQ)
+        getById("signout").onclick = () => nav(`${server()}/signout?${URI_PARAM}`);
+        fetch(`${server()}/api/${window.location.host}/${API}`, REQ)
             .then(displayHeaders)
             .then((resp) => resp.json())
             .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
