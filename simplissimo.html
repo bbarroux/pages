@@ -4,8 +4,8 @@
 <body>
 <h3 id="welcome"></h3>
 <h5 id="error"></h5>
-<div id="data"></div>
-<script type="javascript">
+<pre id="data"></pre>
+<script>
     const set = (id, text) => document.getElementById(id).innerText = text;
     const server = "https://go.fficaas.net";
     const host = window.location.host;
@@ -23,7 +23,7 @@
         const user = await fetchJson(`${server}/user/${host}`);
         set("welcome", `Signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`);
         const data = await fetchJson(`${server}/api/${host}/${api}`);
-        set("data", data);
+        set("data", JSON.stringify(data, null, 2));
     }
 
 </script>
