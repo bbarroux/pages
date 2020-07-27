@@ -18,8 +18,11 @@
 <div id="error"></div>
 
 <!-- page displayed if an sso session is initiated -->
-<button id="signout" style="display: none;">Sign Out</button>
-<h3 id="info"></h3>
+
+<h3>
+    <span id="info"></span>
+    <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
+</h3>
 <h5 id="resp-details" style="white-space: pre;"></h5>
 <div id="resp-data" style="font-family: monospace; white-space: pre;"></div>
 
@@ -41,8 +44,9 @@
     const REQ = {credentials: "include", cache: "no-cache"};
     const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
 
-    const signin = () =>
-        nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
+    const signin = () => nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
+
+    const signout = () => nav(`${server()}/signout?${URI_PARAM}`);
 
     const checkLogin = (resp) => {
         if (!resp.ok) show("loginform");
@@ -51,12 +55,17 @@
 
     function init(user) {
         welcome(user);
-        getById("signout").onclick = () => nav(`${server()}/signout?${URI_PARAM}`);
-        fetch(`${server()}/api/${window.location.host}/${API}`, REQ)
-            .then(displayHeaders)
-            .then((resp) => resp.json())
-            .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
-            .catch((e) => set("resp-data", e));
+        if (user.access) {
+            fetch(`${server()}/api/${window.location.host}/${API}`, REQ)
+                .then(displayHeaders)
+                .then((resp) => resp.json())
+                .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
+                .catch((e) => set("resp-data", e));
+        }else{
+            getById("tenant").value=user.tenant;
+            getById("idp").value = user.idp.toLowerCase();
+            show("loginForm")
+        }
     }
 
     function welcome(user) {
@@ -82,8 +91,9 @@
         );
         return resp;
     }
-    set("host",`Welcome on ${document.location.host}`)
-    fetch(`${server()}/user`, REQ).then(checkLogin);
+
+    set("host", `Welcome on ${document.location.host}`)
+    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin);
 </script>
 </body>
 </html>
