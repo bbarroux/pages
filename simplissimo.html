@@ -3,28 +3,30 @@
 <head><title>Oauth2 demo</title></head>
 <body>
 <h3 id="welcome"></h3>
-<h5 id="error"></h5>
+<pre id="error" style="color:red"></pre>
 <pre id="data"></pre>
 <script>
-    const set = (id, text) => document.getElementById(id).innerText = text;
-    const server = "https://go.fficaas.net";
-    const host = window.location.host;
-    const redirectUri = window.location.origin + window.location.pathname;
-    const params = new URLSearchParams(window.location.search);
-    const tenant = params.get("tenant");
-    const idp = params.get("idp");
-    const api = "total-lending/documents/v2/document-types";
-    const req = {credentials: "include", cache: "no-cache"};
-    const fetchJson = url => fetch(url, req).then(r => r.json()).catch(e => set("message", e));
+    (async function () {
+        const set = (id, text) => document.getElementById(id).innerText += text;
+        const server = "https://go.fficaas.net";
+        const host = window.location.host;
+        const redirectUri = window.location.origin + window.location.pathname;
+        const params = new URLSearchParams(window.location.search);
+        const tenant = params.get("tenant");
+        const idp = params.get("idp");
+        const api = "total-lending/documents/v2/document-types";
+        const req = {credentials: "include", cache: "no-cache"};
+        const fetchJson = url => fetch(url, req).then(r => r.json()).catch(e => {set("error", e+"\n");return {}});
 
-    if (tenant && idp) {
-        document.location = `${server}/signin/${tenant}/${idp}?redirect_uri=${redirectUri}`
-    } else {
-        const user = await fetchJson(`${server}/user/${host}`);
-        set("welcome", `Signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`);
-        const data = await fetchJson(`${server}/api/${host}/${api}`);
-        set("data", JSON.stringify(data, null, 2));
-    }
+        if (tenant && idp) {
+            document.location = `${server}/signin/${tenant}/${idp}?redirect_uri=${redirectUri}`
+        } else {
+            const usr = await fetchJson(`${server}/user/${host}`);
+            set("welcome", `Signed in as ${usr.sub} (on ${usr.tenant} - ${usr.idp})`);
+            const data = await fetchJson(`${server}/api/${host}/${api}`);
+            set("data", JSON.stringify(data, null, 2));
+        }
+    })();
 
 </script>
 </body>
