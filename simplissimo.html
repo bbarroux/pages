@@ -11,8 +11,8 @@
     const host = window.location.host;
     const redirectUri = window.location.origin + window.location.pathname;
     const params = new URLSearchParams(window.location.search);
-    const tenant = params["tenant"];
-    const idp = params["idp"];
+    const tenant = params.get("tenant");
+    const idp = params.get("idp");
     const api = "total-lending/documents/v2/document-types";
     const req = {credentials: "include", cache: "no-cache"};
     const fetchJson = url => fetch(url, req).then(r => r.json()).catch(e => set("message", e));
