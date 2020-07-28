@@ -289,7 +289,7 @@
                             this.selectedApi.swaggerJson = json
                             this.showApiSwagger = true;
                         })
-                        .then(() => console.log("loaded swagger for api " + api.apiVersionId, this.selectedApi.swaggerJson));
+                        .then(() => console.log("loaded swagger for api " + api.apiVersionId +";"+api.basePath, this.selectedApi.swaggerJson));
                 }
             },
             onTemplateSelect(item){
