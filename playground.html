@@ -291,11 +291,10 @@
                         })
                         .then(() => console.log("loaded swagger for api " + api.apiVersionId, this.selectedApi.swaggerJson));
                 }
-
             },
             onTemplateSelect(item){
                 if (!item) return;
-                this.path = item.path;
+                this.path = this.selectedApi.basePath + item.path;
                 this.method = item.method;
             },
             async submit() {
