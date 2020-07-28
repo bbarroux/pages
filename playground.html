@@ -247,7 +247,7 @@
         computed: {
             channelType(){
                 if (!this.user) return "";
-                return  this.user.idp.toLowerCase()==='employee'?'B2E':'B2C';
+                return  this.user.idp.toLowerCase()==='employee'?'B2E':'DIGITAL';
             },
             filteredApis: function () {
                 return this.apiCatalog.apiVersions.filter(a => a.channelType === this.channelType)
