@@ -247,13 +247,6 @@
             }
         },
         computed: {
-            fficaas: function () {
-                const params = new URLSearchParams(window.location.search);
-                return params.get("fficaas") || "go.fficaas.net";
-            },
-            domain: function () {
-                return window.location.host
-            },
             filteredApis: function () {
                 return this.apiCatalog.apiVersions.filter(a => a.channelType === "B2E")
                     .filter(a => this.apiSearch.length === 0 || a.name.toUpperCase().includes(this.apiSearch.toUpperCase()))
@@ -272,6 +265,13 @@
 
         },
         methods: {
+            fficaas() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get("fficaas") || "go.fficaas.net";
+            },
+            domain(){
+                return window.location.host
+            },
             addHeader() {
                 this.headers.push({id: this.headerSequence++, name: '', value: ''})
                 console.log(this.headers)
