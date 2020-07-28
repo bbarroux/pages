@@ -260,12 +260,10 @@
             }
         },
         async created() {
-            const connected = await fetch(`https://${this.fficaas()}/user/${this.domain()}`).then(r=>r.json());
-            const response = await fetch(`https://${this.fficaas()}/api/${this.domain()}/api-catalog/v1/api-versions`, {credentials: 'include'});
-
-            const json = await response.json();
-            this.user = user;
-            this.apiCatalog.apiVersions = json.items;
+            const connected = fetch(`https://${this.fficaas()}/user/${this.domain()}`,{credentials:"include",cache:"no-cache"}).then(r=>r.json());
+            const apis = fetch(`https://${this.fficaas()}/api/${this.domain()}/api-catalog/v1/api-versions`, {credentials: 'include'}).then(r=>r.json());
+            this.user = await connected;
+            this.apiCatalog.apiVersions = (await apis).items;
 
         },
         methods: {
