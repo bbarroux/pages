@@ -294,6 +294,7 @@
 
             },
             onTemplateSelect(item){
+                if (!item) return;
                 this.path = item.path;
                 this.method = item.method;
             },
@@ -311,7 +312,8 @@
                 if (this.body.length && this.bodyMethods.includes(this.method)) {
                     req.body = this.body;
                 }
-                this.response = await fetch(`https://${this.fficaas()}/api/${this.domain()}/${this.path}`, req)
+                const apiPath = this.path.startsWith("/")?this.path:"/"+this.path;
+                this.response = await fetch(`https://${this.fficaas()}/api/${this.domain()}${apiPath}`, req)
                 this.responseReceived = true;
                 this.sending = false;
                 this.responseData = await this.response.text();
