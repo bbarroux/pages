@@ -219,6 +219,7 @@
         el: '#app',
         data() {
             return {
+                user:null,
                 bodyMethods: ['POST', 'PUT'],
                 methods: ['GET', 'POST', 'PUT', 'DELETE'],
                 method: 'GET',
@@ -244,8 +245,11 @@
             }
         },
         computed: {
+            channelType(){
+                return  user.idp.toLowerCase()==='employee'?'B2E':'B2C';
+            },
             filteredApis: function () {
-                return this.apiCatalog.apiVersions.filter(a => a.channelType === "B2E")
+                return this.apiCatalog.apiVersions.filter(a => a.channelType === this.channelType)
                     .filter(a => this.apiSearch.length === 0 || a.name.toUpperCase().includes(this.apiSearch.toUpperCase()))
                     .sort((a, b) => (a.category + a.name).localeCompare(b.category + b.name));
             },
@@ -255,9 +259,11 @@
             }
         },
         async created() {
+            const connected = await fetch(`https://${this.fficaas()}/user/${this.domain()}`).then(r=>r.json());
             const response = await fetch(`https://${this.fficaas()}/api/${this.domain()}/api-catalog/v1/api-versions`, {credentials: 'include'});
 
             const json = await response.json();
+            this.user = user;
             this.apiCatalog.apiVersions = json.items;
 
         },
