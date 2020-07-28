@@ -50,7 +50,7 @@
                             <md-table-row class="md-primary" slot="md-table-row" slot-scope="{ item }"
                                           md-selectable="single">
                                 <md-table-cell md-label="Path">{{item.path}}</md-table-cell>
-                                <md-table-cell md-label="Name">{{item.method}}</md-table-cell>
+                                <md-table-cell md-label="Method">{{item.method}}</md-table-cell>
                             </md-table-row>
 
                         </md-table>
@@ -82,9 +82,6 @@
 
                         </md-table>
                     </md-card-content>
-                    <md-card-actions>
-                        <md-button type="button" class="md-raised md-primary">Prepare Request</md-button>
-                    </md-card-actions>
                 </md-card>
                 <md-card style="margin-top:16px">
                     <div>
@@ -292,7 +289,8 @@
 
             },
             onTemplateSelect(item){
-
+                this.path = item.path;
+                this.method = item.method;
             },
             async submit() {
                 if (!this.path) return;
