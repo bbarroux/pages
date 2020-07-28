@@ -1,0 +1,324 @@
+<!--suppress CheckEmptyScriptTag -->
+<html lang="en">
+<head>
+    <title>Api Playground</title>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-14/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-14/dist/theme/default.css">
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material@1.0.0-beta-14/dist/vue-material.min.js"></script>
+    <style>
+        form .md-progress-bar {
+            position: absolute;
+            top: 0;
+            right: 0;
+            left: 0;
+        }
+
+        .md-field.md-disabled {
+            background-color: #eeeeee
+        }
+
+        .json-response {
+            padding: 10px;
+            white-space: pre;
+            font-family: monospace;
+            background-color: #eeeeee;
+            margin: 2px
+        }
+    </style>
+</head>
+<body>
+<div id="app" style="padding:16px">
+
+    <form novalidate @submit.prevent="submit">
+        <div class="md-layout md-gutter">
+            <div class="md-layout-item">
+                <md-card v-if="showApiSwagger">
+                    <md-card-content>
+
+                        <md-table v-model="selectedApisTemplates" md-fixed-header @md-selected="onTemplateSelect">
+                            <md-table-toolbar>
+                                <md-button @click.native="showApiSwagger = false" class="md-primary md-raised"
+                                           style="position:absolute;right: 0">
+                                    <md-icon>arrow_back</md-icon>
+                                    <span>&nbsp;Back to catalog</span>
+                                </md-button>
+                            </md-table-toolbar>
+
+
+                            <md-table-row class="md-primary" slot="md-table-row" slot-scope="{ item }"
+                                          md-selectable="single">
+                                <md-table-cell md-label="Path">{{item.path}}</md-table-cell>
+                                <md-table-cell md-label="Name">{{item.method}}</md-table-cell>
+                            </md-table-row>
+
+                        </md-table>
+
+                    </md-card-content>
+                </md-card>
+                <md-card v-else>
+                    <md-card-content>
+                        <md-table v-model="filteredApis" md-fixed-header @md-selected="onApiSelect">
+                            <md-table-toolbar>
+                                <div class="md-toolbar-section-start md-headline">Api Catalog</div>
+                                <md-field md-clearable class="md-toolbar-section-end">
+                                    <md-input placeholder="Search by name..." v-model="apiSearch"/>
+                                </md-field>
+                            </md-table-toolbar>
+
+
+                            <md-table-empty-state v-if="apiCatalog.apiVersions"
+                                                  md-label="No Api found"
+                                                  :md-description="`No api found for this '${apiSearch}' query. Try a different search term`">
+                            </md-table-empty-state>
+                            <md-table-row class="md-primary" slot="md-table-row" slot-scope="{ item }"
+                                          md-selectable="single">
+                                <md-table-cell md-label="Category">{{item.category}}</md-table-cell>
+                                <md-table-cell md-label="Name">{{item.name}}</md-table-cell>
+                                <md-table-cell md-label="Version">{{item.version}}</md-table-cell>
+                                <md-table-cell md-label="Maturity">{{item.maturityLevel}}</md-table-cell>
+                            </md-table-row>
+
+                        </md-table>
+                    </md-card-content>
+                    <md-card-actions>
+                        <md-button type="button" class="md-raised md-primary">Prepare Request</md-button>
+                    </md-card-actions>
+                </md-card>
+                <md-card style="margin-top:16px">
+                    <div>
+                        <md-progress-bar md-mode="indeterminate" v-if="sending"/>
+                    </div>
+                    <md-card-header>
+                        <div class="md-title">Api Request</div>
+                    </md-card-header>
+
+                    <md-card-content>
+                        <div class="md-subheading">Request Uri</div>
+                        <md-radio v-for='m in methods' v-model="method" class="md-primary" :value="m">{{m}}</md-radio>
+                        <div class="md-layout md-gutter">
+                            <div class="md-layout-item">
+                                <simple-field v-model="path" label="Full Path"/>
+                            </div>
+                            <div class="md-layout-item">
+                                <simple-field v-model="queryString" label="Query String"/>
+                            </div>
+                        </div>
+                        <div class="md-subheading">
+                            <span>Request Headers</span>
+                            <md-button class="md-icon-button md-dense md-raised md-primary">
+                                <md-icon @click.native="addHeader">add</md-icon>
+                            </md-button>
+                        </div>
+                        <div class="md-layout md-gutter" v-for="header in headers" :key="header.id">
+
+                            <div class="md-layout-item">
+                                <simple-field v-model="header.name" label="Header Name" :disabled="header.id<100"/>
+                            </div>
+                            <div class="md-layout-item">
+                                <simple-field v-model="header.value" label="Header Value" :disabled="header.id<100"/>
+                            </div>
+                        </div>
+
+                        <div v-if="bodyMethods.includes(method)">
+                            <div class="md-subheading">Request Body</div>
+                            <md-field>
+                                <label>Request Body</label>
+                                <md-textarea v-model="body"></md-textarea>
+                            </md-field>
+                        </div>
+                    </md-card-content>
+
+                    <md-card-actions>
+                        <md-button type="submit" class="md-raised md-accent" :disabled="sending">Send Request
+                        </md-button>
+                    </md-card-actions>
+                </md-card>
+            </div>
+            <div class="md-layout-item">
+                <md-card v-if='response.headers'>
+                    <md-card-header>
+                        <div class="md-title">Api Response</div>
+                    </md-card-header>
+                    <md-card-content>
+                        <div class="md-subheading">Status</div>
+                        <div class="md-layout md-gutter">
+                            <div class="md-layout-item">
+                                <simple-field v-model="response.status" disabled="disabled" label="Status Code"/>
+                            </div>
+                            <div class="md-layout-item">
+                                <simple-field v-model="response.statusText" disabled="disabled" label="Status Text"/>
+                            </div>
+                        </div>
+                        <div class="md-subheading">Headers</div>
+                        <div>
+                            <md-table>
+                                <md-table-row>
+                                    <md-table-head>Name</md-table-head>
+                                    <md-table-head>Value</md-table-head>
+                                </md-table-row>
+                                <md-table-row v-for="h of response.headers">
+                                    <md-table-cell>{{h[0]}}</md-table-cell>
+                                    <md-table-cell>{{h[1]}}</md-table-cell>
+                                </md-table-row>
+                            </md-table>
+                        </div>
+                        <div class="md-subheading">Response Body</div>
+                        <md-tabs class="md-primary">
+                            <md-tab id="tab-json" md-label="Json">
+                                <div class="json-response">{{responseJson}}</div>
+                            </md-tab>
+                            <md-tab id="tab-raw" md-label="Raw">
+                                <div class="json-response">{{responseData}}</div>
+                            </md-tab>
+                            <md-tab id="tab-viewer" md-label="Viewer">Coming soon</md-tab>
+                        </md-tabs>
+
+                    </md-card-content>
+
+                </md-card>
+            </div>
+            <md-snackbar :md-active.sync="responseReceived">Response received from backend</md-snackbar>
+        </div>
+    </form>
+</div>
+</body>
+<script>
+    Vue.use(VueMaterial.default)
+
+    Vue.component('simple-field', {
+        props: ['label', 'value', 'disabled'],
+        template: `
+            <md-field>
+                <label>{{label}}</label>
+                <md-input :value="value" @input="newVal=>$emit('input',newVal)" :disabled="disabled"></md-input>
+            </md-field>
+        `,
+    });
+    Vue.component('query-header', {
+
+        props: ['value'],
+        data() {
+            return {
+                name: value.name,
+                val: value.value,
+            };
+        },
+        template: `
+            <div class="md-layout md-gutter">
+                <div class="md-layout-item">
+                    <simple-field v-model="value.name" label="Header Name"/>
+                </div>
+                <div class="md-layout-item">
+                    <simple-field v-model="value.value" label="Header Value"/>
+                </div>
+            </div>
+        `
+
+    })
+
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                bodyMethods: ['POST', 'PUT'],
+                methods: ['GET', 'POST', 'PUT', 'DELETE'],
+                method: 'GET',
+                path: '',
+                queryString: '',
+                headers: [
+                    {id: 1, name: 'Content-Type', value: 'application/json'},
+                    {id: 2, name: 'Accept', value: 'application/json'}],
+                headerSequence: 100,
+                body: '',
+                sending: false,
+                responseReceived: false,
+                response: {},
+                responseJson: {},
+                responseData: "",
+                searchQuery: '',
+                apiCatalog: {
+                    apiVersions: []
+                },
+                apiSearch: '',
+                selectedApi: null,
+                showApiSwagger: false,
+            }
+        },
+        computed: {
+            fficaas: function () {
+                const params = new URLSearchParams(window.location.search);
+                return params.get("fficaas") || "go.fficaas.net";
+            },
+            domain: function () {
+                return window.location.host
+            },
+            filteredApis: function () {
+                return this.apiCatalog.apiVersions.filter(a => a.channelType === "B2E")
+                    .filter(a => this.apiSearch.length === 0 || a.name.toUpperCase().includes(this.apiSearch.toUpperCase()))
+                    .sort((a, b) => (a.category + a.name).localeCompare(b.category + b.name));
+            },
+            selectedApisTemplates: function () {
+                const paths = this.selectedApi.swaggerJson.paths
+                return Object.keys(paths).flatMap(p => Object.keys(paths[p]).map(m => ({path: p, method: m})));
+            }
+        },
+        async created() {
+            const response = await fetch(`https://${this.fficaas()}/api/${this.domain()}/api-catalog/v1/api-versions`, {credentials: 'include'});
+
+            const json = await response.json();
+            this.apiCatalog.apiVersions = json.items;
+
+        },
+        methods: {
+            addHeader() {
+                this.headers.push({id: this.headerSequence++, name: '', value: ''})
+                console.log(this.headers)
+            },
+
+            onApiSelect(api) {
+                if (!api || (this.selectedApi && api.apiVersionId === this.selectedApi.apiVersionId)) return;
+                this.selectedApi = api;
+                if (!api.swaggerJson) {
+                    fetch(api._links.swagger.href.replace(/.*(\/api-catalog\/v1)/, `https://${this.fficaas()}/api/${this.domain()}$1`), {credentials: "include"})
+                        .then(r => r.json())
+                        .then(json => {
+                            this.selectedApi.swaggerJson = json
+                            this.showApiSwagger = true;
+                        })
+                        .then(() => console.log("loaded swagger for api " + api.apiVersionId, this.selectedApi.swaggerJson));
+                }
+
+            },
+            onTemplateSelect(item){
+
+            },
+            async submit() {
+                if (!this.path) return;
+                this.sending = true;
+                const req = {
+                    method: this.method,
+                    headers: {},
+                    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                    credentials: 'include', // include, *same-origin, omit
+                    referrerPolicy: 'strict-origin-when-cross-origin', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                }
+                this.headers.filter(h => h.name.length).forEach(h => req.headers[h.name] = h.value)
+                if (this.body.length && this.bodyMethods.includes(this.method)) {
+                    req.body = this.body;
+                }
+                this.response = await fetch(`https://${this.fficaas()}/api/${this.domain()}/${this.path}`, req)
+                this.responseReceived = true;
+                this.sending = false;
+                this.responseData = await this.response.text();
+                try {
+                    this.responseJson = JSON.parse(this.responseData);
+                } catch (e) {
+                    console.log("could not parse json response", e);
+                }
+            }
+        }
+    })
+</script>
+</html>
