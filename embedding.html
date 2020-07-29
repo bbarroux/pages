@@ -2,7 +2,7 @@
 <head>
     <title>Delegated signin test</title>
     <style>
-        iframe{border:1px solid black;height: 300px;width: 100%}
+        iframe{border:1px solid black;height: 400px;width: 100%}
     </style>
 </head>
 <body>
@@ -27,13 +27,16 @@
     <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
     <a id="playground" href="playground.html" style="display:none">Playground</a>
 </h3>
-<table style="witdh:100%">
+<table width="100%">
     <tr>
-        <td style="padding:10px">
-            <iframe id="ifr1"></iframe>
-            <iframe id="ifr2"></iframe>
-            <iframe id="ifr3"></iframe>
-        </td>
+        <th>github pages</th>
+        <th>amazon s3</th>
+        <th>Azure blob</th>
+    </tr>
+    <tr>
+        <td style="padding:10px"><iframe id="ifr1"></iframe></td>
+        <td style="padding:10px"><iframe id="ifr2"></iframe></td>
+        <td style="padding:10px"><iframe id="ifr3"></iframe></td>
     </tr>
 </table>
 
