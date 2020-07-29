@@ -17,17 +17,14 @@
 
         const req = {credentials: "include", cache: "no-cache"};
         const signin = (t, i) => document.location = `${server}/signin/${t}/${i}?redirect_uri=${redirectUri}`
-        const fetchJson = url => fetch(url, req).then(r => r.json()).catch(e => {
-            set("error", e + "\n");
-            return {}
-        });
+        const fetchJson = url => fetch(url, req).then(r => r.json()).catch(error => ({error}));
 
         const apis = {
             employee: "total-lending/documents/v2/document-types",
             consumer: "retail-us/me/account/v1/accounts/extendedWithDetails"
         }
         if (tenant && idp) {
-            signin(tenant,  idp)
+            signin(tenant, idp)
         } else {
             const usr = await fetchJson(`${server}/user/${host}`);
             set("welcome", `Signed in as ${usr.sub} (on ${usr.tenant} - ${usr.idp})`);

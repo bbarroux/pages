@@ -1,0 +1,93 @@
+<html lang="en">
+<head>
+    <title>Delegated signin test</title>
+    <style>
+        iframe{border:1px solid black;height: 250px;width: 100%;border-radius: 5px}
+        body{font-family: Verdana, Arial, sans-serif;padding: 10px 100px}
+        td{padding: 10px}
+        h1{border-bottom: 1px solid #ccc}
+    </style>
+</head>
+<body>
+<!--login form shown if no sso session found -->
+<h1 id="host"></h1>
+<div id="loginform" style="display: none;">
+    <label for="tenant">Tenant&nbsp;</label>
+    <input id="tenant" checked="checked"/>
+    <label for="idp">Idp Channel&nbsp;</label>
+    <select id="idp">
+        <option value="employee">Employee</option>
+        <option value="consumer">Consumer</option>
+    </select>
+    <button onclick="signin()">Sign In</button>
+</div>
+<div id="error"></div>
+
+<!-- page displayed if an sso session is initiated -->
+
+<h3>
+    <span id="info"></span>
+    <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
+    <a id="playground" href="playground.html" style="display:none">Playground</a>
+</h3>
+<table width="100%" style="display:none" id="iframes-table">
+    <tr>
+        <th>Azure blob</th>
+    </tr>
+    <tr>
+        <td style="padding:10px"><iframe id="ifr6"></iframe></td>
+    </tr>
+</table>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    const getById = (id) => document.getElementById(id);
+    const val = (id) => getById(id).value;
+    const show = (id) => (getById(id).style.display = "initial");
+    const hide = (id) => (getById(id).style.display = "none");
+    const set = (id, t) => (getById(id).innerText = t);
+
+    const server = () => params.get("fficaas") || "https://go.fficaas.net";
+    const tenant = () => params.get("tenant") || val("tenant");
+    const idp = () => params.get("idp") || val("idp");
+    const nav = (url) => (document.location = url);
+
+    const REQ = {credentials: "include", cache: "no-cache"};
+    const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
+
+    const signin = () => nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
+
+    const signout = () => nav(`${server()}/signout?${URI_PARAM}`);
+
+    const checkLogin = (resp) => {
+        if (!resp.ok) show("loginform");
+        else resp.json().then(init);
+    };
+
+    function init(user) {
+        welcome(user);
+        if (user.access) {
+            show("iframes-table")
+            getById("ifr6").src="https://p21d11107027001.blob.core.windows.net/fficaas/simplissimo.html"
+        }else{
+            getById("tenant").value=user.tenant;
+            getById("idp").value = user.idp.toLowerCase();
+            show("loginform")
+        }
+    }
+
+    function welcome(user) {
+        hide("loginform");
+        set("error", "");
+        const banner = `Signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`;
+        set("info", banner);
+        show("signout");
+        show("playground");
+    }
+
+    set("host", `Welcome on ${document.location.host}`)
+    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin);
+</script>
+</body>
+</html>
