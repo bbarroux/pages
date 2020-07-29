@@ -16,6 +16,7 @@
         const idp = params.get("idp");
 
         const req = {credentials: "include", cache: "no-cache"};
+        const signin = (tenant, idp) => document.location = `${server}/signin/${tenant}/${idp}?redirect_uri=${redirectUri}`
         const fetchJson = url => fetch(url, req).then(r => r.json()).catch(e => {
             set("error", e + "\n");
             return {}
@@ -26,10 +27,12 @@
             consumer: "retail-us/me/account/v1/accounts/extendedWithDetails"
         }
         if (tenant && idp) {
-            document.location = `${server}/signin/${tenant}/${idp}?redirect_uri=${redirectUri}`
+            signin(tenant,  idp)
         } else {
             const usr = await fetchJson(`${server}/user/${host}`);
             set("welcome", `Signed in as ${usr.sub} (on ${usr.tenant} - ${usr.idp})`);
+            if (!usr.access) signin(usr.tenant, usr.idp)
+
             const data = await fetchJson(`${server}/api/${host}/${apis[usr.idp]}`);
             set("data", JSON.stringify(data, null, 2));
         }
