@@ -60,7 +60,7 @@
     function init(user) {
         welcome(user);
         if (user.access) {
-            fetch(`${server()}/api/${window.location.host}/${api[user.idp]}`, REQ)
+            fetch(`${server()}/api/${window.location.host}/${apis[user.idp]}`, REQ)
                 .then(displayHeaders)
                 .then((resp) => resp.json())
                 .then((j) => set("resp-data", JSON.stringify(j, null, 2)))

@@ -30,7 +30,7 @@
         } else {
             const usr = await fetchJson(`${server}/user/${host}`);
             set("welcome", `Signed in as ${usr.sub} (on ${usr.tenant} - ${usr.idp})`);
-            const data = await fetchJson(`${server}/api/${host}/${api[usr.idp]}`);
+            const data = await fetchJson(`${server}/api/${host}/${apis[usr.idp]}`);
             set("data", JSON.stringify(data, null, 2));
         }
     })();
