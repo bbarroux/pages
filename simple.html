@@ -2,7 +2,7 @@
 <head>
     <title>Delegated signin test</title>
 </head>
-<body>
+<body style="font-family: Verdana, Arial, sans-serif;padding: 10px 100px">
 <!--login form shown if no sso session found -->
 <h1 id="host"></h1>
 <div id="loginform" style="display: none;">
@@ -41,7 +41,10 @@
     const idp = () => params.get("idp") || val("idp");
     const nav = (url) => (document.location = url);
 
-    const API = "total-lending/documents/v2/document-types";
+    const apis = {
+        employee: "total-lending/documents/v2/document-types",
+        consumer: "/retail-us/me/account/v1/accounts/extendedWithDetails"
+    }
     const REQ = {credentials: "include", cache: "no-cache"};
     const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
 
@@ -57,7 +60,7 @@
     function init(user) {
         welcome(user);
         if (user.access) {
-            fetch(`${server()}/api/${window.location.host}/${API}`, REQ)
+            fetch(`${server()}/api/${window.location.host}/${api[user.idp]}`, REQ)
                 .then(displayHeaders)
                 .then((resp) => resp.json())
                 .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
