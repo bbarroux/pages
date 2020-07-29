@@ -69,7 +69,7 @@
         welcome(user);
         if (user.access) {
             show("iframes-table")
-            getById("ifr6").src="https://p21d11107027001.blob.core.windows.net/fficaas/simplissimo.html?fficaas="+server
+            getById("ifr6").src="https://p21d11107027001.blob.core.windows.net/fficaas/simplissimo.html?fficaas="+server()
         }else{
             getById("tenant").value=user.tenant;
             getById("idp").value = user.idp.toLowerCase();
