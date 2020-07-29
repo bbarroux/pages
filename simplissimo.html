@@ -16,7 +16,7 @@
         const idp = params.get("idp");
 
         const req = {credentials: "include", cache: "no-cache"};
-        const signin = (tenant, idp) => document.location = `${server}/signin/${tenant}/${idp}?redirect_uri=${redirectUri}`
+        const signin = (t, i) => document.location = `${server}/signin/${t}/${i}?redirect_uri=${redirectUri}`
         const fetchJson = url => fetch(url, req).then(r => r.json()).catch(e => {
             set("error", e + "\n");
             return {}
