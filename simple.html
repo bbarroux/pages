@@ -61,7 +61,7 @@
         welcome(user);
         if (user.access) {
             fetch(`${server()}/api/${window.location.host}/${apis[user.idp]}`, REQ)
-                .then(r->displayHeaders(r, apis[user.idp]))
+                .then(r=>displayHeaders(r, apis[user.idp]))
                 .then((resp) => resp.json())
                 .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
                 .catch((e) => set("resp-data", e));

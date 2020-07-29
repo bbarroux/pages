@@ -30,7 +30,7 @@
     <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
     <a id="playground" href="playground.html" style="display:none">Playground</a>
 </h3>
-<table width="100%">
+<table width="100%" style="display:none">
     <tr>
         <th>github pages</th>
         <th>amazon s3</th>
@@ -77,6 +77,7 @@
     function init(user) {
         welcome(user);
         if (user.access) {
+            show("iframes-table")
             getById("ifr1").src="https://bbarroux.github.io/pages/simple.html"
             getById("ifr2").src="https://sso-demo.s3.eu-central-1.amazonaws.com/simple.html"
             getById("ifr3").src="https://p21d11107027001.blob.core.windows.net/fficaas/simple.html"
