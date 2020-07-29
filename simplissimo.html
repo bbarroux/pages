@@ -23,7 +23,7 @@
 
         const apis = {
             employee: "total-lending/documents/v2/document-types",
-            consumer: "/retail-us/me/account/v1/accounts/extendedWithDetails"
+            consumer: "retail-us/me/account/v1/accounts/extendedWithDetails"
         }
         if (tenant && idp) {
             document.location = `${server}/signin/${tenant}/${idp}?redirect_uri=${redirectUri}`
