@@ -32,8 +32,8 @@
 <div id="app" style="padding:16px">
 
     <form novalidate @submit.prevent="submit">
-        <div class="md-layout md-gutter">
-            <div class="md-layout-item">
+        <div class="md-layout md-gutter md-layout-nowrap">
+            <div class="md-layout-item md-size-40">
                 <md-card v-if="showApiSwagger">
                     <md-card-content>
 
@@ -52,9 +52,7 @@
                                 <md-table-cell md-label="Path">{{item.path}}</md-table-cell>
                                 <md-table-cell md-label="Method">{{item.method}}</md-table-cell>
                             </md-table-row>
-
                         </md-table>
-
                     </md-card-content>
                 </md-card>
                 <md-card v-else>
@@ -66,8 +64,6 @@
                                     <md-input placeholder="Search by name..." v-model="apiSearch"/>
                                 </md-field>
                             </md-table-toolbar>
-
-
                             <md-table-empty-state v-if="apiCatalog.apiVersions"
                                                   md-label="No Api found"
                                                   :md-description="`No api found for this '${apiSearch}' query. Try a different search term`">
@@ -133,7 +129,7 @@
                     </md-card-actions>
                 </md-card>
             </div>
-            <div class="md-layout-item">
+            <div class="md-layout-item md-size-60">
                 <md-card v-if='response.headers'>
                     <md-card-header>
                         <div class="md-title">Api Response</div>
