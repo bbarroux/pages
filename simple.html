@@ -98,7 +98,7 @@
     }
 
     set("host", `Welcome on ${document.location.host}`)
-    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin);
+    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin).catch(()=>show("loginform"));
 </script>
 </body>
 </html>
