@@ -2,23 +2,80 @@
 <head>
     <title>Delegated signin test</title>
     <style>
-        body{font-family: Verdana, Arial, sans-serif;margin: 0}
-        h1 {background-color:#7952b3;color: white;padding: 10px 100px}
-        h1 #actions{float:right;font-size:50%;display: none}
-        h1 a{color: white !important;padding-right:10px;}
-        button{background-color:#7952b3;border:none;color:white;padding:5px 7px;border-radius: 3px}
-        .main{padding: 0 100px}
-        pre{padding: 10px}
-        #resp-details{border-radius:3px;float: right;background-color:#7952b3;color:white; margin-right:10px;font-family:verdana,Arial,sans-serif;font-size:80%}
-        #resp-data{font-size: 80%;background-color: #eeeeee}
-        .form-elt{padding:4px 6px;border: 1px solid #dacfe9;color: #7952b3;border-radius: 3px}
+        body {
+            font-family: Verdana, Arial, sans-serif;
+            margin: 0
+        }
+
+        h1 {
+            background-color: #7952b3;
+            color: white;
+            padding: 10px 100px
+        }
+
+        h1 #actions {
+            float: right;
+            font-size: 40%;
+            display: none;
+            text-align: right
+        }
+
+        #info {
+            font-weight: normal;
+            line-height: 3em
+        }
+
+        h1 a {
+            color: white !important;
+            padding-right: 10px;
+        }
+
+        button {
+            background-color: #7952b3;
+            border: none;
+            color: white;
+            padding: 5px 7px;
+            border-radius: 3px
+        }
+
+        .main {
+            padding: 0 100px
+        }
+
+        pre {
+            padding: 10px
+        }
+
+        #resp-details {
+            border-radius: 3px;
+            float: right;
+            background-color: #7952b3;
+            color: white;
+            margin-right: 10px;
+            font-family: verdana, Arial, sans-serif;
+            font-size: 80%
+        }
+
+        #resp-data {
+            font-size: 80%;
+            background-color: #eeeeee
+        }
+
+        .form-elt {
+            padding: 4px 6px;
+            border: 1px solid #dacfe9;
+            color: #7952b3;
+            border-radius: 3px;
+            margin-right: 20px
+        }
     </style>
 </head>
 <body>
 <h1>
     <span id="actions">
-        <a href="#" onclick="signout()">Sign Out</a>
         <a href="playground.html">Playground</a>
+        <a href="#" onclick="signout()">Sign Out</a>
+        <br/><span id="info"></span>
     </span>
     <span id="host"></span>
 </h1>
@@ -34,11 +91,8 @@
         </select>
         <button onclick="signin()">Sign In</button>
     </div>
-    <div id="error"></div>
-
     <!-- page displayed if an sso session is initiated -->
 
-    <h3 id="info"></h3>
     <div id="resp" style="display: none">
         <pre id="resp-details"></pre>
         <pre id="resp-data"></pre>
@@ -47,6 +101,7 @@
 <script>
     const params = new URLSearchParams(window.location.search);
 
+    const host = window.location.host;
     const getById = (id) => document.getElementById(id);
     const val = (id) => getById(id).value;
     const show = (id) => (getById(id).style.display = "initial");
@@ -78,7 +133,7 @@
         welcome(user);
         if (user.access) {
             var start = new Date();
-            fetch(`${server()}/api/${window.location.host}/${apis[user.idp]}`, REQ)
+            fetch(`${server()}/api/${host}/${apis[user.idp]}`, REQ)
                 .then(r => displayHeaders(r, apis[user.idp], start))
                 .then((resp) => resp.json())
                 .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
@@ -91,10 +146,8 @@
     }
 
     function welcome(user) {
+        set("info", `${user.sub} (on ${user.tenant}/${user.idp})`);
         hide("loginform");
-        set("error", "");
-        const banner = `Signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`;
-        set("info", banner);
         show("actions");
     }
 
@@ -113,8 +166,8 @@
         return resp;
     }
 
-    set("host", `Welcome on ${document.location.host}`)
-    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin).catch(() => show("loginform"));
+    set("host", `Welcome on ${host}`)
+    fetch(`${server()}/user/${host}`, REQ).then(checkLogin).catch(() => show("loginform"));
 </script>
 </body>
 </html>
