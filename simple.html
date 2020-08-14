@@ -37,8 +37,10 @@
     <!-- page displayed if an sso session is initiated -->
 
     <h3 id="info"></h3>
-    <pre id="resp-details"></pre>
-    <pre id="resp-data"></pre>
+    <div id="resp" style="display: none">
+        <pre id="resp-details"></pre>
+        <pre id="resp-data"></pre>
+    </div>
 </div>
 <script>
     const params = new URLSearchParams(window.location.search);
@@ -105,6 +107,7 @@
   ff-apim-reason: ${header("ff-apim-reason")}
   fficaas-backend-time-ms: ${header("fficaas-backend-time-ms")}`
         );
+        show("resp")
         return resp;
     }
 
