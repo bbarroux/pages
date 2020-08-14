@@ -4,7 +4,11 @@
 </head>
 <body style="font-family: Verdana, Arial, sans-serif;margin: 0">
 <!--login form shown if no sso session found -->
-<h1 id="host" style="background-color:#7952b3;color: white;padding: 10px 100px"></h1>
+<h1 style="background-color:#7952b3;color: white;padding: 10px 100px">
+    <span id="host"></span>
+    <a href="#" id="signout" style="display: none;color: white !important;" onclick="signout()">Sign Out</a>
+    <a id="playground" href="playground.html" style="display:none;color: white !important;">Playground</a>
+</h1>
 <div style="padding: 0 100px">
     <div id="loginform" style="display: none;">
         <label for="tenant">Tenant&nbsp;</label>
@@ -20,13 +24,9 @@
 
     <!-- page displayed if an sso session is initiated -->
 
-    <h3>
-        <span id="info"></span>
-        <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
-        <a id="playground" href="playground.html" style="display:none">Playground</a>
-    </h3>
+    <h3 id="info"></h3>
     <pre id="resp-details"
-         style="float: right;background-color:#7952b3;color:white;padding:10px; margin-right:10px;font-family:verdana,Arial,sans-serif;font-size:80%"></pre>
+         style="border-radius:3px;float: right;background-color:#7952b3;color:white;padding:10px; margin-right:10px;font-family:verdana,Arial,sans-serif;font-size:80%"></pre>
     <pre id="resp-data"
          style="padding:10px;font-size: 80%;background-color: #eeeeee"></pre>
 </div>
