@@ -1,15 +1,24 @@
 <html lang="en">
 <head>
     <title>Delegated signin test</title>
+    <style>
+        body{font-family: Verdana, Arial, sans-serif;margin: 0}
+        h1 {background-color:#7952b3;color: white;padding: 10px 100px}
+        h1 a{display: none;color: white !important;float:right;font-size:50%;padding-right:10px;}
+        .main{padding: 10px 100px}
+        pre{padding: 10px}
+        #resp-details{border-radius:3px;float: right;background-color:#7952b3;color:white; margin-right:10px;font-family:verdana,Arial,sans-serif;font-size:80%}
+        #resp-data{font-size: 80%;background-color: #eeeeee}
+    </style>
 </head>
-<body style="font-family: Verdana, Arial, sans-serif;margin: 0">
+<body>
 <!--login form shown if no sso session found -->
-<h1 style="background-color:#7952b3;color: white;padding: 10px 100px">
+<h1>
     <span id="host"></span>
-    <a href="#" id="signout" style="display: none;color: white !important;" onclick="signout()">Sign Out</a>
-    <a id="playground" href="playground.html" style="display:none;color: white !important;">Playground</a>
+    <a href="#" id="signout" onclick="signout()">Sign Out</a>
+    <a id="playground" href="playground.html">Playground</a>
 </h1>
-<div style="padding: 0 100px">
+<div class="main">
     <div id="loginform" style="display: none;">
         <label for="tenant">Tenant&nbsp;</label>
         <input id="tenant" checked="checked"/>
@@ -25,10 +34,8 @@
     <!-- page displayed if an sso session is initiated -->
 
     <h3 id="info"></h3>
-    <pre id="resp-details"
-         style="border-radius:3px;float: right;background-color:#7952b3;color:white;padding:10px; margin-right:10px;font-family:verdana,Arial,sans-serif;font-size:80%"></pre>
-    <pre id="resp-data"
-         style="padding:10px;font-size: 80%;background-color: #eeeeee"></pre>
+    <pre id="resp-details"></pre>
+    <pre id="resp-data"></pre>
 </div>
 <script>
     const params = new URLSearchParams(window.location.search);
