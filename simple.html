@@ -25,8 +25,8 @@
     <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
     <a id="playground" href="playground.html" style="display:none">Playground</a>
 </h3>
-<pre id="resp-details" style="font-weight: bold"></pre>
-<pre id="resp-data" style="max-height: 200px;overflow: auto;font-size: 80%;background-color: #eeeeee"></pre>
+<pre id="resp-details" style="font-weight: bold;float: left;padding-right: 20px"></pre>
+<pre id="resp-data" style="padding:10px;max-height: 200px;overflow: auto;font-size: 80%;background-color: #eeeeee"></pre>
 </div>
 <script>
     const params = new URLSearchParams(window.location.search);
@@ -87,11 +87,12 @@
         const header = (h) => resp.headers.get(h);
         set(
             "resp-details",
-            `Got Response from ${api} [${resp.status} - ${resp.statusText}] in ${new Date() - start}ms
+            `${api}
+  Got Response from [${resp.status} - ${resp.statusText}] in ${new Date() - start}ms
 
-          ff-trace-id : ${header("ff-trace-id")}
-          ff-apim-reason: ${header("ff-apim-reason")}
-          fficaas-backend-time-ms: ${header("fficaas-backend-time-ms")}`
+  ff-trace-id : ${header("ff-trace-id")}
+  ff-apim-reason: ${header("ff-apim-reason")}
+  fficaas-backend-time-ms: ${header("fficaas-backend-time-ms")}`
         );
         return resp;
     }
