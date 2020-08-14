@@ -60,8 +60,9 @@
     function init(user) {
         welcome(user);
         if (user.access) {
+            var start = new Date();
             fetch(`${server()}/api/${window.location.host}/${apis[user.idp]}`, REQ)
-                .then(r=>displayHeaders(r, apis[user.idp]))
+                .then(r=>displayHeaders(r, apis[user.idp], start))
                 .then((resp) => resp.json())
                 .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
                 .catch((e) => set("resp-data", e));
@@ -81,15 +82,15 @@
         show("playground");
     }
 
-    function displayHeaders(resp, api) {
+    function displayHeaders(resp, api, start) {
         const header = (h) => resp.headers.get(h);
         set(
             "resp-details",
-            `Got response from ${api} - ${resp.status} - [${resp.statusText}]
+            `Got Response from ${api} [${resp.status} - ${resp.statusText}] in ${new Date() - start}ms
 
           ff-trace-id : ${header("ff-trace-id")}
           ff-apim-reason: ${header("ff-apim-reason")}
-          fficaas-backend-time-ms:${header("fficaas-backend-time-ms")}`
+          fficaas-backend-time-ms: ${header("fficaas-backend-time-ms")}`
         );
         return resp;
     }
