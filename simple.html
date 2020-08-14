@@ -6,27 +6,29 @@
 <!--login form shown if no sso session found -->
 <h1 id="host" style="background-color:#7952b3;color: white;padding: 10px 100px"></h1>
 <div style="padding: 0 100px">
-<div id="loginform" style="display: none;">
-    <label for="tenant">Tenant&nbsp;</label>
-    <input id="tenant" checked="checked"/>
-    <label for="idp">Idp Channel&nbsp;</label>
-    <select id="idp">
-        <option value="employee">Employee</option>
-        <option value="consumer">Consumer</option>
-    </select>
-    <button onclick="signin()">Sign In</button>
-</div>
-<div id="error"></div>
+    <div id="loginform" style="display: none;">
+        <label for="tenant">Tenant&nbsp;</label>
+        <input id="tenant" checked="checked"/>
+        <label for="idp">Idp Channel&nbsp;</label>
+        <select id="idp">
+            <option value="employee">Employee</option>
+            <option value="consumer">Consumer</option>
+        </select>
+        <button onclick="signin()">Sign In</button>
+    </div>
+    <div id="error"></div>
 
-<!-- page displayed if an sso session is initiated -->
+    <!-- page displayed if an sso session is initiated -->
 
-<h3>
-    <span id="info"></span>
-    <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
-    <a id="playground" href="playground.html" style="display:none">Playground</a>
-</h3>
-<pre id="resp-details" style="font-weight: bold;float: left;padding-right: 20px"></pre>
-<pre id="resp-data" style="padding:10px;max-height: 200px;overflow: auto;font-size: 80%;background-color: #eeeeee"></pre>
+    <h3>
+        <span id="info"></span>
+        <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
+        <a id="playground" href="playground.html" style="display:none">Playground</a>
+    </h3>
+    <pre id="resp-details"
+         style="float: right;background-color:#7952b3;color:white;padding:10px; margin-right:10px;font-family:verdana,Arial,sans-serif;font-size:80%"></pre>
+    <pre id="resp-data"
+         style="padding:10px;font-size: 80%;background-color: #eeeeee"></pre>
 </div>
 <script>
     const params = new URLSearchParams(window.location.search);
@@ -63,12 +65,12 @@
         if (user.access) {
             var start = new Date();
             fetch(`${server()}/api/${window.location.host}/${apis[user.idp]}`, REQ)
-                .then(r=>displayHeaders(r, apis[user.idp], start))
+                .then(r => displayHeaders(r, apis[user.idp], start))
                 .then((resp) => resp.json())
                 .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
                 .catch((e) => set("resp-data", e));
-        }else{
-            getById("tenant").value=user.tenant;
+        } else {
+            getById("tenant").value = user.tenant;
             getById("idp").value = user.idp.toLowerCase();
             show("loginform")
         }
@@ -87,9 +89,8 @@
         const header = (h) => resp.headers.get(h);
         set(
             "resp-details",
-            `${api}
-  Got Response from [${resp.status} - ${resp.statusText}] in ${new Date() - start}ms
-
+            `Got Response from [${resp.status} - ${resp.statusText}] in ${new Date() - start}ms
+(${api})
   ff-trace-id : ${header("ff-trace-id")}
   ff-apim-reason: ${header("ff-apim-reason")}
   fficaas-backend-time-ms: ${header("fficaas-backend-time-ms")}`
@@ -98,7 +99,7 @@
     }
 
     set("host", `Welcome on ${document.location.host}`)
-    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin).catch(()=>show("loginform"));
+    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin).catch(() => show("loginform"));
 </script>
 </body>
 </html>
