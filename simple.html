@@ -2,9 +2,10 @@
 <head>
     <title>Delegated signin test</title>
 </head>
-<body style="font-family: Verdana, Arial, sans-serif;padding: 10px 100px">
+<body style="font-family: Verdana, Arial, sans-serif;">
 <!--login form shown if no sso session found -->
-<h1 id="host"></h1>
+<h1 id="host" style="background-color:#7952b3;color: white;padding: 10px 100px"></h1>
+<div style="padding: 0 100px">
 <div id="loginform" style="display: none;">
     <label for="tenant">Tenant&nbsp;</label>
     <input id="tenant" checked="checked"/>
@@ -25,8 +26,8 @@
     <a id="playground" href="playground.html" style="display:none">Playground</a>
 </h3>
 <pre id="resp-details" style="font-weight: bold"></pre>
-<pre id="resp-data" ></pre>
-
+<pre id="resp-data" style="max-height: 200px;overflow: auto;font-size: 80%;background-color: #eeeeee"></pre>
+</div>
 <script>
     const params = new URLSearchParams(window.location.search);
 
