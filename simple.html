@@ -85,14 +85,11 @@
         const header = (h) => resp.headers.get(h);
         set(
             "resp-details",
-            `Got response from ${api}:
+            `Got response from ${api} - ${resp.status} - [${resp.statusText}]
 
-        Response status : ${resp.status} - [${resp.statusText}]
-
-        Some Headers :
           ff-trace-id : ${header("ff-trace-id")}
-          ff-tenant-id : ${header("ff-tenant-id")}
-          ff-apim-reason: ${header("ff-apim-reason")}`
+          ff-apim-reason: ${header("ff-apim-reason")}
+          fficaas-backend-time-ms:${header("fficaas-backend-time-ms")}`
         );
         return resp;
     }
