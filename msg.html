@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Messaging Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<span id="info"></span>
+<label for="text">Text</label>
+<textarea id="text"></textarea>
+<button id="send" onclick="send()">Send</button>
+<script>
+
+    function onSandboxMessage(message){
+        console.log("receivedMsg:", message);
+    }
+
+    function send() {
+        const text = document.getElementById('text').value;
+        const sent = client.send("/app/tenants/sandbox", {}, JSON.stringify({text}));
+        console.log("sent:", sent);
+    }
+
+    const url = "wss://www.localhost:8443/messaging";
+    const client = Stomp.client(url);
+    client.connect({}, function(frame) {
+        console.log('Connected: ' + frame);
+        client.subscribe("/topic/tenants.sandbox", onSandboxMessage);
+    });
+</script>
+</body>
+</html>
