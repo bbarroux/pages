@@ -26,7 +26,7 @@
     const client = Stomp.client(url);
     client.connect({}, function(frame) {
         console.log('Connected: ' + frame);
-        client.subscribe("/topic/tenants", onSandboxMessage);
+        client.subscribe("/topic/tenants/sandbox", onSandboxMessage);
     });
 </script>
 </body>
