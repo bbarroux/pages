@@ -11,18 +11,18 @@
 <textarea id="text"></textarea>
 <button id="send" onclick="send()">Send</button>
 <script>
-
+    const host = window.location.host;
     function onSandboxMessage(message){
         console.log("receivedMsg:", message);
     }
 
     function send() {
         const text = document.getElementById('text').value;
-        const sent = client.send("/app/tenants/sandbox", {}, JSON.stringify({text}));
+        const sent = client.send("/app/tenant", {}, JSON.stringify({text}));
         console.log("sent:", sent);
     }
 
-    const url = "wss://www.localhost:8443/messaging";
+    const url = `wss://www.localhost:8443/messaging/${host}`;
     const client = Stomp.client(url);
     client.connect({}, function(frame) {
         console.log('Connected: ' + frame);
