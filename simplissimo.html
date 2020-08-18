@@ -9,28 +9,23 @@
     (async function () {
         const set = (id, text) => document.getElementById(id).innerText += text;
         const server = "https://go.fficaas.net";
-        const host = window.location.host;
-        const redirectUri = window.location.origin + window.location.pathname;
         const params = new URLSearchParams(window.location.search);
-        const tenant = params.get("tenant");
-        const idp = params.get("idp");
 
-        const req = {credentials: "include", cache: "no-cache"};
-        const signin = (t, i) => document.location = `${server}/signin/${t}/${i}?redirect_uri=${redirectUri}`
-        const fetchJson = url => fetch(url, req).then(r => r.json()).catch(error => ({error}));
+        const signin = (t, i, l) => document.location = `${server}/signin/${t}/${i}?redirect_uri=${l.origin}${l.pathname}`
+        const fetchJson = url => fetch(url, {credentials: "include"}).then(r => r.json()).catch(error => ({error}));
 
         const apis = {
             employee: "total-lending/documents/v2/document-types",
             consumer: "retail-us/me/account/v1/accounts/extendedWithDetails"
         }
-        if (tenant && idp) {
-            signin(tenant, idp)
+        if (params.get("tenant") && params.get("idp")) {
+            signin(params.get("tenant"), params.get("idp"), window.location)
         } else {
-            const usr = await fetchJson(`${server}/user/${host}`);
+            const usr = await fetchJson(`${server}/user`);
             set("welcome", `Signed in as ${usr.sub} (on ${usr.tenant} - ${usr.idp})`);
-            if (!usr.access) signin(usr.tenant, usr.idp)
+            if (!usr.access) signin(usr.tenant, usr.idp, window.location)
 
-            const data = await fetchJson(`${server}/api/${host}/${apis[usr.idp]}`);
+            const data = await fetchJson(`${server}/api/${apis[usr.idp]}`);
             set("data", JSON.stringify(data, null, 2));
         }
     })();
