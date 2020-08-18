@@ -256,19 +256,15 @@
             }
         },
         async created() {
-            const connected = fetch(`https://${this.fficaas()}/user/${this.domain()}`,{credentials:"include",cache:"no-cache"}).then(r=>r.json());
-            const apis = fetch(`https://${this.fficaas()}/api/${this.domain()}/api-catalog/v1/api-versions`, {credentials: 'include'}).then(r=>r.json());
+            const connected = fetch(`https://${this.fficaas()}/user`,{credentials:"include",cache:"no-cache"}).then(r=>r.json());
+            const apis = fetch(`https://${this.fficaas()}/api/api-catalog/v1/api-versions`, {credentials: 'include'}).then(r=>r.json());
             this.user = await connected;
             this.apiCatalog.apiVersions = (await apis).items;
-
         },
         methods: {
             fficaas() {
                 const params = new URLSearchParams(window.location.search);
                 return params.get("fficaas") || "go.fficaas.net";
-            },
-            domain(){
-                return window.location.host
             },
             addHeader() {
                 this.headers.push({id: this.headerSequence++, name: '', value: ''})
@@ -279,7 +275,7 @@
                 if (!api || (this.selectedApi && api.apiVersionId === this.selectedApi.apiVersionId)) return;
                 this.selectedApi = api;
                 if (!api.swaggerJson) {
-                    fetch(api._links.swagger.href.replace(/.*(\/api-catalog\/v1)/, `https://${this.fficaas()}/api/${this.domain()}$1`), {credentials: "include"})
+                    fetch(api._links.swagger.href.replace(/.*(\/api-catalog\/v1)/, `https://${this.fficaas()}/api/$1`), {credentials: "include"})
                         .then(r => r.json())
                         .then(json => {
                             this.selectedApi.swaggerJson = json
@@ -308,7 +304,7 @@
                     req.body = this.body;
                 }
                 const apiPath = this.path.startsWith("/")?this.path:"/"+this.path;
-                this.response = await fetch(`https://${this.fficaas()}/api/${this.domain()}${apiPath}`, req)
+                this.response = await fetch(`https://${this.fficaas()}/api/${apiPath}`, req)
                 this.responseReceived = true;
                 this.sending = false;
                 this.responseData = await this.response.text();
