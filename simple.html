@@ -78,7 +78,7 @@
         welcome(user);
         if (user.access) {
             const start = new Date();
-            fetch(`${server()}/api/${host}/${apis[user.idp]}`, REQ)
+            fetch(`${server()}/api/${apis[user.idp]}`, REQ)
                 .then(r => displayHeaders(r, apis[user.idp], start))
                 .then((resp) => resp.json())
                 .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
@@ -112,7 +112,7 @@
     }
 
     set("host", `Welcome on ${host}`)
-    fetch(`${server()}/user/${host}`, REQ).then(checkLogin).catch(() => show("loginform"));
+    fetch(`${server()}/user`, REQ).then(checkLogin).catch(() => show("loginform"));
 </script>
 </body>
 </html>

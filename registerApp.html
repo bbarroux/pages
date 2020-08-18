@@ -181,7 +181,7 @@
     }
 
     set("host", `Welcome on ${host}`)
-    fetch(`${server()}/user/${host}`, REQ).then(checkLogin).catch(() => show("loginform"));
+    fetch(`${server()}/user`, REQ).then(checkLogin).catch(() => show("loginform"));
 </script>
 </body>
 </html>

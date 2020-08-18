@@ -22,7 +22,7 @@
         console.log("sent:", sent);
     }
 
-    const url = `wss://www.localhost:8443/messaging/${host}`;
+    const url = `wss://www.localhost:8443/messaging`;
     const client = Stomp.client(url);
     client.connect({}, function(frame) {
         console.log('Connected: ' + frame);
