@@ -275,7 +275,7 @@
                 if (!api || (this.selectedApi && api.apiVersionId === this.selectedApi.apiVersionId)) return;
                 this.selectedApi = api;
                 if (!api.swaggerJson) {
-                    fetch(api._links.swagger.href.replace(/.*(\/api-catalog\/v1)/, `https://${this.fficaas()}/api/$1`), {credentials: "include"})
+                    fetch(api._links.swagger.href.replace(/.*\/(api-catalog\/v1)/, `https://${this.fficaas()}/api/$1`), {credentials: "include"})
                         .then(r => r.json())
                         .then(json => {
                             this.selectedApi.swaggerJson = json
