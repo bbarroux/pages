@@ -304,7 +304,7 @@
                     req.body = this.body;
                 }
                 const apiPath = this.path.startsWith("/")?this.path:"/"+this.path;
-                this.response = await fetch(`https://${this.fficaas()}/api/${apiPath}`, req)
+                this.response = await fetch(`https://${this.fficaas()}/api${apiPath}`, req)
                 this.responseReceived = true;
                 this.sending = false;
                 this.responseData = await this.response.text();
