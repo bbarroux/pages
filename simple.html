@@ -65,7 +65,7 @@
     const REQ = {credentials: "include", cache: "no-cache"};
     const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
 
-    const signin = () => nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
+    const signin = () => nav(`${server()}/login/${tenant()}/${idp()}?${URI_PARAM}`);
 
     const signout = () => nav(`${server()}/signout?${URI_PARAM}`);
 
