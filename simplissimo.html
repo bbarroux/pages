@@ -6,30 +6,30 @@
 <pre id="error" style="color:red"></pre>
 <pre id="data"></pre>
 <script>
-    (async function () {
-        const set = (id, text) => document.getElementById(id).innerText += text;
-        const server = "https://go.fficaas.net";
-        const params = new URLSearchParams(window.location.search);
+    const set = (id, text) => document.getElementById(id).innerText += text;
+    const server = "https://go.fficaas.net";
+    const params = new URLSearchParams(window.location.search);
 
+    const apis = {
+        EMPLOYEE: "total-lending/documents/v2/document-types",
+        CONSUMER: "retail-us/me/account/v1/accounts/extendedWithDetails"
+    };
+
+    (async function () {
         const signin = (t, i, l) => document.location = `${server}/signin/${t}/${i}?redirect_uri=${l.origin}${l.pathname}`
         const fetchJson = url => fetch(url, {credentials: "include"}).then(r => r.json()).catch(error => ({error}));
 
-        const apis = {
-            employee: "total-lending/documents/v2/document-types",
-            consumer: "retail-us/me/account/v1/accounts/extendedWithDetails"
-        }
         if (params.get("tenant") && params.get("idp")) {
             signin(params.get("tenant"), params.get("idp"), window.location)
         } else {
             const usr = await fetchJson(`${server}/user`);
-            set("welcome", `Signed in as ${usr.sub} (on ${usr.tenant} - ${usr.idp})`);
+            set("welcome", `${usr.name} (${usr.tenant} - ${usr.idp})`);
             if (!usr.access) signin(usr.tenant, usr.idp, window.location)
 
             const data = await fetchJson(`${server}/api/${apis[usr.idp]}`);
             set("data", JSON.stringify(data, null, 2));
         }
     })();
-
 </script>
 </body>
 </html>

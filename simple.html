@@ -59,8 +59,8 @@
     const nav = (url) => (document.location = url);
 
     const apis = {
-        employee: "total-lending/documents/v2/document-types",
-        consumer: "retail-us/me/account/v1/accounts/extendedWithDetails"
+        EMPLOYEE: "total-lending/documents/v2/document-types",
+        CONSUMER: "retail-us/me/account/v1/accounts/extendedWithDetails"
     }
     const REQ = {credentials: "include", cache: "no-cache"};
     const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
@@ -91,7 +91,7 @@
     }
 
     function welcome(user) {
-        set("info", `${user.sub} (on ${user.tenant}/${user.idp})`);
+        set("info", `${user.name} (on ${user.tenant}/${user.idp})`);
         hide("loginform");
         show("actions");
     }
@@ -104,7 +104,6 @@
 (${api})
 
   ff-trace-id : ${header("ff-trace-id")}
-  ff-apim-reason: ${header("ff-apim-reason")}
   fficaas-backend-time-ms: ${header("fficaas-backend-time-ms")}`
         );
         show("resp")
