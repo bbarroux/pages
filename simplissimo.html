@@ -25,9 +25,10 @@
             const usr = await fetchJson(`${server}/user`);
             set("welcome", `${usr.name} (${usr.tenant} - ${usr.idp})`);
             if (!usr.access) signin(usr.tenant, usr.idp, window.location)
-
-            const data = await fetchJson(`${server}/api/${apis[usr.idp]}`);
-            set("data", JSON.stringify(data, null, 2));
+            else{
+                const data = await fetchJson(`${server}/api/${apis[usr.idp]}`);
+                set("data", JSON.stringify(data, null, 2));
+            }
         }
     })();
 </script>
