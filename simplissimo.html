@@ -21,8 +21,8 @@
             const signin = (t, i, l) => {
                 const url = `${server}/login/${t}/${i}?redirect_uri=${l.origin}${l.pathname}`;
                 window.top === window.self
-                    ? nav(url)
-                    : window.open(url, "login", "toolbar=no,scrollbars=yes,resizable=yes,top=500,left=500,width=400,height=400")
+                    ? window.location = url
+                    : window.open(url, "login", "toolbar=no,scrollbars=yes,resizable=yes,top=300,left=300,width=400,height=400")
             }
             const fetchJson = url => fetch(url, {credentials: "include"}).then(r => r.json()).catch(error => ({error}));
 
