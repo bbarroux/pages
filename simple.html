@@ -102,7 +102,7 @@
     </div>
 </div>
 <script>
-    if (window.opener != null) {
+    if (window.opener && window.opener !== window) {
         window.opener.location.reload();
         window.close();
     }
