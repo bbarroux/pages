@@ -2,10 +2,25 @@
 <head>
     <title>Delegated signin test</title>
     <style>
-        iframe{border:1px solid black;height: 250px;width: 100%;border-radius: 5px}
-        body{font-family: Verdana, Arial, sans-serif;padding: 10px 100px}
-        td{padding: 10px}
-        h1{border-bottom: 1px solid #ccc}
+        iframe {
+            border: 1px solid black;
+            height: 250px;
+            width: 100%;
+            border-radius: 5px
+        }
+
+        body {
+            font-family: Verdana, Arial, sans-serif;
+            padding: 10px 100px
+        }
+
+        td {
+            padding: 10px
+        }
+
+        h1 {
+            border-bottom: 1px solid #ccc
+        }
     </style>
 </head>
 <body>
@@ -32,10 +47,31 @@
 </h3>
 <table width="100%" style="display:none" id="iframes-table">
     <tr>
+        <th>github pages</th>
+        <th>amazon s3</th>
         <th>Azure blob</th>
     </tr>
     <tr>
-        <td style="padding:10px"><iframe id="ifr6"></iframe></td>
+        <td style="padding:10px">
+            <iframe id="ifr1"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr2"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr3"></iframe>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:10px">
+            <iframe id="ifr4"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr5"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr6"></iframe>
+        </td>
     </tr>
 </table>
 
@@ -56,7 +92,7 @@
     const REQ = {credentials: "include", cache: "no-cache"};
     const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
 
-    const signin = () => nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
+    const signin = () => nav(`${server()}/login/${tenant()}/${idp()}?${URI_PARAM}`);
 
     const signout = () => nav(`${server()}/signout?${URI_PARAM}`);
 
@@ -69,9 +105,11 @@
         welcome(user);
         if (user.access) {
             show("iframes-table")
-            getById("ifr6").src="https://p21d11107027001.blob.core.windows.net/fficaas/simple.html?fficaas="+server()
-        }else{
-            getById("tenant").value=user.tenant;
+            setTimeout(() => {
+                getById("ifr6").src = "https://p21d11107027001.blob.core.windows.net/fficaas/simplissimo.html"
+            }, 2000);
+        } else {
+            getById("tenant").value = user.tenant;
             getById("idp").value = user.idp.toLowerCase();
             show("loginform")
         }
@@ -80,14 +118,14 @@
     function welcome(user) {
         hide("loginform");
         set("error", "");
-        const banner = `Signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`;
+        const banner = `Signed in as ${user.name} (on ${user.tenant} - ${user.idp})`;
         set("info", banner);
         show("signout");
         show("playground");
     }
 
     set("host", `Welcome on ${document.location.host}`)
-    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin);
+    fetch(`${server()}/user`, REQ).then(checkLogin);
 </script>
 </body>
 </html>
