@@ -2,10 +2,25 @@
 <head>
     <title>Delegated signin test</title>
     <style>
-        iframe{border:1px solid black;height: 250px;width: 100%;border-radius: 5px}
-        body{font-family: Verdana, Arial, sans-serif;padding: 10px 100px}
-        td{padding: 10px}
-        h1{border-bottom: 1px solid #ccc}
+        iframe {
+            border: 1px solid black;
+            height: 250px;
+            width: 100%;
+            border-radius: 5px
+        }
+
+        body {
+            font-family: Verdana, Arial, sans-serif;
+            padding: 10px 100px
+        }
+
+        td {
+            padding: 10px
+        }
+
+        h1 {
+            border-bottom: 1px solid #ccc
+        }
     </style>
 </head>
 <body>
@@ -37,14 +52,26 @@
         <th>Azure blob</th>
     </tr>
     <tr>
-        <td style="padding:10px"><iframe id="ifr1"></iframe></td>
-        <td style="padding:10px"><iframe id="ifr2"></iframe></td>
-        <td style="padding:10px"><iframe id="ifr3"></iframe></td>
+        <td style="padding:10px">
+            <iframe id="ifr1"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr2"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr3"></iframe>
+        </td>
     </tr>
     <tr>
-        <td style="padding:10px"><iframe id="ifr4"></iframe></td>
-        <td style="padding:10px"><iframe id="ifr5"></iframe></td>
-        <td style="padding:10px"><iframe id="ifr6"></iframe></td>
+        <td style="padding:10px">
+            <iframe id="ifr4"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr5"></iframe>
+        </td>
+        <td style="padding:10px">
+            <iframe id="ifr6"></iframe>
+        </td>
     </tr>
 </table>
 
@@ -78,15 +105,16 @@
         welcome(user);
         if (user.access) {
             show("iframes-table")
-            getById("ifr1").src="https://bbarroux.github.io/pages/simple.html"
-            getById("ifr2").src="https://sso-demo.s3.eu-central-1.amazonaws.com/simple.html"
-            getById("ifr3").src="https://p21d11107027001.blob.core.windows.net/fficaas/simple.html"
-
-            getById("ifr4").src="https://bbarroux.github.io/pages/simplissimo.html"
-            getById("ifr5").src="https://sso-demo.s3.eu-central-1.amazonaws.com/simplissimo.html"
-            getById("ifr6").src="https://p21d11107027001.blob.core.windows.net/fficaas/simplissimo.html"
-        }else{
-            getById("tenant").value=user.tenant;
+            getById("ifr1").src = "https://bbarroux.github.io/pages/simple.html"
+            getById("ifr2").src = "https://sso-demo.s3.eu-central-1.amazonaws.com/simple.html"
+            getById("ifr3").src = "https://p21d11107027001.blob.core.windows.net/fficaas/simple.html"
+            setTimeout(() => {
+                getById("ifr4").src = "https://bbarroux.github.io/pages/simplissimo.html"
+                getById("ifr5").src = "https://sso-demo.s3.eu-central-1.amazonaws.com/simplissimo.html"
+                getById("ifr6").src = "https://p21d11107027001.blob.core.windows.net/fficaas/simplissimo.html"
+            }, 1000)
+        } else {
+            getById("tenant").value = user.tenant;
             getById("idp").value = user.idp.toLowerCase();
             show("loginform")
         }
