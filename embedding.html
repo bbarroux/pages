@@ -65,7 +65,7 @@
     const REQ = {credentials: "include", cache: "no-cache"};
     const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
 
-    const signin = () => nav(`${server()}/signin/${tenant()}/${idp()}?${URI_PARAM}`);
+    const signin = () => nav(`${server()}/login/${tenant()}/${idp()}?${URI_PARAM}`);
 
     const signout = () => nav(`${server()}/signout?${URI_PARAM}`);
 
@@ -95,14 +95,14 @@
     function welcome(user) {
         hide("loginform");
         set("error", "");
-        const banner = `Signed in as ${user.sub} (on ${user.tenant} - ${user.idp})`;
+        const banner = `Signed in as ${user.name} (on ${user.tenant} - ${user.idp})`;
         set("info", banner);
         show("signout");
         show("playground");
     }
 
     set("host", `Welcome on ${document.location.host}`)
-    fetch(`${server()}/user/${window.location.host}`, REQ).then(checkLogin);
+    fetch(`${server()}/user`, REQ).then(checkLogin);
 </script>
 </body>
 </html>
