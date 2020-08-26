@@ -16,7 +16,7 @@
     };
 
     (async function () {
-        const signin = (t, i, l) => document.location = `${server}/signin/${t}/${i}?redirect_uri=${l.origin}${l.pathname}`
+        const signin = (t, i, l) => document.location = `${server}/login/${t}/${i}?redirect_uri=${l.origin}${l.pathname}`
         const fetchJson = url => fetch(url, {credentials: "include"}).then(r => r.json()).catch(error => ({error}));
 
         if (params.get("tenant") && params.get("idp")) {
