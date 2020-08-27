@@ -43,7 +43,6 @@
 <h3>
     <span id="info"></span>
     <button id="signout" style="display: none;" onclick="signout()">Sign Out</button>
-    <a id="playground" href="playground.html" style="display:none">Playground</a>
 </h3>
 <table width="100%" style="display:none" id="iframes-table">
     <tr>
@@ -130,7 +129,6 @@
         const banner = `Signed in as ${user.name} (on ${user.tenant} - ${user.idp})`;
         set("info", banner);
         show("signout");
-        show("playground");
     }
 
     set("host", `Welcome on ${document.location.host}`)
