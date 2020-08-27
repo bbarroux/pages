@@ -35,8 +35,8 @@
                         console.log(`User logged in ${user.name}.`)
                         resolve({
                             user,
-                            fetch: (api, init) => request(`/api/${api}`, init),
-                            fetchJson: (api, init) => requestJson(`/api/${api}`, init),
+                            fetch: (api, init) => request(`api/${api}`, init),
+                            fetchJson: (api, init) => requestJson(`api/${api}`, init),
                             signout: (url) => (window.location = `${server}/signout?redirect_uri=${url || window.location.href}`)
                         });
                     } else {
@@ -53,7 +53,7 @@
                                 reject("Tenant and Idp must be defined");
                             }
                         } else {
-                            console.log(`init login on ${signinTenant}/${signinIdp}`)
+                            console.log(`initiating login on ${signinTenant}/${signinIdp}`)
                             window.location = `https://${server}/login/popup/${signinTenant}/${signinIdp}?redirect_uri=${window.location.href}`;
                             //promise never resolved
                         }
