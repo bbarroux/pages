@@ -1,12 +1,74 @@
 <html lang="en">
 <body>
 <pre>Not logged in</pre>
-<script src="https://go.fficaas.net/fficaas.js"></script>
+<script>
+    const FFAL = {
+        login(tenant, idp, showForm) {
+            const params = new URLSearchParams(window.location.search);
+            const server = params.get("fficaas") || "go.fficaas.net";
+            const formEltStyle = `padding: 4px 6px;margin:5px; border: 1px solid #dac1ff5e;color: #7952b3;border-radius: 3px;margin-right: 20px;box-shadow: inset 0 1px 2px rgba(0, 0, 0, .39), 0 -1px 1px #FFF, 0 1px 0 #FFF`
+            const formHtml = `
+                    <div style="position:absolute;width:100%;height:100%;opacity:0.3;z-index:100;background:#000;"></div>
+                    <div style="position:absolute;width: 300px; padding:20px; height: 200px; top:0;left:0; bottom:0; right:0;margin: auto; overflow: auto; z-index:101;background-color: white">
+                        <label for="ffs-tenant">Tenant&nbsp;</label>
+                        <input id="ffs-tenant" checked="checked"  style="${formEltStyle}"><br/>
+                        <label for="ffs-idp">Idp Channel&nbsp;</label>
+                        <select id="ffs-idp" style="${formEltStyle}">
+                            <option value="employee">Employee</option>
+                            <option value="consumer">Consumer</option>
+                        </select><br/>
+                        <button onclick="
+                            const val=(id)=>document.getElementById(id).value;
+                            window.location = 'https://${server}/login/popup/'+ val('ffs-tenant') + '/' + val('ffs-idp') + '?redirect_uri=${window.location.href}'
+                            ">Sign In</button>
+                    </div>
+                    `;
+            const request = (relUrl, init) => fetch(`https://${server}/${relUrl}`, {
+                ...(init || {}),
+                credentials: "include"
+            });
+            const requestJson = (relUrl, init) => request(relUrl, init).then(r => r.json());
+
+            return new Promise((resolve, reject) => {
+                requestJson("user").then(user => {
+                    if (user.access) {
+                        console.log(`User logged in ${user.name}.`)
+                        resolve({
+                            user,
+                            fetch: (api, init) => request(`/api/${api}`, init),
+                            fetchJson: (api, init) => requestJson(`/api/${api}`, init),
+                            signout: (url) => (window.location = `${server}/signout?redirect_uri=${url || window.location.href}`)
+                        });
+                    }
+                    const signinTenant = tenant || user.tenant || params.get("tenant");
+                    const signinIdp = idp || user.idp || params.get("idp");
+                    if (!signinTenant || !signinIdp) {
+                        console.log(`Missing idp or tenant (tenant:${tenant}/idp:${idp}`)
+                        if (showForm) {
+                            const loginForm = document.createElement("div")
+                            document.body.appendChild(loginForm);
+                            loginForm.innerHTML = formHtml;
+                            //promise never resolved
+                        } else {
+                            reject("Tenant and Idp must be defined");
+                        }
+                    } else {
+                        console.log(`init login on ${signinTenant}/${signinIdp}`)
+                        window.location = `https://${server}/login/popup/${signinTenant}/${signinIdp}?redirect_uri=${window.location.href}`;
+                        //promise never resolved
+                    }
+                }).catch(e => reject("Error while checking connection status : " + e));
+
+            });
+        }
+    }
+
+</script>
 <script>
     (async () => {
-        const conn = await FFICAAS.login(null, "consumer");
-        const json = await conn.fetchJson("total-lending/documents/v2/document-types");
-        document.body.firstChild.innerText = JSON.stringify(json, null, 2);
+        const conn = await FFAL.login(null, "consumer");
+        const accounts = await conn.fetchJson("retail-us/me/account/v1/accounts/extendedWithDetails");
+        document.body.firstChild.innerText = `You have ${accounts.size()} accounts`;
     })();
 </script>
 </body>
