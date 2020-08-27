@@ -1,6 +1,6 @@
 <html lang="en">
 <body>
-<pre>Not logged in</pre>
+<pre>Please wait...</pre>
 <script>
     const FFAL = {
         login(tenant, idp, showForm) {
@@ -70,7 +70,7 @@
         const conn = await FFAL.login(null, "consumer");
         const accounts = await conn.fetchJson("retail-us/me/account/v1/accounts/extendedWithDetails");
         console.log(accounts);
-        document.body.firstChild.innerText = `You have ${accounts.length} accounts`;
+        document.body.firstChild.innerText = `You have ${accounts.length} bank accounts.`;
     })();
 </script>
 </body>
