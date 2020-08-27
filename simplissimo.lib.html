@@ -39,7 +39,7 @@
                 loginForm.innerHTML = formHtml;
             }
 
-            function getSigninUrl() {
+            function getSigninUrl(user) {
                 const signinTenant = tenant || user.tenant || params.get("tenant");
                 const signinIdp = idp || user.idp || params.get("idp");
                 if (!signinTenant || !signinIdp) return null;
@@ -47,13 +47,13 @@
             }
 
             return new Promise((resolve, reject) => {
-                requestJson("user").catch(() => ({})).then(user => {
+                requestJson("user").then(user => {
                     console.log(`got user ${user.name}`)
                     if (user.access) {
                         console.log(`User logged in ${user.name}.`)
                         resolve({user, ...connectionTpl});
                     } else {
-                        const signinUrl = getSigninUrl();
+                        const signinUrl = getSigninUrl(user);
                         if (signinUrl) {
                             console.log(`initiating login on ${signinUrl}`)
                             window.location = signinUrl;
