@@ -39,23 +39,24 @@
                             fetchJson: (api, init) => requestJson(`/api/${api}`, init),
                             signout: (url) => (window.location = `${server}/signout?redirect_uri=${url || window.location.href}`)
                         });
-                    }
-                    const signinTenant = tenant || user.tenant || params.get("tenant");
-                    const signinIdp = idp || user.idp || params.get("idp");
-                    if (!signinTenant || !signinIdp) {
-                        console.log(`Missing idp or tenant (tenant:${tenant}/idp:${idp}`)
-                        if (showForm) {
-                            const loginForm = document.createElement("div")
-                            document.body.appendChild(loginForm);
-                            loginForm.innerHTML = formHtml;
-                            //promise never resolved
-                        } else {
-                            reject("Tenant and Idp must be defined");
-                        }
                     } else {
-                        console.log(`init login on ${signinTenant}/${signinIdp}`)
-                        window.location = `https://${server}/login/popup/${signinTenant}/${signinIdp}?redirect_uri=${window.location.href}`;
-                        //promise never resolved
+                        const signinTenant = tenant || user.tenant || params.get("tenant");
+                        const signinIdp = idp || user.idp || params.get("idp");
+                        if (!signinTenant || !signinIdp) {
+                            console.log(`Missing idp or tenant (tenant:${tenant}/idp:${idp})`)
+                            if (showForm) {
+                                const loginForm = document.createElement("div")
+                                document.body.appendChild(loginForm);
+                                loginForm.innerHTML = formHtml;
+                                //promise never resolved
+                            } else {
+                                reject("Tenant and Idp must be defined");
+                            }
+                        } else {
+                            console.log(`init login on ${signinTenant}/${signinIdp}`)
+                            window.location = `https://${server}/login/popup/${signinTenant}/${signinIdp}?redirect_uri=${window.location.href}`;
+                            //promise never resolved
+                        }
                     }
                 }).catch(e => reject("Error while checking connection status : " + e));
 
