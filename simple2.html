@@ -1,0 +1,117 @@
+<html lang="en">
+<head>
+    <title>Delegated signin test</title>
+    <style>
+        body{font-family: Verdana, Arial, sans-serif;margin: 0}
+        h1 {background-color:#7952b3;color: white;padding: 10px 100px}
+        h1 #actions{float:right;font-size:40%;display: none;text-align: right}
+        #info{font-weight:normal;line-height:3em;font-style: italic}
+        h1 a{color: white !important;padding-left:10px;}
+        button{background-color:#7952b3;border:none;color:white;padding:5px 7px;border-radius: 3px;font-weight: bold}
+        .main{padding: 0 100px}
+        pre{padding: 10px}
+        #resp-details{border-radius:3px;float: right;background-color:#7952b3;color:white; margin-right:10px;font-family:verdana,Arial,sans-serif;font-size:80%}
+        #resp-data{font-size: 80%;background-color: #eeeeee}
+        .form-elt{padding:4px 6px;border: 1px solid #dac1ff5e;color: #7952b3;border-radius: 3px;margin-right: 20px;box-shadow: inset 0 1px 2px rgba(0,0,0,.39), 0 -1px 1px #FFF, 0 1px 0 #FFF}
+    </style>
+</head>
+<body>
+<h1>
+    <span id="actions">
+        <a href="playground.html">Playground</a>
+        <a href="#" onclick="signout()">Sign Out</a>
+        <br/><span id="info"></span>
+    </span>
+    <span id="host"></span>
+</h1>
+<div class="main">
+    <!--login form shown if no sso session found -->
+    <div id="loginform" style="display: none;">
+        <label for="tenant">Tenant&nbsp;</label>
+        <input id="tenant" checked="checked" class="form-elt"/>
+        <label for="idp">Idp Channel&nbsp;</label>
+        <select id="idp" class="form-elt">
+            <option value="employee">Employee</option>
+            <option value="consumer">Consumer</option>
+        </select>
+        <button onclick="signin()">Sign In</button>
+    </div>
+    <!-- page displayed if an sso session is initiated -->
+
+    <div id="resp" style="display: none">
+        <pre id="resp-details"></pre>
+        <pre id="resp-data"></pre>
+    </div>
+</div>
+<script>
+    const params = new URLSearchParams(window.location.search);
+
+    const host = window.location.host;
+    const getById = (id) => document.getElementById(id);
+    const val = (id) => getById(id).value;
+    const show = (id) => (getById(id).style.display = "initial");
+    const hide = (id) => (getById(id).style.display = "none");
+    const set = (id, t) => (getById(id).innerText = t);
+
+    const server = () => params.get("fficaas") || "https://go.fficaas.net";
+    const tenant = () => params.get("tenant") || val("tenant");
+    const idp = () => params.get("idp") || val("idp");
+    const nav = (url) => (document.location = url);
+
+    const apis = {
+        EMPLOYEE: "total-lending/documents/v2/document-types",
+        CONSUMER: "retail-us/me/account/v1/accounts/extendedWithDetails"
+    }
+    const REQ = {credentials: "include", cache: "no-cache"};
+    const URI_PARAM = "redirect_uri=" + encodeURIComponent(window.location);
+
+    const signin = () => nav(`${server()}/login/popup/${tenant()}/${idp()}?${URI_PARAM}`);
+
+    const signout = () => nav(`${server()}/signout?${URI_PARAM}`);
+
+    const checkLogin = (resp) => {
+        if (!resp.ok) show("loginform");
+        else resp.json().then(init);
+    };
+
+    function init(user) {
+        welcome(user);
+        if (user.access) {
+            const start = new Date();
+            fetch(`${server()}/api/${apis[user.idp]}`, REQ)
+                .then(r => displayHeaders(r, apis[user.idp], start))
+                .then((resp) => resp.json())
+                .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
+                .catch((e) => set("resp-data", e));
+        } else {
+            getById("tenant").value = user.tenant;
+            getById("idp").value = user.idp.toLowerCase();
+            show("loginform")
+        }
+    }
+
+    function welcome(user) {
+        set("info", `${user.name} (on ${user.tenant}/${user.idp})`);
+        hide("loginform");
+        show("actions");
+    }
+
+    function displayHeaders(resp, api, start) {
+        const header = (h) => resp.headers.get(h);
+        set(
+            "resp-details",
+            `Got Response from [${resp.status} - ${resp.statusText}] in ${new Date() - start}ms
+(${api})
+
+  ff-trace-id : ${header("ff-trace-id")}
+  fficaas-backend-time-ms: ${header("fficaas-backend-time-ms")}`
+        );
+        show("resp")
+        return resp;
+    }
+
+    set("host", `Welcome on ${host}`)
+    fetch(`${server()}/user`, REQ).then(checkLogin).catch(() => show("loginform"));
+</script>
+</body>
+</html>
