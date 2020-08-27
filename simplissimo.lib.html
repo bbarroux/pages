@@ -4,7 +4,7 @@
 <script src="https://go.fficaas.net/fficaas.js"></script>
 <script>
     (async () => {
-        const conn = await FFICAAS.login();
+        const conn = await FFICAAS.login(null, "consumer");
         const json = await conn.fetchJson("total-lending/documents/v2/document-types");
         document.body.firstChild.innerText = JSON.stringify(json, null, 2);
     })();
