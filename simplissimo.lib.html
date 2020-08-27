@@ -69,7 +69,8 @@
     (async () => {
         const conn = await FFAL.login(null, "consumer");
         const accounts = await conn.fetchJson("retail-us/me/account/v1/accounts/extendedWithDetails");
-        document.body.firstChild.innerText = `You have ${accounts.size()} accounts`;
+        console.log(accounts);
+        document.body.firstChild.innerText = `You have ${accounts.length} accounts`;
     })();
 </script>
 </body>
