@@ -1,0 +1,55 @@
+<html lang="en">
+<head>
+    <title>Delegated signin test</title>
+    <style>
+        body {font-family: Verdana, Arial, sans-serif;margin: 0}
+        h1 {background-color: #7952b3;color: white;padding: 10px 100px}
+        h1 #actions {float: right;font-size: 40%;display: none;text-align: right}
+        #info {font-weight: normal;line-height: 3em;font-style: italic}
+        h1 a {color: white !important;padding-left: 10px;}
+        button {background-color: #7952b3;border: none;color: white;padding: 5px 7px;border-radius: 3px;font-weight: bold}
+        .main {padding: 0 100px}
+        pre {padding: 10px}
+        #resp-details {border-radius: 3px;float: right;background-color: #7952b3;color: white;margin-right: 10px;font-family: verdana, Arial, sans-serif;font-size: 80%}
+        #resp-data {font-size: 80%;background-color: #eeeeee}
+    </style>
+</head>
+<body>
+<h1>
+    <span id="actions">
+        <a href="playground.html">Playground</a>
+        <a href="#" onclick="FFICAAS.signout()">Sign Out</a>
+        <br/><span id="info"></span>
+    </span>
+    <span id="host"></span>
+</h1>
+<div class="main">
+    <!--login form shown if no sso session found -->
+    <div id="resp" style="display: none">
+        <pre id="resp-details"></pre>
+        <pre id="resp-data"></pre>
+    </div>
+</div>
+<script src="https://go.fficaas.net/fficaas.js"></script>
+<script>
+    const set = (id, t) => (document.getElementById(id).innerText = t);
+    const apis = {
+        EMPLOYEE: "total-lending/documents/v2/document-types",
+        CONSUMER: "retail-us/me/account/v1/accounts/extendedWithDetails"
+    }
+
+    function init(connection) {
+        const user = connection.user;
+        set("info", `${user.name} (on ${user.tenant}/${user.idp})`);
+        show("actions");
+        connection.api(apis[user.idp])
+            .then((resp) => resp.json())
+            .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
+            .catch((e) => set("resp-data", e));
+    }
+    set("host", `Welcome on ${window.location.host}`)
+    FFICAAS.login(null,  null, true).then(init)
+
+</script>
+</body>
+</html>
