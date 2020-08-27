@@ -10,7 +10,6 @@
         button {background-color: #7952b3;border: none;color: white;padding: 5px 7px;border-radius: 3px;font-weight: bold}
         .main {padding: 0 100px}
         pre {padding: 10px}
-        #resp-details {border-radius: 3px;float: right;background-color: #7952b3;color: white;margin-right: 10px;font-family: verdana, Arial, sans-serif;font-size: 80%}
         #resp-data {font-size: 80%;background-color: #eeeeee}
     </style>
 </head>
@@ -24,9 +23,7 @@
     <span id="host"></span>
 </h1>
 <div class="main">
-    <!--login form shown if no sso session found -->
     <div id="resp" style="display: none">
-        <pre id="resp-details"></pre>
         <pre id="resp-data"></pre>
     </div>
 </div>
@@ -42,8 +39,7 @@
         const user = connection.user;
         set("info", `${user.name} (on ${user.tenant}/${user.idp})`);
         show("actions");
-        connection.api(apis[user.idp])
-            .then((resp) => resp.json())
+        connection.fetchJson(apis[user.idp])
             .then((j) => set("resp-data", JSON.stringify(j, null, 2)))
             .catch((e) => set("resp-data", e));
     }

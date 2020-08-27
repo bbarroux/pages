@@ -1,0 +1,16 @@
+<html lang="en">
+<body>
+<pre id="resp"></pre>
+<script src="https://go.fficaas.net/fficaas.js"></script>
+<script>
+
+    function init(conn) {
+        conn.fetchJson("total-lending/documents/v2/document-types")
+            .then(j => document.getElementById("resp").innerText = JSON.stringify(j, null, 2));
+    }
+
+    FFICAAS.login(null, "consumer").then(init)
+
+</script>
+</body>
+</html>
