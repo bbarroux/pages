@@ -1,6 +1,6 @@
 <html lang="en">
 <body>
-<pre>Please wait...</pre>
+<pre>Please wait while you're being signed in...</pre>
 <script>
     const FFAL = {
         login(tenant, idp, showForm) {
@@ -28,38 +28,47 @@
                 credentials: "include"
             });
             const requestJson = (relUrl, init) => request(relUrl, init).then(r => r.json());
+            const connectionTpl = {
+                fetch: (api, init) => request(`api/${api}`, init),
+                fetchJson: (api, init) => requestJson(`api/${api}`, init),
+                signout: (url) => (window.location = `${server}/signout?redirect_uri=${url || window.location.href}`)
+            }
+            const showLoginForm = () => {
+                const loginForm = document.createElement("div")
+                document.body.appendChild(loginForm);
+                loginForm.innerHTML = formHtml;
+            }
+
+            function getSigninUrl() {
+                const signinTenant = tenant || user.tenant || params.get("tenant");
+                const signinIdp = idp || user.idp || params.get("idp");
+                if (!signinTenant || !signinIdp) return null;
+                return `https://${server}/login/popup/${signinTenant}/${signinIdp}?redirect_uri=${window.location.href}`;
+            }
 
             return new Promise((resolve, reject) => {
                 requestJson("user").then(user => {
+                    console.log(`got user ${user.name}`)
                     if (user.access) {
                         console.log(`User logged in ${user.name}.`)
-                        resolve({
-                            user,
-                            fetch: (api, init) => request(`api/${api}`, init),
-                            fetchJson: (api, init) => requestJson(`api/${api}`, init),
-                            signout: (url) => (window.location = `${server}/signout?redirect_uri=${url || window.location.href}`)
-                        });
+                        resolve({user, ...connectionTpl});
                     } else {
-                        const signinTenant = tenant || user.tenant || params.get("tenant");
-                        const signinIdp = idp || user.idp || params.get("idp");
-                        if (!signinTenant || !signinIdp) {
+                        const signinUrl = getSigninUrl();
+                        if (signinUrl) {
+                            console.log(`initiating login on ${signinUrl}`)
+                            window.location = signinUrl;
+                            //promise never resolved
+                        } else {
                             console.log(`Missing idp or tenant (tenant:${tenant}/idp:${idp})`)
                             if (showForm) {
-                                const loginForm = document.createElement("div")
-                                document.body.appendChild(loginForm);
-                                loginForm.innerHTML = formHtml;
+                                showLoginForm();
                                 //promise never resolved
                             } else {
-                                reject("Tenant and Idp must be defined");
+                                reject(`Missing idp or tenant (tenant:${tenant}/idp:${idp})`);
                             }
-                        } else {
-                            console.log(`initiating login on ${signinTenant}/${signinIdp}`)
-                            window.location = `https://${server}/login/popup/${signinTenant}/${signinIdp}?redirect_uri=${window.location.href}`;
-                            //promise never resolved
                         }
                     }
                 }).catch(e => reject("Error while checking connection status : " + e));
-
             });
         }
     }
@@ -69,8 +78,7 @@
     (async () => {
         const conn = await FFAL.login(null, "consumer");
         const accounts = await conn.fetchJson("retail-us/me/account/v1/accounts/extendedWithDetails");
-        console.log(accounts);
-        document.body.firstChild.innerText = `You have ${accounts.length} bank accounts.`;
+        document.body.firstElementChild.innerText = `You have ${accounts.length} bank accounts.`;
     })();
 </script>
 </body>
