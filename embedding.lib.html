@@ -19,7 +19,7 @@
 <script>
     const src = (id, src) => document.getElementById(id).src = `${src}/simplissimo.lib.html`;
     FFAL.login(null, "consumer", true)
-        .then(_ => document.getElementsByName("button").disabled = false);
+        .then(_ => [...document.getElementsByTagName("button")].forEach(e => e.disabled = false));
 </script>
 </body>
 </html>
