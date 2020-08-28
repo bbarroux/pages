@@ -5,7 +5,7 @@
 <script>
     (async () => {
         const ffal = await FFAL.login(null, "consumer");
-        const accounts = await ffal.fetchJson("retail-us/me/account/v1/accounts/extendedWithDetails");
+        const accounts = await ffal.fetchJson("retail-us/me/account/v1/accounts");
         document.body.firstElementChild.innerText = `You have ${accounts.length} bank accounts.`;
     })();
 </script>
