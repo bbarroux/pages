@@ -4,8 +4,8 @@
 <script src="https://go.fficaas.net/ffal.js"></script>
 <script>
     (async () => {
-        const conn = await FFAL.login(null, "consumer");
-        const accounts = await conn.fetchJson("retail-us/me/account/v1/accounts/extendedWithDetails");
+        const ffal = await FFAL.login(null, "consumer");
+        const accounts = await ffal.fetchJson("retail-us/me/account/v1/accounts/extendedWithDetails");
         document.body.firstElementChild.innerText = `You have ${accounts.length} bank accounts.`;
     })();
 </script>

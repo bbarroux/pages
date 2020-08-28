@@ -1,0 +1,25 @@
+<html lang="en">
+<head>
+    <title>Embedding (lib)</title>
+    <style>iframe {display:block; border: 1px solid #ccc;height: 200px;width: 300px;border-radius: 5px}</style>
+</head>
+<body>
+<h1>Embedding Iframes (Lib)</h1>
+
+<button disabled onclick="src('ifr1','https://bbarroux.github.io/pages')">Github</button>
+<iframe id="ifr1"></iframe>
+
+<button disabled onclick="src('ifr2','https://sso-demo.s3.eu-central-1.amazonaws.com')">AWS S3</button>
+<iframe id="ifr2"></iframe>
+
+<button disabled onclick="src('ifr3', 'https://p21d11107027001.blob.core.windows.net/fficaas')">Az Blob</button>
+<iframe id="ifr3"></iframe>
+
+<script src="https://go.fficaas.net/ffal.js"></script>
+<script>
+    const src = (id, src) => document.getElementById(id).src = `${src}/simplissimo.lib.html`;
+    FFAL.login(null, "consumer", true)
+        .then(_ => document.getElementsByName("button").disabled = false);
+</script>
+</body>
+</html>
