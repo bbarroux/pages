@@ -95,7 +95,9 @@
                     .catch((e) => set("resp-data", e));
             } else {
                 getById("tenant").value = user.tenant;
+                getById("tenant").disabled = true;
                 getById("idp").value = user.idp.toLowerCase();
+                getById("idp").disabled = true;
                 show("loginform")
             }
         }
