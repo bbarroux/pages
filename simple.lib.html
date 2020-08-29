@@ -17,7 +17,7 @@
 <h1>
     <span id="actions">
         <a href="playground.html">Playground</a>
-        <a href="#" onclick="FFICAAS.signout()">Sign Out</a>
+        <a href="#" onclick="FFAL.signout(window.location.href)">Sign Out</a>
         <br/><span id="info"></span>
     </span>
     <span id="host"></span>
@@ -29,16 +29,16 @@
 </div>
 <script src="https://go.fficaas.net/ffal.js"></script>
 <script>
-    const set = (id, t) => document.getElementById(id).innerText = t;
-    const apis = {
-        EMPLOYEE: "total-lending/documents/v2/document-types",
-        CONSUMER: "retail-us/me/account/v1/accounts/extendedWithDetails"
-    }
-    set("host", `Welcome on ${window.location.host}`)
     (async () => {
+        const apis = {
+            EMPLOYEE: "total-lending/documents/v2/document-types",
+            CONSUMER: "retail-us/me/account/v1/accounts/extendedWithDetails"
+        }
+        const set = (id, t) => document.getElementById(id).innerText = t;
+        set("host", `Welcome on ${window.location.host}`)
         const ffal = await FFAL.login(null, null, true);
         set("info", `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
-        show("actions");
+        document.getElementById("actions").style.display="inline"
         const json = await ffal.fetch(apis[ffal.user.idp]).catch(error => ({error}));
         set("resp-data", JSON.stringify(json, null, 2))
     })();
