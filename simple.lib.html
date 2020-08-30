@@ -70,7 +70,7 @@
 </div>
 <script>
     const FFAL = {
-        server: "https://" + new URLSearchParams(window.location.search).get("fficaas") || "go.fficaas.net",
+        server: "https://" + (new URLSearchParams(window.location.search).get("fficaas") || "go.fficaas.net"),
         __request: (relUrl, init) => {
             console.log(`requesting ${relUrl}`);
             return window.fetch(`${FFAL.server}/${relUrl}`, {credentials: "include", ...(init || {cache: "no-store"})})
