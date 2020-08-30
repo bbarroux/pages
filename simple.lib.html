@@ -86,9 +86,6 @@
         connection: (user) => ({user, fetch: (api, init) => FFAL.__request(`api/${api}`, init),}),
 
         login: (tenant, idp, prompt) => {
-            const error = (e) => {
-                throw new Error(e);
-            }
             const params = new URLSearchParams(window.location.search);
             const param = (comp, val, user) => val || user[comp] || params.get(comp)
                 || (prompt && window.prompt(comp)) || (() => {
@@ -119,7 +116,7 @@
         const ffal = await FFAL.login(null, null, true);
         set("info", `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
         document.getElementById("actions").style.display = "inline"
-        const json = await ffal.fetchJson(apis[ffal.user.idp]).catch(error => ({error}));
+        const json = await ffal.fetch(apis[ffal.user.idp]).then(r=>r.json()).catch(error => ({error}));
         set("resp-data", JSON.stringify(json, null, 2))
     })();
 </script>
