@@ -39,7 +39,7 @@
         const ffal = await FFAL.login(null, null, true);
         set("info", `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
         document.getElementById("actions").style.display="inline"
-        const json = await ffal.fetch(apis[ffal.user.idp]).catch(error => ({error}));
+        const json = await ffal.fetchJson(apis[ffal.user.idp]).catch(error => ({error}));
         set("resp-data", JSON.stringify(json, null, 2))
     })();
 </script>
