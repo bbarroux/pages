@@ -2,56 +2,14 @@
 <head>
     <title>Delegated signin test</title>
     <style>
-        body {
-            font-family: Verdana, Arial, sans-serif;
-            margin: 0
-        }
-
-        h1 {
-            background-color: #7952b3;
-            color: white;
-            padding: 10px 100px
-        }
-
-        h1 #actions {
-            float: right;
-            font-size: 40%;
-            display: none;
-            text-align: right
-        }
-
-        #info {
-            font-weight: normal;
-            line-height: 3em;
-            font-style: italic
-        }
-
-        h1 a {
-            color: white !important;
-            padding-left: 10px;
-        }
-
-        button {
-            background-color: #7952b3;
-            border: none;
-            color: white;
-            padding: 5px 7px;
-            border-radius: 3px;
-            font-weight: bold
-        }
-
-        .main {
-            padding: 0 100px
-        }
-
-        pre {
-            padding: 10px
-        }
-
-        #resp-data {
-            font-size: 80%;
-            background-color: #eeeeee
-        }
+        body {font-family: Verdana, Arial, sans-serif;margin: 0}
+        h1 {background-color: #7952b3;color: white;padding: 10px 100px}
+        h1 #actions {float: right;font-size: 40%;display: none;text-align: right}
+        #info {font-weight: normal;line-height: 3em;font-style: italic}
+        h1 a {color: white !important;padding-left: 10px;}
+        button {background-color: #7952b3;border: none;color: white;padding: 5px 7px;border-radius: 3px;font-weight: bold}
+        .main {padding: 0 100px}
+        #resp-data {padding: 10px; font-size: 80%;background-color: #eeeeee}
     </style>
 </head>
 <body>
@@ -68,43 +26,7 @@
         <pre id="resp-data"></pre>
     </div>
 </div>
-<script>
-    const FFAL = {
-        server: "https://" + (new URLSearchParams(window.location.search).get("fficaas") || "go.fficaas.net"),
-        __request: (relUrl, init) => {
-            console.log(`requesting ${relUrl}`);
-            return window.fetch(`${FFAL.server}/${relUrl}`, {credentials: "include", ...(init || {cache: "no-store"})})
-                .then(r => {
-                    console.log(`got response for ${relUrl} : ${r.status}`);
-                    return r
-                });
-        },
-        checkUser: () => FFAL.__request("user").then(r => r.ok ? r.json() : {}),
-
-        logout: () => window.location = `${FFAL.server}/logout`,
-
-        connection: (user) => ({user, fetch: (api, init) => FFAL.__request(`api/${api}`, init),}),
-
-        login: (tenant, idp, prompt) => {
-            const params = new URLSearchParams(window.location.search);
-            const param = (comp, val, user) => val || user[comp] || params.get(comp)
-                || (prompt && window.prompt(comp)) || (() => {
-                    throw new Error(`Missing ${comp}`)
-                })();
-            const loginUrl = (t, i) => `${FFAL.server}/login/popup/${t}/${i}?redirect_uri=${window.location.href}`;
-
-            return new Promise((resolve) => {
-                FFAL.checkUser().then(user => {
-                    if (user.access) {
-                        resolve(FFAL.connection(user));
-                    } else {
-                        window.location = loginUrl(param("tenant", tenant, user), param("idp", idp, user));//never resolves
-                    }
-                });
-            });
-        }
-    }
-</script>
+<script src="https://go.fficaas.net/ffal.js"></script>
 <script>
     (async () => {
         const apis = {
