@@ -1,0 +1,27 @@
+<html lang="en">
+<body>
+<pre>Please wait while you're being signed in...</pre><br/>
+<button id="login" style="display: none" onclick="FFAL.login(null, 'consumer').catch(e=>alert(e))">Login</button>
+<script src="https://go.fficaas.net/ffal.js"></script>
+<script>
+    (async () => {
+        const write = (t)=>document.body.firstElementChild.innerText += "\n" + t;
+        const showLogin = () => document.getElementById("login").style.display = "inline";
+        const user = await FFAL.checkUser();
+        if (user.access){
+            write(`User fully logged in and authorized: ${user.name} (${user.tenant}/${user.idp})`);
+            const ffal = await FFAL.login(null, null, true);
+            write( `Fetching accounts info for ${ffal.user.name}...`);
+            const accounts = await ffal.fetch("retail-us/me/account/v1/accounts").then(r=>r.json());
+            write(`You have ${accounts.length} bank accounts.`);
+        } else if (user.name){
+            write(`User identified, but not authorized for this app : ${user.name} (${user.tenant}/${user.idp})`)
+            showLogin();
+        } else {
+            write("No session opened for user. Tenant unknown");
+            showLogin();
+        }
+    })();
+</script>
+</body>
+</html>

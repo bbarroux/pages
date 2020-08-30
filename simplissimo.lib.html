@@ -4,11 +4,12 @@
 <script src="https://go.fficaas.net/ffal.js"></script>
 <script>
     (async () => {
+        const write = (t)=>document.body.firstElementChild.innerText = t;
         const ffal = await FFAL.login(null, "consumer");
-        document.body.firstElementChild.innerText = `Fetching accounts info for ${ffal.user.name}...`;
+        write( `Fetching accounts info for ${ffal.user.name}...`);
 
-        const accounts = await ffal.fetchJson("retail-us/me/account/v1/accounts");
-        document.body.firstElementChild.innerText = `You have ${accounts.length} bank accounts.`;
+        const accounts = await ffal.fetch("retail-us/me/account/v1/accounts").then(r=>r.json());
+        write(`You have ${accounts.length} bank accounts.`);
     })();
 </script>
 </body>
