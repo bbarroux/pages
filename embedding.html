@@ -93,7 +93,7 @@
 
     const signin = () => nav(`${server()}/login/${tenant()}/${idp()}?${URI_PARAM}`);
 
-    const signout = () => nav(`${server()}/signout?${URI_PARAM}`);
+    const signout = () => nav(`${server()}/logout`);
 
     const checkLogin = (resp) => {
         if (!resp.ok) show("loginform");
