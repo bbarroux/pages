@@ -2,15 +2,56 @@
 <head>
     <title>Delegated signin test</title>
     <style>
-        body {font-family: Verdana, Arial, sans-serif;margin: 0}
-        h1 {background-color: #7952b3;color: white;padding: 10px 100px}
-        h1 #actions {float: right;font-size: 40%;display: none;text-align: right}
-        #info {font-weight: normal;line-height: 3em;font-style: italic}
-        h1 a {color: white !important;padding-left: 10px;}
-        button {background-color: #7952b3;border: none;color: white;padding: 5px 7px;border-radius: 3px;font-weight: bold}
-        .main {padding: 0 100px}
-        pre {padding: 10px}
-        #resp-data {font-size: 80%;background-color: #eeeeee}
+        body {
+            font-family: Verdana, Arial, sans-serif;
+            margin: 0
+        }
+
+        h1 {
+            background-color: #7952b3;
+            color: white;
+            padding: 10px 100px
+        }
+
+        h1 #actions {
+            float: right;
+            font-size: 40%;
+            display: none;
+            text-align: right
+        }
+
+        #info {
+            font-weight: normal;
+            line-height: 3em;
+            font-style: italic
+        }
+
+        h1 a {
+            color: white !important;
+            padding-left: 10px;
+        }
+
+        button {
+            background-color: #7952b3;
+            border: none;
+            color: white;
+            padding: 5px 7px;
+            border-radius: 3px;
+            font-weight: bold
+        }
+
+        .main {
+            padding: 0 100px
+        }
+
+        pre {
+            padding: 10px
+        }
+
+        #resp-data {
+            font-size: 80%;
+            background-color: #eeeeee
+        }
     </style>
 </head>
 <body>
@@ -45,8 +86,14 @@
         connection: (user) => ({user, fetch: (api, init) => FFAL.__request(`api/${api}`, init),}),
 
         login: (tenant, idp, prompt) => {
+            const error = (e) => {
+                throw new Error(e);
+            }
             const params = new URLSearchParams(window.location.search);
-            const param = (comp, val, user) => val || user[comp] || params.get(comp) || (prompt && window.prompt(comp)) || throw new Error(`Missing ${comp}`);
+            const param = (comp, val, user) => val || user[comp] || params.get(comp)
+                || (prompt && window.prompt(comp)) || (() => {
+                    throw new Error(`Missing ${comp}`)
+                })();
             const loginUrl = (t, i) => `https://${FFAL.server}/login/popup/${t}/${i}?redirect_uri=${window.location.href}`;
 
             return new Promise((resolve) => {
@@ -71,7 +118,7 @@
         set("host", `Welcome on ${window.location.host}`)
         const ffal = await FFAL.login(null, null, true);
         set("info", `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
-        document.getElementById("actions").style.display="inline"
+        document.getElementById("actions").style.display = "inline"
         const json = await ffal.fetchJson(apis[ffal.user.idp]).catch(error => ({error}));
         set("resp-data", JSON.stringify(json, null, 2))
     })();
