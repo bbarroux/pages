@@ -4,7 +4,7 @@
 <script src="https://go.fficaas.net/ffal.js"></script>
 <script>
     (async () => {
-        const write = (t)=>document.body.firstElementChild.innerText = t;
+        const write = (t)=>document.body.firstElementChild.innerText += `\n${t}`;
         const ffal = await FFAL.login(null, "consumer");
         write( `Fetching accounts info for ${ffal.user.name}...`);
 
