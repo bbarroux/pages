@@ -70,10 +70,10 @@
 </div>
 <script>
     const FFAL = {
-        server: new URLSearchParams(window.location.search).get("fficaas") || "go.fficaas.net",
+        server: "https://" + new URLSearchParams(window.location.search).get("fficaas") || "go.fficaas.net",
         __request: (relUrl, init) => {
             console.log(`requesting ${relUrl}`);
-            return window.fetch(`https://${FFAL.server}/${relUrl}`, {credentials: "include", ...(init || {cache: "no-store"})})
+            return window.fetch(`${FFAL.server}/${relUrl}`, {credentials: "include", ...(init || {cache: "no-store"})})
                 .then(r => {
                     console.log(`got response for ${relUrl} : ${r.status}`);
                     return r
@@ -81,7 +81,7 @@
         },
         checkUser: () => FFAL.__request("user").then(r => r.ok ? r.json() : {}),
 
-        logout: () => window.location = `http://${FFAL.server}/logout`,
+        logout: () => window.location = `${FFAL.server}/logout`,
 
         connection: (user) => ({user, fetch: (api, init) => FFAL.__request(`api/${api}`, init),}),
 
@@ -91,7 +91,7 @@
                 || (prompt && window.prompt(comp)) || (() => {
                     throw new Error(`Missing ${comp}`)
                 })();
-            const loginUrl = (t, i) => `https://${FFAL.server}/login/popup/${t}/${i}?redirect_uri=${window.location.href}`;
+            const loginUrl = (t, i) => `${FFAL.server}/login/popup/${t}/${i}?redirect_uri=${window.location.href}`;
 
             return new Promise((resolve) => {
                 FFAL.checkUser().then(user => {
