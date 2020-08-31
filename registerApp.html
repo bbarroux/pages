@@ -88,6 +88,7 @@
 
     function registerApp() {
         const val = (id)=>document.getElementById(id).value;
+        const set = (id,text)=>document.getElementById(id).innerText = text;
         const app = {
             domain: val("domain"),
             clients: {
