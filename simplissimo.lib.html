@@ -8,10 +8,10 @@
         const ffal = await FFAL.login(null, "consumer");
         write(`Fetching accounts info for ${ffal.user.name}...`);
 
-        const accounts = await ffal.fetch("retail-us/me/account/v1/accounts").then(r => r.json());
+        const accounts = await ffal.fetch("retail-us/me/account/v1/accounts/extendedWithDetails").then(r => r.json());
         write(`You have ${accounts.length} bank accounts.`);
-        const current = accounts.flatMap(a => a.balances).filter(b => b.type === 'current').reduce((a, b) => a.amount + b.amount);
-        write(`Your total current balance is ${current}`)
+        const current = accounts.flatMap(a => a.balances).filter(b => b.type === 'current').map(b=>b.amount).reduce((a, b) => a.amount + b.amount);
+        write(`Your total current balance is $${current}.`)
     })();
 </script>
 </body>
