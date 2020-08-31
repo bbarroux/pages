@@ -87,6 +87,7 @@
     FFAL.login("francine-test", "employee").then(() => document.getElementById("appform").style.display = "block");
 
     function registerApp() {
+        const val = (id)=>document.getElementById(id).value;
         const app = {
             domain: val("domain"),
             clients: {
