@@ -100,7 +100,7 @@
         const appValid = app.domain && (credComplete(app.clients.EMPLOYEE) || credComplete(app.clients.CONSUMER));
         if (!appValid) return;
         const headers = {'Content-Type': 'application/json'}
-        FFAL.__request('/apps', {method: "post", body: JSON.stringify(app), headers})
+        FFAL.__request('apps', {method: "post", body: JSON.stringify(app), headers})
             .then(r => r.json())
             .then(j => set("register-app-response", JSON.stringify(j, null, 2)))
             .catch(e => set("register-app-response", e));
