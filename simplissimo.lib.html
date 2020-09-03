@@ -1,5 +1,6 @@
 <html lang="en">
 <body>
+<button id="logout" onclick="FFAL.logout()" style="display: none">Logout</button><br/>
 <pre>Please wait while you're being signed in...</pre>
 <script src="https://go.fficaas.net/ffal.js"></script>
 <script>
@@ -7,7 +8,7 @@
         const write = (t) => document.body.firstElementChild.innerText += `\n${t}`;
         const ffal = await FFAL.login(null, "consumer");
         write(`Fetching accounts info for ${ffal.user.name}...`);
-
+        document.getElementById("logout").style.display = "inline";
         const accounts = await ffal.fetch("retail-us/me/account/v1/accounts/extendedWithDetails").then(r => r.json());
         write(`You have ${accounts.length} bank accounts.`);
         const current = accounts.flatMap(a => a.balances).filter(b => b.type === 'current').map(b=>b.amount).reduce((a, b) => a + b, 0);
