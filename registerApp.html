@@ -45,7 +45,12 @@
 <script src="https://go.fficaas.net/ffal.js"></script>
 <script>
 
-    FFAL.login("sandbox", "employee").then(() => document.getElementById("appform").style.display = "block");
+    FFAL.login("sandbox", "employee").then(init);
+
+    function init(ffal){
+        document.getElementById("info").innerText = `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
+        document.getElementById("actions").style.display = "inline"
+    }
 
     function registerApp() {
         const val = (id)=>document.getElementById(id).value;
