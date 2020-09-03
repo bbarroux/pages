@@ -48,8 +48,8 @@
     FFAL.login("sandbox", "employee").then(init);
 
     function init(ffal){
-        document.getElementById("info").innerText = `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
-        document.getElementById("actions").style.display = "inline"
+        document.getElementById("info").innerText = `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`;
+        document.getElementById("actions").style.display = "inline";
     }
 
     function registerApp() {
