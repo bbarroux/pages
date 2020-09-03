@@ -303,7 +303,7 @@
                 if (this.body.length && this.bodyMethods.includes(this.method)) {
                     req.body = this.body;
                 }
-                const apiPath = this.path.startsWith("/")?this.path:"/"+this.path;
+                const apiPath = (this.path.startsWith("/")?this.path:"/"+this.path) + "?"+this.queryString;
                 this.response = await fetch(`https://${this.fficaas()}/api${apiPath}`, req)
                 this.responseReceived = true;
                 this.sending = false;
