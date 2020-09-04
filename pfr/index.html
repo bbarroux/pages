@@ -1,0 +1,39 @@
+<html lang="en">
+<head>
+    <title>Api Playground</title>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-14/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-14/dist/theme/default.css">
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/vue-material@1.0.0-beta-14/dist/vue-material.min.js"></script>
+    <script src="https://go.fficaas.net/ffal.js"></script>
+    <style>[v-cloak] { display: none }</style>
+</head>
+<body>
+
+<div id="app" v-cloak>
+    <span>{{ffal.user.name}}</span>
+</div>
+<script>
+    Vue.use(VueMaterial.default)
+
+    Vue.component('simple-field', {
+        props: ['label', 'value', 'disabled'],
+        template: `
+          <md-field>
+          <label>{{ label }}</label>
+          <md-input :value="value" @input="newVal=>$emit('input',newVal)" :disabled="disabled"></md-input>
+          </md-field>
+        `,
+    });
+    function init(ffal){
+        new Vue({
+            el: '#app',
+            data:()=>({
+                ffal: ffal
+            })
+        });
+    }
+    FFAL.login(null, "consumer").then(init);
+</script>
+</body>
