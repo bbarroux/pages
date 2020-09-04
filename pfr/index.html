@@ -15,6 +15,7 @@
     <span>{{ffal.user.name}}</span>
 </div>
 <script>
+    var ffal;
     Vue.use(VueMaterial.default)
 
     Vue.component('simple-field', {
@@ -27,11 +28,9 @@
         `,
     });
     function init(ffal){
+        window.ffal = ffal;
         new Vue({
-            el: '#app',
-            data:()=>({
-                ffal: ffal
-            })
+            el: '#app'
         });
     }
     FFAL.login(null, "consumer").then(init);
