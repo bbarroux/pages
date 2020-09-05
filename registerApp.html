@@ -58,14 +58,14 @@
         const val = (id)=>document.getElementById(id).value;
         const set = (id,text)=>document.getElementById(id).innerText = text;
         const app = {
-            domain: val("domain"),
+            origin: `https://${val("domain")}`,
             clients: {
                 EMPLOYEE: {"client-id": val("employee-client-id"), "client-secret": val("employee-client-secret")},
                 CONSUMER: {"client-id": val("consumer-client-id"), "client-secret": val("consumer-client-secret")}
             }
         }
         const credComplete = (cred) => cred["client-id"] && cred["client-secret"];
-        const appValid = app.domain && (credComplete(app.clients.EMPLOYEE) || credComplete(app.clients.CONSUMER));
+        const appValid = app.origin && (credComplete(app.clients.EMPLOYEE) || credComplete(app.clients.CONSUMER));
         if (!appValid) return;
         const headers = {'Content-Type': 'application/json'}
         FFAL.__request('apps', {method: "post", body: JSON.stringify(app), headers})

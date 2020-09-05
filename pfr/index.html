@@ -16,6 +16,21 @@
 </div>
 <script>
     var ffal;
+    const path=(api)=>`corporate/channels/${api}/me/v1`;
+    const API_PATHS={
+        accountAndBalances: path('accounts'),
+        beneficiaries: path('beneficiary'),
+        bankInformation: path('bank'),
+        userProfile: path('profile'),
+        counterparties: path('counterparty'),
+        fxRates: path('fx-rate'),
+        paymentsInitiation : path('payment-initiation'),
+        staticData : path('static-data'),
+        termDeposits: path('term-deposit'),
+        transactionApprovals: path('transaction-approval'),
+        transactionEnquiries: path('transaction-enquiry'),
+    }
+
     Vue.use(VueMaterial.default)
 
     Vue.component('simple-field', {
@@ -28,7 +43,7 @@
         `,
     });
     function init(ffal){
-        window.ffal = ffal;
+        Vue.prototype.;
         new Vue({
             el: '#app'
         });
