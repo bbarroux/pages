@@ -1,6 +1,7 @@
 :root {
     --bg-color: #090909;
-    --bg-hl-color:black;
+    --bg-sec-color:#1B2B0B;
+    --bg-hl-color: black;
     --fg-color: #91c65f;
     --fade-color: #4e6639;
     --hl-color: lawngreen;
@@ -17,10 +18,30 @@ body {
     color: var(--fg-color)
 }
 
+h2 {
+    border-bottom: 1px solid var(--fade-color);
+}
+
 table {
     border-collapse: collapse;
     border: 1px solid var(--fade-color);
     width: 100%;
+}
+
+table.detail-table, table.detail-table th, table.detail-table td {
+    border-color: transparent;
+}
+
+table.detail-table th {
+    text-align: right;
+}
+
+table.detail-table th::after {
+    content: " : ";
+}
+
+table.detail-table td {
+    text-align: left;
 }
 
 th {
@@ -33,15 +54,31 @@ td, th {
     padding: 1px 5px
 }
 
+
 a, a:visited {
-    color: var(--hl-color)
+    color: var(--hl-color);
+}
+
+a.btn {
+    color: var(--bg-color);
+    background-color: var(--hl-color);
+    border: 1px solid var(--hl-color);
+    padding: 6px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a.btn:hover {
+    color: var(--hl-color);
+    background-color: var(--bg-sec-color);
 }
 
 select {
     background-color: var(--bg-hl-color);
-    border-color: var(--hl-color);
-    color: var(--hl-color);
+    border-color: var(--fg-color);
+    color: var(--fg-color);
     font-family: var(--default-font);
+    padding: 4px 8px;
 }
 
 .selectable-data-table tbody tr td:first-child {
@@ -49,7 +86,13 @@ select {
     text-decoration: underline;
     cursor: pointer;
 }
-
+.selected-row td{
+    background-color: var(--bg-sec-color);
+}
+.selectable-data-table tbody tr.selected-row td:first-child {
+    text-decoration: none;
+    cursor: pointer;
+}
 .master-detail {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -71,16 +114,20 @@ select {
     padding: 2px 10px 7px 10px;
     margin-bottom: 20px;
 }
-#menu>*{
+
+#menu > * {
     vertical-align: middle;
 }
-#menu>.floated{
-    float:right;
+
+#menu > .floated {
+    float: right;
     margin-top: 9px
 }
-#menu>.title{
-    font-size:200%;
+
+#menu > .title {
+    font-size: 200%;
     margin-right: 20px;
+    font-weight: bold;
 }
 
 #menu a {

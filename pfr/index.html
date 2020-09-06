@@ -30,13 +30,14 @@
 
     </div>
     <div id="main" style="clear: both">
-    <router-view/>
+        <router-view/>
     </div>
 </div>
 <script>
     function init(ffal) {
         ffal.logout = () => FFAL.logout();
         Vue.prototype.$ffal = ffal;
+        Vue.prototype.$fetchJson = (url, init)=>ffal.fetch(url, init).then(r=>r.json())
         new Vue({el: '#app', router});
     }
 
