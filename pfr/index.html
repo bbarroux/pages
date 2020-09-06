@@ -11,6 +11,7 @@
     <script src="utils/apiPaths.js"></script>
     <script src="components/account-list.vue.js"></script>
     <script src="components/counterparty-list.vue.js"></script>
+    <script src="components/profile.vue.js"></script>
     <script src="utils/router.js"></script>
 
     <link href="css/main.css" rel="stylesheet">
@@ -22,14 +23,13 @@
         <span class="title">FinPay</span>
         <router-link to="/">Accounts</router-link>
         <router-link to="/beneficiaries">Beneficiaries</router-link>
-        <router-link to="/counterparties">Counterparties</router-link>
         <router-link to="/approvals">Approvals</router-link>
         <router-link to="/profile">Profile</router-link>
         <a href="#" @click="$ffal.logout()" class="floated">Logout</a>
         <span class="floated">{{$ffal.user.name}} ({{$ffal.user.tenant}})</span>
 
     </div>
-    <div id="main" style="clear: both">
+    <div id="main">
         <router-view/>
     </div>
 </div>

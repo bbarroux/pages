@@ -3,7 +3,7 @@ Vue.prototype.$apiPaths =  {
     accountAndBalances: path('accounts'),
     beneficiaries: path('beneficiary'),
     bankInformation: path('bank'),
-    userProfile: path('profile'),
+    profile: path('profile'),
     counterparties: path('counterparty'),
     fxRates: path('fx-rate'),
     paymentsInitiation: path('payment-initiation'),
