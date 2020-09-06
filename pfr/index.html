@@ -1,93 +1,45 @@
+<!--suppress CheckEmptyScriptTag -->
 <html lang="en">
 <head>
     <title>Api Playground</title>
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-14/dist/vue-material.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-14/dist/theme/default.css">
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/vue-material@1.0.0-beta-14/dist/vue-material.min.js"></script>
+    <script src="https://unpkg.com/vue@2.6.12"></script>
+    <script src="https://unpkg.com/vue-router@3.4.3"></script>
+    <script src="https://unpkg.com/vue-good-table@2.21.0/dist/vue-good-table.js"></script>
+
     <script src="https://go.fficaas.net/ffal.js"></script>
-    <style>[v-cloak] {
-        display: none
-    }</style>
+
+    <script src="utils/apiPaths.js"></script>
+    <script src="components/account-list.vue.js"></script>
+    <script src="components/counterparty-list.vue.js"></script>
+    <script src="utils/router.js"></script>
+
+    <link href="css/main.css" rel="stylesheet">
 </head>
 <body>
 
 <div id="app" v-cloak>
     <div id="menu">
-        <span>{{$ffal.user.name}} ({{$ffal.user.tenant}}</span>
-        <a href="#" @click="vueType='accounts'">Accounts</a>
-        <a href="#" @click="vueType='beneficiaries'">Beneficiaries</a>
-        <a href="#" @click="vueType='beneficiaries'">Counterparties</a>
-        <a href="#" @click="vueType='approvals'">Approvals</a>
-        <a href="#" @click="vueType='profile'">Profile</a>
-        <a href="#" @click="$ffal.logout()">Logout</a>
+        <span class="title">FinPay</span>
+        <router-link to="/">Accounts</router-link>
+        <router-link to="/beneficiaries">Beneficiaries</router-link>
+        <router-link to="/counterparties">Counterparties</router-link>
+        <router-link to="/approvals">Approvals</router-link>
+        <router-link to="/profile">Profile</router-link>
+        <a href="#" @click="$ffal.logout()" class="floated">Logout</a>
+        <span class="floated">{{$ffal.user.name}} ({{$ffal.user.tenant}})</span>
+
+    </div>
+    <div id="main" style="clear: both">
+    <router-view/>
     </div>
 </div>
 <script>
-    const path = (api) => `corporate/channels/${api}/me/v1`;
-    const API_PATHS = {
-        accountAndBalances: path('accounts'),
-        beneficiaries: path('beneficiary'),
-        bankInformation: path('bank'),
-        userProfile: path('profile'),
-        counterparties: path('counterparty'),
-        fxRates: path('fx-rate'),
-        paymentsInitiation: path('payment-initiation'),
-        staticData: path('static-data'),
-        termDeposits: path('term-deposit'),
-        transactionApprovals: path('transaction-approval'),
-        transactionEnquiries: path('transaction-enquiry'),
-    }
-
-    Vue.use(VueMaterial.default)
-
-    Vue.component('simple-field', {
-        props: ['label', 'value', 'disabled'],
-        template: `
-          <md-field>
-          <label>{{ label }}</label>
-          <md-input :value="value" @input="newVal=>$emit('input',newVal)" :disabled="disabled"></md-input>
-          </md-field>
-        `,
-    });
-
-    Vue.component('account-list',{
-        data:()=>({
-           accountContext:'VIEW_ACCOUNT',
-           accounts:[],
-        }),
-        template: `
-        <div>
-            <table>
-            <thead>
-            <tbocy>
-                <tr v-for="account in accounts">
-
-                </tr>
-            </tbocy>
-            </thead>
-            </table>
-        </div>
-        `,
-        methods:{
-            changeContext(){
-                const api = `${this.$ffal.$apiPaths.accountAndBalances}?accountContext=${this.accountContext}`;
-                this.$ffal.fetch(api).then(r=>r.json()).then(j=>accounts=j);
-            }
-        },
-        created:()=>{
-            this.$ffal.fetch(`this.$ffal.$apiPaths.accountAndBalances+'?accountContext')
-        }
-    })
-
     function init(ffal) {
-        ffal.logout=()=>FFAL.logout();
+        ffal.logout = () => FFAL.logout();
         Vue.prototype.$ffal = ffal;
-        Vue.prototype.$apiPaths = API_PATHS;
-        new Vue({el: '#app', vueType: 'accounts'});
+        new Vue({el: '#app', router});
     }
 
-    FFAL.login(null, "consumer").then(init);
+    FFAL.login(null, "consumer", true).then(init);
 </script>
 </body>

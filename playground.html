@@ -246,9 +246,10 @@
                 return  this.user.idp.toLowerCase()==='employee'?'B2E':'DIGITAL';
             },
             filteredApis: function () {
-                return this.apiCatalog.apiVersions.filter(a => a.channelType === this.channelType)
+                return this.apiCatalog.apiVersions
+                    .filter(a => a.channelType === this.channelType)
                     .filter(a=>a.maturityLevel !== 'DEPRECATED')
-                    .filter(a => this.apiSearch.length === 0 || a.name.toUpperCase().includes(this.apiSearch.toUpperCase()))
+                    .filter(a => !this.apiSearch.length || (a.category + a.name).toUpperCase().includes(this.apiSearch.toUpperCase()))
                     .sort((a, b) => (a.category + a.name).localeCompare(b.category + b.name));
             },
             selectedApisTemplates: function () {

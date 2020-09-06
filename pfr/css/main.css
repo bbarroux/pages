@@ -1,0 +1,112 @@
+:root {
+    --bg-color: #090909;
+    --bg-hl-color:black;
+    --fg-color: #91c65f;
+    --fade-color: #4e6639;
+    --hl-color: lawngreen;
+    --default-font: Consolas, "Courier New", monospace;
+}
+
+[v-cloak] {
+    display: none
+}
+
+body {
+    font-family: var(--default-font);
+    background-color: var(--bg-color);
+    color: var(--fg-color)
+}
+
+table {
+    border-collapse: collapse;
+    border: 1px solid var(--fade-color);
+    width: 100%;
+}
+
+th {
+    border-bottom-width: 2px;
+}
+
+td, th {
+    border-bottom: 1px solid var(--fade-color);
+    text-align: left;
+    padding: 1px 5px
+}
+
+a, a:visited {
+    color: var(--hl-color)
+}
+
+select {
+    background-color: var(--bg-hl-color);
+    border-color: var(--hl-color);
+    color: var(--hl-color);
+    font-family: var(--default-font);
+}
+
+.selectable-data-table tbody tr td:first-child {
+    color: var(--hl-color);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.master-detail {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 20px;
+    grid-row-gap: 0px;
+}
+
+.master-detail .master {
+    grid-area: 1 / 1 / 2 / 2;
+}
+
+.master-detail .detail {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+#menu {
+    border-bottom: 1px solid var(--fg-color);
+    padding: 2px 10px 7px 10px;
+    margin-bottom: 20px;
+}
+#menu>*{
+    vertical-align: middle;
+}
+#menu>.floated{
+    float:right;
+    margin-top: 9px
+}
+#menu>.title{
+    font-size:200%;
+    margin-right: 20px;
+}
+
+#menu a {
+    padding: 0 5px
+}
+
+#menu a.router-link-exact-active {
+    text-decoration: none;
+    background-color: var(--hl-color);
+    color: var(--bg-color);
+}
+
+#main {
+    padding: 0 20px;
+}
+
+.context-chooser {
+    margin-bottom: 10px;
+}
+
+.context-chooser a {
+    padding: 0 5px;
+    border: 1px solid transparent;
+}
+
+.context-chooser a.active {
+    text-decoration: none;
+    border-color: var(--hl-color);
+}
