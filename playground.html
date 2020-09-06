@@ -247,6 +247,7 @@
             },
             filteredApis: function () {
                 return this.apiCatalog.apiVersions.filter(a => a.channelType === this.channelType)
+                    .filter(a=>a.maturityLevel !== 'DEPRECATED')
                     .filter(a => this.apiSearch.length === 0 || a.name.toUpperCase().includes(this.apiSearch.toUpperCase()))
                     .sort((a, b) => (a.category + a.name).localeCompare(b.category + b.name));
             },
