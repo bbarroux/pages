@@ -1,7 +1,8 @@
 <!--suppress CheckEmptyScriptTag -->
 <html lang="en">
 <head>
-    <title>Api Playground</title>
+    <title>FFP</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://unpkg.com/vue@2.6.12"></script>
     <script src="https://unpkg.com/vue-router@3.4.3"></script>
     <script src="https://unpkg.com/vue-good-table@2.21.0/dist/vue-good-table.js"></script>
@@ -10,7 +11,8 @@
 
     <script src="utils/apiPaths.js"></script>
     <script src="components/account-list.vue.js"></script>
-    <script src="components/counterparty-list.vue.js"></script>
+    <script src="components/beneficiary-list.vue.js"></script>
+    <script src="components/transaction-list.vue.js"></script>
     <script src="components/profile.vue.js"></script>
     <script src="utils/router.js"></script>
 
@@ -23,7 +25,7 @@
         <span class="title">FinPay</span>
         <router-link to="/">Accounts</router-link>
         <router-link to="/beneficiaries">Beneficiaries</router-link>
-        <router-link to="/approvals">Approvals</router-link>
+        <router-link to="/transactions">Transactions/Approvals</router-link>
         <router-link to="/profile">Profile</router-link>
         <a href="#" @click="$ffal.logout()" class="floated">Logout</a>
         <span class="floated">{{$ffal.user.name}} ({{$ffal.user.tenant}})</span>

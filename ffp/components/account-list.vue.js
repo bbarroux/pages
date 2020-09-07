@@ -44,9 +44,13 @@ const accountList = Vue.component('account-list', {
                             <option>INR</option>
                         </select>
                     </div>
-                    <vue-good-table v-if="accounts.length"  :row-style-class="isSelectedAccount" :columns="columns"  :rows="accounts" @on-row-click="selectAccount" class="selectable-data-table"/>
+                    <vue-good-table v-if="accounts.length"  :row-style-class="isSelected" :columns="columns"  :rows="accounts" @on-row-click="selectAccount" class="selectable-data-table"/>
                 </div>
+                <div class="detail" v-if="!selectedAccount" style="padding-top:20px ">Select an account in the list.</div>
                 <div class="detail" v-if="selectedAccount">
+                    <div style="text-align:right;padding-right: 10px;margin-top: 10px;margin-bottom: 16px;">
+                        <a href="#" class="btn">New Wire Transfer</a>
+                    </div>
                     <h2>Account {{selectedAccount.number}}</h2>
                     <table class="detail-table">
                         <tr><th>Type</th><td>{{selectedAccount.type}}</td><th>Format</th><td>{{selectedAccount.format}}</td></tr>
@@ -59,9 +63,6 @@ const accountList = Vue.component('account-list', {
                         <tr><th>Interest Rate</th><td>{{selectedAccount.interestRate}}</td></tr>
                         <tr><th>Rate (Credit)</th><td>{{selectedAccount.creditInterestRate}}</td><th>Rate (Debit)</th><td>{{selectedAccount.debitInterestRate}}</td></tr>
                     </table>
-                    <div style="text-align:right;padding-right: 10px;margin-top: 18px">
-                        <a href="#" class="btn">New Transfer</a>
-                    </div>
                     <div v-if="selectedAccountBalance">
                         <h2>Balance ({{selectedAccountBalance.currency}})</h2>
                         <table class="no-border">
@@ -86,7 +87,6 @@ const accountList = Vue.component('account-list', {
             this.selectedAccountBalance = null;
         },
         selectAccount(event) {
-            this.clearSelected();
             const url = `${this.$apiPaths.accountAndBalances}/accounts/${event.row.id}`;
             const statementUrl = url + "/statement?fromDate=2000-01-01&toDate=2050-01-01&limit=50"
             const balanceUrl = url + "/balances";
@@ -94,7 +94,7 @@ const accountList = Vue.component('account-list', {
             this.$fetchJson(statementUrl).then(j => this.selectedAccountStatements = j.items);
             this.$fetchJson(balanceUrl).then(j => this.selectedAccountBalance = j)
         },
-        isSelectedAccount(row){
+        isSelected(row){
             return (this.selectedAccount && this.selectedAccount.id === row.id)?'selected-row':'';
         },
     },

@@ -1,6 +1,6 @@
 :root {
     --bg-color: #090909;
-    --bg-sec-color:#1B2B0B;
+    --bg-sec-color: #1B2B0B;
     --bg-thd-color: #101c04;
     --bg-hl-color: black;
     --fg-color: #91c65f;
@@ -9,25 +9,24 @@
     --default-font: Consolas, "Courier New", monospace;
 }
 
-*::-webkit-scrollbar-track
-{
+*::-webkit-scrollbar-track {
     background-color: var(--bg-thd-color);
-    border-left:1px solid var(--fade-color);
+    border-left: 1px solid var(--fade-color);
 }
 
-*::-webkit-scrollbar
-{
+*::-webkit-scrollbar {
     width: 8px;
     background-color: black;
 }
 
-*::-webkit-scrollbar-thumb
-{
+*::-webkit-scrollbar-thumb {
     background-color: var(--fg-color);
     border-radius: 4px;
 }
-
-
+*{
+    scrollbar-color: var(--fg-color) black;
+    scrollbar-arrow-color: var(--fg-color);
+}
 
 [v-cloak] {
     display: none
@@ -37,13 +36,15 @@ body {
     font-family: var(--default-font);
     background-color: var(--bg-color);
     color: var(--fg-color);
-    padding:0;
-    margin:0;
+    padding: 0;
+    margin: 0;
 }
 
 h2 {
     border-bottom: 1px solid var(--fade-color);
     background-color: var(--bg-thd-color);
+    padding:3px 10px;
+    font-size:1.3em;
 }
 
 table {
@@ -58,6 +59,9 @@ table.detail-table, table.detail-table th, table.detail-table td {
 
 table.detail-table th {
     text-align: left;
+}
+table.form-table td, table.form-table th {
+    padding-top:5px;
 }
 
 table.detail-table th::after {
@@ -97,9 +101,11 @@ a.btn:hover {
     background-color: var(--bg-sec-color);
 }
 
-select {
-    background-color: var(--bg-hl-color);
+select, input[type=text] {
+    background-color: var(--bg-thd-color);
     border-color: var(--fg-color);
+    border-width: 1px;
+    border-style: solid;
     color: var(--fg-color);
     font-family: var(--default-font);
     padding: 4px 8px;
@@ -110,13 +116,16 @@ select {
     text-decoration: underline;
     cursor: pointer;
 }
-.selected-row td{
+
+.selected-row td {
     background-color: var(--bg-sec-color);
 }
+
 .selectable-data-table tbody tr.selected-row td:first-child {
     text-decoration: none;
     cursor: pointer;
 }
+
 .master-detail {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -127,19 +136,23 @@ select {
 
 .master-detail .master {
     grid-area: 1 / 1 / 2 / 2;
+    height:calc(100vh - 75px);
+    overflow: auto;
 }
 
 .master-detail .detail {
     grid-area: 1 / 2 / 2 / 3;
+    height:calc(100vh - 75px);
+    overflow: auto;
 }
 
 #menu {
     border-bottom: 1px solid var(--fg-color);
     padding: 2px 30px 7px 10px;
     margin-bottom: 20px;
-    top:0;
+    top: 0;
     position: fixed;
-    width:100%;
+    width: 100%;
     background-color: var(--bg-sec-color);
 }
 
@@ -150,7 +163,7 @@ select {
 #menu > .floated {
     float: right;
     margin-top: 9px;
-    margin-right:15px;
+    margin-right: 15px;
 }
 
 #menu > .title {
@@ -170,7 +183,7 @@ select {
 }
 
 #main {
-    margin-top:60px;
+    margin-top: 60px;
     padding: 0 20px;
 }
 
@@ -187,46 +200,66 @@ select {
     text-decoration: none;
     border-color: var(--hl-color);
 }
+
 #profile-page {
     display: grid;
-    height:calc(100vh - 70px);
+    height: calc(100vh - 70px);
     grid-template-columns: 1.3fr 1fr;
     grid-template-rows: 1fr 0.5fr 1fr 1fr;
     grid-column-gap: 15px;
     grid-row-gap: 15px;
-    max-width:1000px;
-    margin:auto;
+    max-width: 1000px;
+    margin: auto;
 }
-#profile-page>div{
-    border:1px solid var(--fade-color);
+
+#profile-page > div {
+    border: 1px solid var(--fade-color);
     overflow: auto;
-    position:relative;
+    position: relative;
 }
 
-#profile-page>div>h3{
-    border-bottom:1px solid var(--fade-color);
+#profile-page > div > h3 {
+    border-bottom: 1px solid var(--fade-color);
     background-color: var(--bg-thd-color);
-    margin:0;
-    font-size:1.1em;
-    padding:3px 20px;
-    position:sticky;
-    top:0;
-    left:0;
-    right:0;
+    margin: 0;
+    font-size: 1.1em;
+    padding: 3px 20px;
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
 }
-#profile-page>div>div{
+
+#profile-page > div > div {
 
 }
-#profile-page>div>div table.bordered{
+
+#profile-page > div > div table.bordered {
     border-width: 0px;
-    border-color:transparent;
+    border-color: transparent;
 }
-#profile-page>div>div table.detail-table{
-    margin:4px 10px;
-    width:95%;
+
+#profile-page > div > div table.detail-table {
+    margin: 4px 10px;
+    width: 95%;
 }
-#profile-page #user-details { grid-area: 1 / 1 / 3 / 2; }
-#profile-page #bank-details { grid-area: 3 / 1 / 4 / 2; }
-#profile-page #access-permissions { grid-area: 4 / 1 / 5 / 2; }
-#profile-page #corporate-details { grid-area: 1 / 2 / 2 / 3; }
-#profile-page #entities { grid-area: 2 / 2 / 5 / 3; }
+
+#profile-page #user-details {
+    grid-area: 1 / 1 / 3 / 2;
+}
+
+#profile-page #bank-details {
+    grid-area: 3 / 1 / 4 / 2;
+}
+
+#profile-page #access-permissions {
+    grid-area: 4 / 1 / 5 / 2;
+}
+
+#profile-page #corporate-details {
+    grid-area: 1 / 2 / 2 / 3;
+}
+
+#profile-page #entities {
+    grid-area: 2 / 2 / 5 / 3;
+}
