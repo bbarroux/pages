@@ -27,8 +27,8 @@
         <router-link to="/beneficiaries">Beneficiaries</router-link>
         <router-link to="/transactions">Transactions/Approvals</router-link>
         <router-link to="/profile">Profile</router-link>
-        <a href="#" @click="$ffal.logout(window.location.href.replace('index.html','bye.html'))" class="floated">Logout</a>
-        <span class="floated">{{$ffal.user.name}} ({{$ffal.user.tenant}})</span>
+        <a href="#" @click="logout" class="floated">Logout</a>
+        <span class="floated">{{user.name}} ({{user.tenant}})</span>
 
     </div>
     <div id="main">
@@ -37,9 +37,13 @@
 </div>
 <script>
     function init(ffal) {
-        Vue.prototype.$ffal = ffal;
-        Vue.prototype.$fetchJson = (url, init)=>ffal.fetch(url, init).then(r=>r.json())
-        new Vue({el: '#app', router});
+        Vue.prototype.$fetchJson = (url, init) => ffal.fetch(url, init).then(r => r.json())
+        new Vue({
+            data: () => ({user: ffal.user}),
+            el: '#app',
+            router,
+            methods: {logout: () => ffal.logout(window.location.href.replace('index.html', 'bye.html'))}
+        });
     }
 
     FFAL.login(null, "consumer", true).then(init);
