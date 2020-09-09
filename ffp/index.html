@@ -27,7 +27,7 @@
         <router-link to="/beneficiaries">Beneficiaries</router-link>
         <router-link to="/transactions">Transactions/Approvals</router-link>
         <router-link to="/profile">Profile</router-link>
-        <a href="#" @click="$ffal.logout('bye.html')" class="floated">Logout</a>
+        <a href="#" @click="$ffal.logout(window.location.href.replace('index.html','bye.html'))" class="floated">Logout</a>
         <span class="floated">{{$ffal.user.name}} ({{$ffal.user.tenant}})</span>
 
     </div>
