@@ -3,39 +3,22 @@
     <title>new tab playground</title>
     <script type="text/javascript">
         const url = "https://example.com";
+        const currentUrl = location.href;
 
-        setTimeout(()=> window.open("https://example.com"), 5000);
-        function openTab() {
-            window.open(url);
-            event.preventDefault();
-        }
-
-        function fetchThenOpen() {
-            window.fetch(window.location.href).then(_ => window.open(url));
-            event.preventDefault();
-
-        }
-        function fetchThenTimeoutOpen() {
-            setTimeout(()=>window.fetch(window.location.href).then(_ => setTimeout(() => window.open(url), 1000)),500)
-            event.preventDefault();
-
-        }
-
-        function openThenFetch() {
-            const newTab = window.open();
-            window.fetch(window.location.href).then(_ => newTab.location = "https://example.com");
-            event.preventDefault();
-
+        const openTab = () => open(url);
+        const fetchThenOpen = () => fetch(currentUrl).then(() => open(url))
+        const openThenFetch = () => {
+            const newTab = open();
+            fetch(currentUrl).then(_ => newTab.location = url);
         }
     </script>
-    <style>a{display: block}</style>
+    <style>a, a:visited{display: table;text-decoration:underline;color: #003eff;cursor:pointer;}</style>
 </head>
 <body>
 <h3>Welcome on the <b>Open in new Tab</b> Playground </h3>
-<a href="https://example.com" target="_blank">Direct link</a>
-<a href="#" onclick="openTab();">window.open</a>
-<a href="#" onclick="fetchThenOpen();">fetch then window.open</a>
-<a href="#" onclick="fetchThenTimeoutOpen();">fetch then window.open in timeout</a>
-<a href="#" onclick="openThenFetch();">Javascript : open window then fetch then set opened window location</a>
+<a href="https://example.com" target="_blank">Direct html link</a>
+<a onclick="openTab();">javascript direct window.open</a>
+<a onclick="fetchThenOpen();">fetch then window.open</a>
+<a onclick="openThenFetch();">Open blank window, then fetch, then set opened window location</a>
 </body>
 </html>
