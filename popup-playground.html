@@ -1,0 +1,46 @@
+<html lang="en">
+<head>
+    <title>new tab playground</title>
+    <script type="text/javascript">
+        const url = "https://example.com";
+
+        setTimeout(()=> window.open("https://example.com"), 5000);
+        function openTab() {
+            window.open(url);
+            event.preventDefault();
+        }
+
+        function fetchThenOpen() {
+            window.fetch(window.location.href).then(_ => window.open(url));
+            event.preventDefault();
+
+        }
+        function fetchThenTimeoutOpen() {
+            setTimeout(()=>window.fetch(window.location.href).then(_ => setTimeout(() => window.open(url), 1000)),500)
+            event.preventDefault();
+
+        }
+
+        function openThenFetch() {
+            const newTab = window.open();
+            window.fetch(window.location.href).then(_ => newTab.location = "https://example.com");
+            event.preventDefault();
+
+        }
+    </script>
+</head>
+<body>
+<h3>Welcome on the <b>Open in new Tab</b> Playground </h3>
+<h6>Direct link</h6>
+<a href="https://yahoo.com" target="_blank">Open Yahoo in new tab</a>
+<h6>Javascript : window.open</h6>
+<a href="#" onclick="openTab();">Open</a>
+<h6>Javascript : fetch then window.open</h6>
+<a href="#" onclick="fetchThenOpen();">Open</a>
+<h6>Javascript : fetch then window.open in timeout</h6>
+<a href="#" onclick="fetchThenTimeoutOpen();">Open</a>
+<h6>Javascript : open window then fetch then set opened window location</h6>
+<a href="#" onclick="openThenFetch();">Open</a>
+<h6>Javascript : fetch then window.open</h6>
+</body>
+</html>
