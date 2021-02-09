@@ -7,9 +7,9 @@
 
         const openTab = () => open(url);
         const fetchThenOpen = () => fetch(currentUrl).then(() => open(url))
-        const openThenFetch = () => {
+        const openThenFetch = (timeout) => {
             const newTab = open();
-            fetch(currentUrl).then(_ => newTab.location = url);
+            fetch(currentUrl).then(_ => setTimeout(() => newTab.location = url,timeout));
         }
     </script>
     <style>a, a:visited{display: table;text-decoration:underline;color: #003eff;cursor:pointer;}</style>
@@ -19,6 +19,7 @@
 <a href="https://example.com" target="_blank">Direct html link</a>
 <a onclick="openTab();">javascript direct window.open</a>
 <a onclick="fetchThenOpen();">fetch then window.open</a>
-<a onclick="openThenFetch();">Open blank window, then fetch, then set opened window location</a>
+<a onclick="openThenFetch(100);">Open blank window, then fetch, then set opened window location</a>
+<a onclick="openThenFetch(3000);">Open blank window, then wait 3s and fetch, then set opened window location</a>
 </body>
 </html>

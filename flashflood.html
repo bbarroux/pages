@@ -1,0 +1,53 @@
+<html lang="en">
+<head>
+    <title>Delegated signin test</title>
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">
+    <script src="https://unpkg.com/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.js"></script>
+</head>
+<body id="app">
+<div v-if="ffal">
+    <p>{{ffal.user.name}}</p>
+    <label class="text-reader">
+        Read File
+        <input type="file" @change="loadTextFromFile">
+    </label>
+</div>
+
+<script src="https://go.fficaas.net/ffal.js"></script>
+<script>
+    // 36ea7a1d-f49b-402d-a7cb-5140ccc1e79c
+    Vue.use(VueMaterial.default)
+
+
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                ffal:null,
+                banks:[]
+            }
+        },
+        computed: {
+        },
+        async created() {
+            this.ffal = await FFAL.login("ffdc", "employee");
+        },
+        methods: {
+        }
+    })
+
+
+    // (async () => {
+    //     const set = (id, t) => document.getElementById(id).innerText = t;
+    //     this.ffal = await FFAL.login("ffdc", "employee");
+    //     set("info", `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
+    //     document.getElementById("actions").style.display = "inline"
+    //     const json = await ffal.fetch(apis[ffal.user.idp]).then(r=>r.json()).catch(error => ({error}));
+    //     set("resp-data", JSON.stringify(json, null, 2))
+    // })();
+</script>
+</body>
+</html>
