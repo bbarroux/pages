@@ -1,22 +1,44 @@
 <html lang="en">
 <head>
-    <title>Delegated signin test</title>
+    <title>Flashflood</title>
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
     <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.css">
     <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.min.js"></script>
     <script src="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.js"></script>
+    <script src="https://lobdev.fficaas.net/ffal.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fast-levenshtein@3.0.0/levenshtein.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
+            integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA=="
+            crossorigin="anonymous"></script>
 </head>
-<body id="app">
-<div v-if="ffal">
-    <p>{{ffal.user.name}}</p>
-    <label class="text-reader">
-        Read File
-        <input type="file" @change="loadTextFromFile">
-    </label>
-</div>
+<body>
+<div id="app">
 
-<script src="https://go.fficaas.net/ffal.js"></script>
+    <div v-if="ffal">
+        <p>{{ffal}}</p>
+        <label class="text-reader">
+            Read File
+            <input type="file" @change="loadCsv">
+        </label>
+        <p v-if="fields.length">
+        <table>
+            <thead>
+            <tr>
+                <th v-for="f in fields">{{f}}</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="bank in banks">
+                <td v-for="f in fields">
+                    {{bank[f]}}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        </p>
+    </div>
+</div>
 <script>
 
     Vue.use(VueMaterial.default)
@@ -26,16 +48,27 @@
         el: '#app',
         data() {
             return {
-                ffal:null,
-                banks:[]
+                ffal: null,
+                fields: [],
+                banks: []
             }
         },
-        computed: {
-        },
+        computed: {},
         async created() {
             this.ffal = await FFAL.login("ffdc", "employee");
         },
         methods: {
+            loadCsv(ev) {
+                const file = ev.target.files[0];
+                Papa.parse(file, {
+                    header: true,
+                    encoding: "windows-1252",
+                    complete: r => {
+                        this.fields = r.meta.fields;
+                        this.banks = r.data;
+                    }
+                });
+            }
         }
     })
 
