@@ -1,7 +1,7 @@
 <html lang="en">
 <head>
     <title>Flashflood</title>
-    <script src="https://unpkg.com/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
 <!--    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">-->
 <!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.css">-->
 <!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">-->
@@ -67,8 +67,12 @@
                     complete: r => {
                         this.fields = r.meta.fields;
                         this.banks = r.data;
+                        this.loadFfdc()
                     }
                 });
+            },
+            loadFfdc(){
+
             }
 
         }
