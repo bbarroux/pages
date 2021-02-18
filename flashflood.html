@@ -5,37 +5,83 @@
     <script src="https://lobdev.fficaas.net/ffal.js"></script>
     <script src="levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-rows: 56px 1fr 0.5fr;
+            grid-template-areas: "Table-buttons Table-buttons Page-buttons" "main-table main-table main-form" "console console console";
+        }
+
+        .grid-container > div {
+            border: 1px solid #999999
+        }
+
+        .Table-buttons {
+            grid-area: Table-buttons;
+        }
+
+        .Page-buttons {
+            grid-area: Page-buttons;
+        }
+
+        .main-table {
+            grid-area: main-table;
+        }
+
+        .main-form {
+            grid-area: main-form;
+        }
+
+        .console {
+            grid-area: console;
+        }
+    </style>
 </head>
 <body>
+
 <div id="app">
 
-    <div v-if="ffal">
-        <a href="#" onclick="FFAL.logout()">Sign Out</a>
-        <p>{{ffal.user.displayName}}</p>
-        <label class="text-reader">
-            Read File
-            <input type="file" @change="loadCsv">
-        </label>
-        <p v-if="fields.length">
-        <table>
-            <thead>
-            <tr>
-                <th>ffid</th>
-                <th>status</th>
-                <th v-for="f in fields">{{f}}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="bank in banks">
-                <td>{{bank.ffid}}</td>
-                <td>{{bank.ffstatus}}</td>
-                <td v-for="f in fields">
-                    {{bank[f]}}
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        </p>
+    <div v-if="ffal" class="grid-container">
+
+        <div class="Table-buttons">
+
+        </div>
+        <div class="Page-buttons">
+            {{ffal.user.displayName}}
+            <a href="#" onclick="FFAL.logout()">Sign Out</a>
+        </div>
+        <div class="main-table">
+            <table v-if="fields.length">
+                <thead>
+                <tr>
+                    <th>ffid</th>
+                    <th>status</th>
+                    <th v-for="f in fields">{{f}}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="bank in banks">
+                    <td>{{bank.ffid}}</td>
+                    <td>{{bank.ffstatus}}</td>
+                    <td v-for="f in fields">
+                        {{bank[f]}}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="main-form">
+            <label class="text-reader">
+                Read File
+                <input type="file" @change="loadCsv">
+            </label>
+        </div>
+        <div class="console" id="logdiv" style="white-space: pre;font-family: monospace">
+            <div v-for="l in logtext">
+                {{l}}
+            </div>
+        </div>
     </div>
 </div>
 <script>
@@ -48,6 +94,7 @@
         data() {
             return {
                 ffal: null,
+                logtext: ['Welcome on flashflood console'],
                 fields: [],
                 banks: [],
                 ffdc: {
@@ -69,17 +116,34 @@
                     complete: r => {
                         this.fields = r.meta.fields;
                         this.banks = r.data.map((b, ffid) => ({ffid, ...b, ffstatus: "unchecked"}));
+                        this.log(`Loaded csv file. ${this.banks.length} banks, ${this.fields.length} fields`)
                         this.loadFfdc();
                     }
                 });
             },
+            log(msg) {
+                this.logtext.append(msg)
+                const elem = document.getElementById('logdiv');
+                elem.scrollTop = elem.scrollHeight;
+            },
+            async fetch(api, req) {
+                this.log("calling " + api)
+                this.ffal.fetch(api, req).then(r => {
+                    this.log("received response for " + api + ":" + r.status)
+                    return r;
+                }).then(r => r.json())
+            },
             loadFfdc() {
+                this.log("Loading ffdc data...")
                 const p1 = this.loadAll("tenant-management/v1/tenants", [], 1).then(items => this.ffdc.tenants = items);
                 const p2 = this.loadAll("org-admin/v1/organizations", [], 1).then(items => this.ffdc.organizations = items);
                 Promise.all([p1, p2]).then(this.checkFile)
             },
             checkFile() {
+                this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
+                this.log("Checking for duplicates...")
                 this.banks.map(b => this.checkBank(b, "Description"));
+                this.log("Duplicate check complete!")
             },
             checkBank(bank, nameField) {
                 const name = bank[nameField];
@@ -89,12 +153,15 @@
                     bank.similarOrgs = this.ffdc.organizations
                         .map(o => ({o, distance: LEV.distance(name.toLowerCase(), o.displayName.toLowerCase())}))
                         .sort((s1, s2) => s1.distance - s2.distance);
+                    bank.similarTenants = this.ffdc.tenants
+                        .map(t => ({o: t, distance: LEV.distance(name.toLowerCase(), t.name.toLowerCase())}))
+                        .sort((s1, s2) => s1.distance - s2.distance);
                     bank.ffstatus = "checked";
                 }
             },
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
-                const json = await this.ffal.fetch(api + "?offset=" + items.length).then(r => r.json());
+                const json = await this.fetch(api + "?offset=" + items.length);
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
         }
