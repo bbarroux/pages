@@ -93,9 +93,7 @@
             </label>
         </div>
         <div class="console" id="logdiv" style="">
-            <div v-for="l in logtext">
-                {{l}}
-            </div>
+            <div v-for="l in logtext">{{l}}</div>
         </div>
     </div>
 </div>
@@ -143,10 +141,9 @@
             },
             async fetch(api, req) {
                 this.log("calling " + api)
-                this.ffal.fetch(api, req).then(r => {
-                    this.log("received response for " + api + ":" + r.status)
-                    return r;
-                }).then(r => r.json())
+                const resp = await this.ffal.fetch(api, req);
+                this.log("received response for " + api + ":" + resp.status);
+                return resp.json();
             },
             loadFfdc() {
                 this.log("Loading ffdc data...")
