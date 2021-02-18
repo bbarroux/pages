@@ -86,9 +86,6 @@
                 bank.similarOrgs = this.ffdc.organizations
                     .map(o=>({o,distance:LEV.distance(name, o.displayName)}))
                     .sort((s1,s2)=>s1.distance-s2.distance);
-                bank.similarOrgs = this.ffdc.tenants
-                    .map(o=>({o,distance:LEV.distance(name, o.displayName)}))
-                    .sort((s1,s2)=>s1.distance-s2.distance);
 
             },
             async loadAll(api, items, totalCount) {
