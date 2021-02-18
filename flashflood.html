@@ -1,11 +1,11 @@
 <html lang="en">
 <head>
     <title>Flashflood</title>
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.min.js"></script>
-    <script src="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.js"></script>
+<!--    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">-->
+<!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.css">-->
+<!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">-->
+<!--    <script src="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.js"></script>-->
     <script src="https://lobdev.fficaas.net/ffal.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fast-levenshtein@3.0.0/levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
@@ -16,7 +16,8 @@
 <div id="app">
 
     <div v-if="ffal">
-        <p>{{ffal}}</p>
+        <a href="#" onclick="FFAL.logout()">Sign Out</a>
+        <p>{{ffal.user.displayName}}</p>
         <label class="text-reader">
             Read File
             <input type="file" @change="loadCsv">
@@ -41,7 +42,7 @@
 </div>
 <script>
 
-    Vue.use(VueMaterial.default)
+    //Vue.use(VueMaterial.default)
 
 
     new Vue({
@@ -69,6 +70,7 @@
                     }
                 });
             }
+
         }
     })
 
