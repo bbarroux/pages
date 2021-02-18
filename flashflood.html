@@ -6,7 +6,11 @@
     <script src="levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
-        html, body, .grid-container { height: 100%; margin: 0; }
+        html, body, .grid-container {
+            height: 100%;
+            margin: 0;
+        }
+
         .grid-container {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -17,7 +21,7 @@
         .grid-container > div {
             border: 1px solid #999999;
             overflow: auto;
-            padding:5px;
+            padding: 5px;
         }
 
         .Table-buttons {
@@ -39,9 +43,11 @@
 
         .console {
             grid-area: console;
-            white-space: pre;font-family: monospace
+            white-space: pre;
+            font-family: monospace
         }
-        .console>div{
+
+        .console > div {
             padding: 0;
             margin: 0;
         }
@@ -165,7 +171,12 @@
                     bank.similarTenants = this.ffdc.tenants
                         .map(t => ({o: t, distance: LEV.distance(name.toLowerCase(), t.name.toLowerCase())}))
                         .sort((s1, s2) => s1.distance - s2.distance);
-                    bank.ffstatus = "checked";
+
+                    if (bank.similarOrgs[0].distance < 5) bank.ffstatus = "Very suspect";
+                    else if (bank.similarOrgs[0].distance < 10) bank.ffstatus = "Suspect";
+                    else if (bank.similarOrgs[0].distance < 15) bank.ffstatus = "Slightly suspect";
+                    else bank.ffstatus = "Checked";
+
                 }
             },
             async loadAll(api, items, totalCount) {
