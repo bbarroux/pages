@@ -85,7 +85,7 @@
             },
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
-                const json = (await fetch(api + "?offset=" + items.length())).json();
+                const json = (await fetch(api + "?offset=" + items.length)).json();
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
         }
