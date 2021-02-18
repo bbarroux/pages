@@ -52,9 +52,9 @@
                 ffal: null,
                 fields: [],
                 banks: [],
-                ffdc:{
+                ffdc: {
                     tenants: [],
-                    organizations:[]
+                    organizations: []
                 }
             }
         },
@@ -76,17 +76,17 @@
                 });
             },
             loadFfdc() {
-                const p1= this.loadAll("tenant-management/v1/tenants",[],1).then(items => this.ffdc.tenants = items);
-                const p2=this.loadAll("org-admin/v1/organizations",[],1).then(items => this.ffdc.organizations = items);
-                Promise.all([p1,p2]).then(this.checkFile)
+                const p1 = this.loadAll("tenant-management/v1/tenants", [], 1).then(items => this.ffdc.tenants = items);
+                const p2 = this.loadAll("org-admin/v1/organizations", [], 1).then(items => this.ffdc.organizations = items);
+                Promise.all([p1, p2]).then(this.checkFile)
             },
-            checkFile(){
+            checkFile() {
                 console.log("checking");
             },
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
-                const json = (await this.ffal.fetch(api + "?offset=" + items.length)).json();
-                return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
+                const json = await this.ffal.fetch(api + "?offset=" + items.length).then(r => r.json());
+                return this.loadAll(api, items.concat(json.items), json["_meta"].totalCount)
             },
         }
     })
