@@ -27,8 +27,8 @@
             </thead>
             <tbody>
             <tr v-for="bank in banks">
-                <td>bank.ffid</td>
-                <td>bank.status</td>
+                <td>{{bank.ffid}}</td>
+                <td>{{bank.status}}</td>
                 <td v-for="f in fields">
                     {{bank[f]}}
                 </td>
@@ -68,7 +68,7 @@
                     encoding: "windows-1252",
                     complete: r => {
                         this.fields = r.meta.fields;
-                        this.banks = r.data.map((b,ffid)=>({ffid, ...b, ffstatus:"unchecked"}));
+                        this.banks = r.data.map((b, ffid) => ({ffid, ...b, ffstatus: "unchecked"}));
                         this.loadFfdc();
                     }
                 });
@@ -79,14 +79,18 @@
                 Promise.all([p1, p2]).then(this.checkFile)
             },
             checkFile() {
-                this.banks.map(b=>this.checkBank(b,"Description"));
+                this.banks.map(b => this.checkBank(b, "Description"));
             },
-            checkBank(bank, nameField){
+            checkBank(bank, nameField) {
                 const name = bank[nameField];
-                bank.similarOrgs = this.ffdc.organizations
-                    .map(o=>({o,distance:LEV.distance(name, o.displayName)}))
-                    .sort((s1,s2)=>s1.distance-s2.distance);
-
+                if (name === undefined || name.length === 0) {
+                    bank.ffstatus = "error";
+                } else {
+                    bank.similarOrgs = this.ffdc.organizations
+                        .map(o => ({o, distance: LEV.distance(name, o.displayName)}))
+                        .sort((s1, s2) => s1.distance - s2.distance);
+                    bank.status = "checked";
+                }
             },
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
