@@ -7,6 +7,7 @@
     <!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">-->
     <!--    <script src="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.js"></script>-->
     <script src="https://lobdev.fficaas.net/ffal.js"></script>
+    <script src="levenshtein.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fast-levenshtein@3.0.0/levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
             integrity="sha512-rKFvwjvE4liWPlFnvH4ZhRDfNZ9FOpdkD/BU5gAIA3VS3vOQrQ5BjKgbO3kxebKhHdHcNUHLqxQYSoxee9UwgA=="
@@ -26,11 +27,15 @@
         <table>
             <thead>
             <tr>
+                <th>ffid</th>
+                <th>status</th>
                 <th v-for="f in fields">{{f}}</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="bank in banks">
+                <td>bank.ffid</td>
+                <td>bank.status</td>
                 <td v-for="f in fields">
                     {{bank[f]}}
                 </td>
@@ -70,8 +75,8 @@
                     encoding: "windows-1252",
                     complete: r => {
                         this.fields = r.meta.fields;
-                        this.banks = r.data;
-                        this.loadFfdc()
+                        this.banks = r.data.map((b,ffid)=>({ffid, ...b, ffstatus:"unchecked"}));
+                        this.loadFfdc();
                     }
                 });
             },
@@ -81,12 +86,22 @@
                 Promise.all([p1, p2]).then(this.checkFile)
             },
             checkFile() {
-                console.log("checking");
+                this.banks.map(b=>this.checkBank(b,"Description"));
+            },
+            checkBank(bank, nameField){
+                const name = bank[nameField];
+                bank.similarOrgs = this.ffdc.organizations
+                    .map(o=>({o,distance:LEV.distance(name, o.displayName)}))
+                    .sort((s1,s2)=>s1.distance-s2.distance);
+                bank.similarOrgs = this.ffdc.tenants
+                    .map(o=>({o,distance:LEV.distance(name, o.displayName)}))
+                    .sort((s1,s2)=>s1.distance-s2.distance);
+
             },
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
                 const json = await this.ffal.fetch(api + "?offset=" + items.length).then(r => r.json());
-                return this.loadAll(api, items.concat(json.items), json["_meta"].totalCount)
+                return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
         }
     })
