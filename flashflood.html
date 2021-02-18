@@ -76,15 +76,15 @@
                 });
             },
             loadFfdc() {
-                const p1= this.loadAll("tenant-management/v1/tenants").then(items => this.ffdc.tenants = items);
-                const p2=this.loadAll("org-admin/v1/organizations").then(items => this.ffdc.organizations = items);
+                const p1= this.loadAll("tenant-management/v1/tenants",[],1).then(items => this.ffdc.tenants = items);
+                const p2=this.loadAll("org-admin/v1/organizations",[],1).then(items => this.ffdc.organizations = items);
                 Promise.all([p1,p2]).then(this.checkFile)
             },
             checkFile(){
                 console.log("checking");
             },
-            async loadAll(api, items, total) {
-                if (items.length >= total) return items;
+            async loadAll(api, items, totalCount) {
+                if (items.length >= totalCount) return items;
                 const json = (await fetch(api + "?offset=" + items.length())).json();
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
