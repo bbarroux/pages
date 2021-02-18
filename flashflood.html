@@ -85,7 +85,7 @@
                 <tr v-for="bank in banks" :key="bank.ffid">
                     <td>{{bank.ffid}}</td>
                     <td>{{bank.ffstatus}}</td>
-                    <td>{{bank.mostSim.displayName}}</td>
+                    <td><span v-if="bank.mostSim">{{bank.mostSim.displayName}}</span></td>
                     <td v-for="f in fields">
                         {{bank[f]}}
                     </td>
