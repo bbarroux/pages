@@ -124,7 +124,7 @@
                 });
             },
             log(msg) {
-                this.logtext.append(msg)
+                this.logtext.push(msg)
                 const elem = document.getElementById('logdiv');
                 elem.scrollTop = elem.scrollHeight;
             },
