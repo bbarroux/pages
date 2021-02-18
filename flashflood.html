@@ -28,7 +28,7 @@
             <tbody>
             <tr v-for="bank in banks">
                 <td>{{bank.ffid}}</td>
-                <td>{{bank.status}}</td>
+                <td>{{bank.ffstatus}}</td>
                 <td v-for="f in fields">
                     {{bank[f]}}
                 </td>
@@ -87,9 +87,9 @@
                     bank.ffstatus = "error";
                 } else {
                     bank.similarOrgs = this.ffdc.organizations
-                        .map(o => ({o, distance: LEV.distance(name, o.displayName)}))
+                        .map(o => ({o, distance: LEV.distance(name.toLowerCase(), o.displayName.toLowerCase())}))
                         .sort((s1, s2) => s1.distance - s2.distance);
-                    bank.status = "checked";
+                    bank.ffstatus = "checked";
                 }
             },
             async loadAll(api, items, totalCount) {
