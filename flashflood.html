@@ -17,6 +17,7 @@
         .grid-container > div {
             border: 1px solid #999999;
             overflow: auto;
+            padding:5px;
         }
 
         .Table-buttons {
@@ -38,6 +39,11 @@
 
         .console {
             grid-area: console;
+            white-space: pre;font-family: monospace
+        }
+        .console>div{
+            padding: 0;
+            margin: 0;
         }
     </style>
 </head>
@@ -80,7 +86,7 @@
                 <input type="file" @change="loadCsv">
             </label>
         </div>
-        <div class="console" id="logdiv" style="white-space: pre;font-family: monospace">
+        <div class="console" id="logdiv" style="">
             <div v-for="l in logtext">
                 {{l}}
             </div>
