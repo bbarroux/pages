@@ -171,10 +171,10 @@
                     bank.ffstatus = "error";
                 } else {
                     bank.similarOrgs = this.ffdc.organizations
-                        .map(o => ({o, distance: LEV.distance(name.toLowerCase(), o.displayName.toLowerCase())}))
+                        .map(o => ({...o, distance: LEV.distance(name.toLowerCase(), o.displayName.toLowerCase())}))
                         .sort((s1, s2) => s1.distance - s2.distance);
                     bank.similarTenants = this.ffdc.tenants
-                        .map(t => ({o: t, distance: LEV.distance(name.toLowerCase(), t.name.toLowerCase())}))
+                        .map(t => ({...t, distance: LEV.distance(name.toLowerCase(), t.name.toLowerCase())}))
                         .sort((s1, s2) => s1.distance - s2.distance);
 
                     const mostSim = bank.similarOrgs[0]
