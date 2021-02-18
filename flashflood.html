@@ -36,6 +36,7 @@
             grid-area: main-table;
             font-size: 40%;
         }
+
         .main-table td, .main-table th {
             text-align: left;
             border-bottom: 1px solid #AAAAAA;
@@ -80,7 +81,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="bank in banks">
+                <tr v-for="bank in banks" :key="bank.ffid">
                     <td>{{bank.ffid}}</td>
                     <td>{{bank.ffstatus}}</td>
                     <td v-for="f in fields">
@@ -159,6 +160,7 @@
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
                 this.banks.map(b => this.checkBank(b, "Description"));
+                this.banks.sort((b1,b2)=>b1.relDist - b2.relDist);
                 this.log("Duplicate check complete!")
             },
             checkBank(bank, nameField) {
@@ -173,9 +175,12 @@
                         .map(t => ({o: t, distance: LEV.distance(name.toLowerCase(), t.name.toLowerCase())}))
                         .sort((s1, s2) => s1.distance - s2.distance);
 
-                    if (bank.similarOrgs[0].distance < 5) bank.ffstatus = "Very suspect";
-                    else if (bank.similarOrgs[0].distance < 10) bank.ffstatus = "Suspect";
-                    else if (bank.similarOrgs[0].distance < 15) bank.ffstatus = "Slightly suspect";
+                    var reldist = bank.similarOrgs[0].distance / name.length;
+                    bank.relDist = reldist;
+                    if (reldist < 0.1) bank.ffstatus = "Highly suspect";
+                    else if (reldist < 0.2) bank.ffstatus = "Very suspect";
+                    else if (reldist < 0.3) bank.ffstatus = "Suspect";
+                    else if (reldist < 0.5) bank.ffstatus = "Slightly suspect";
                     else bank.ffstatus = "Checked";
                 }
             },
