@@ -6,6 +6,7 @@
     <script src="levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <style>
+        html, body, .grid-container { height: 100%; margin: 0; }
         .grid-container {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -14,7 +15,8 @@
         }
 
         .grid-container > div {
-            border: 1px solid #999999
+            border: 1px solid #999999;
+            overflow: auto;
         }
 
         .Table-buttons {
