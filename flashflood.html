@@ -2,10 +2,10 @@
 <head>
     <title>Flashflood</title>
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
-<!--    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">-->
-<!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.css">-->
-<!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">-->
-<!--    <script src="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.js"></script>-->
+    <!--    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,500,700,400italic|Material+Icons">-->
+    <!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.css">-->
+    <!--    <link rel="stylesheet" href="https://unpkg.com/vue-material@1.0.0-beta-15/dist/theme/default.css">-->
+    <!--    <script src="https://unpkg.com/vue-material@1.0.0-beta-15/dist/vue-material.min.js"></script>-->
     <script src="https://lobdev.fficaas.net/ffal.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fast-levenshtein@3.0.0/levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"
@@ -51,7 +51,11 @@
             return {
                 ffal: null,
                 fields: [],
-                banks: []
+                banks: [],
+                ffdc: {
+                    tenants: [],
+                    organizations: []
+                }
             }
         },
         computed: {},
@@ -71,10 +75,19 @@
                     }
                 });
             },
-            loadFfdc(){
-
-            }
-
+            loadFfdc() {
+                const p1 = this.loadAll("tenant-management/v1/tenants").then(items => this.ffdc.tenants = items);
+                const p2 = this.loadAll("org-admin/v1/organizations").then(items => this.ffdc.organizations = items);
+                Promise.all([p1, p2]).then(this.checkFile)
+            },
+            checkFile() {
+                console.log("checking");
+            },
+            async loadAll(api, items, total) {
+                if (items.length >= total) return items;
+                return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
+                return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
+            },
         }
     })
 
