@@ -34,7 +34,11 @@
 
         .main-table {
             grid-area: main-table;
-            font-size: 60%;
+            font-size: 40%;
+        }
+        .main-table td, .main-table th {
+            text-align: left;
+            border-bottom: 1px solid #AAAAAA;
         }
 
         .main-form {
@@ -173,7 +177,6 @@
                     else if (bank.similarOrgs[0].distance < 10) bank.ffstatus = "Suspect";
                     else if (bank.similarOrgs[0].distance < 15) bank.ffstatus = "Slightly suspect";
                     else bank.ffstatus = "Checked";
-
                 }
             },
             async loadAll(api, items, totalCount) {
