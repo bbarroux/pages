@@ -302,9 +302,9 @@
                         checkResult.existing = mostSim;
                     }
                     if (reldist < 0.1) checkResult.status = "Highly suspect";
-                    else if (reldist < 0.2) checkResult.status = "Very suspect";
-                    else if (reldist < 0.3) checkResult.status = "Suspect";
-                    else if (reldist < 0.4) checkResult.status = "Slightly suspect";
+                    else if (reldist < 0.3) checkResult.status = "Very suspect";
+                    else if (reldist < 0.5) checkResult.status = "Suspect";
+                    else if (reldist < 0.7) checkResult.status = "Slightly suspect";
                     else checkResult.status = "OK";
                     return checkResult
                 }
