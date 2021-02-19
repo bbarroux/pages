@@ -46,12 +46,13 @@
             grid-area: main-form;
         }
 
+
         .console {
             grid-area: console;
             white-space: pre;
             font-family: monospace;
             background-color: #2A2A2A;
-            color: green;
+            color: limegreen;
         }
 
         .console > div {
@@ -62,6 +63,10 @@
         .synthetic {
             background-color: #CCCCCC;
             color: #666666;
+        }
+
+        .form-elt {
+            padding: 5px;
         }
     </style>
 </head>
@@ -92,8 +97,10 @@
                 <tr v-for="bank in banks" :key="bank.ffid">
                     <td class="synthetic">{{bank.ffid}}</td>
                     <td class="synthetic">{{bank.ffstatus}}</td>
-                    <td class="synthetic"><span v-if="bank.mostSim"
-                                                style="font-size: 60%">({{bank.mostSim.distance}}){{bank.mostSim.displayName}}</span>
+                    <td class="synthetic">
+                        <span v-if="bank.mostSim" style="font-size: 80%">
+                            ({{bank.mostSim.distance}}){{bank.mostSim.displayName}}
+                        </span>
                     </td>
                     <td v-for="f in fields">
                         {{bank[f]}}
@@ -109,7 +116,7 @@
             </label>
             <hr>
             <div v-if="fields.length">
-                <div>
+                <div class="form-elt">
                     <label for="orgIdField">OrgId Field</label>
                     <select name="orgIdField" id="orgIdField" v-model="orgIdField">
                         <option value="formula">Formula...</option>
@@ -117,25 +124,56 @@
                     </select>
 
                 </div>
-                <div>
+                <div class="form-elt">
                     <label for="orgNameField">OrgId Field</label>
                     <select name="orgNameField" id="orgNameField" v-model="orgNameField">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
                 </div>
-                <div v-if="orgNameField === 'formula'">
+                <div v-if="orgNameField === 'formula'" class="form-elt">
                     <label for="orgNameFormula">OrgName Formula</label>
                     <input type="text" id="orgNameFormula" v-model="orgNameFormula">
                 </div>
-                <div>
-                    <button @click="loadFfdc"  :disabled="checked">Check</button>
-                    <span v-if="checked" >Check complete</span>
+                <div class="form-elt">
+                    <button @click="loadFfdc" :disabled="checked">Check</button>
+                    <span v-if="checked">Check complete</span>
                 </div>
                 <div v-if="checked">
-                    <div>
+                    <hr>
+                    <div class="form-elt">
                         <input type="checkbox" id="createOrg" v-model="createOrg">
                         <label for="createOrg">Create Organizations</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createUatTenant" v-model="createUatTenant">
+                        <label for="createUatTenant">Create UAT Tenants</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createProdTenant" v-model="createProdTenant">
+                        <label for="createProdTenant">Create PROD Tenants</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createRouting" v-model="createRouting">
+                        <label for="createRouting">Weave routing</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createUser" v-model="createUser">
+                        <label for="createUser">Create Users</label>
+                    </div>
+                    <hr>
+                    <div class="form-elt">
+                        <label for="maxEntries">Max entries</label>
+                        <input type="text" id="maxEntries" v-model="maxEntries">
+                    </div>
+                    <div class="form-elt">
+                        <label for="selectedCore">Core Product</label>
+                        <select name="selectedCore" id="selectedCore" v-model="selectedCore">
+                            <option v-for="c in cores">{{c.name}}</option>
+                        </select>
+                    </div>
+                    <div class="form-elt">
+                        <button @click="process" :disabled="maxEntries<=0">Go!</button>
                     </div>
                 </div>
             </div>
@@ -176,7 +214,14 @@
                     {name: "MortgageBot", apis: []},
                     {name: "Malauzai", apis: []},
                 ],
+                selectedCore: null,
                 checked: false,
+                createOrg: false,
+                createUatTenant: false,
+                createProdTenant: false,
+                createRouting: false,
+                createUser: false,
+                maxEntries: 0,
             }
         },
         computed: {},
