@@ -5,70 +5,7 @@
     <script src="https://lobdev.fficaas.net/ffal.js"></script>
     <script src="levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <style>
-        html, body, .grid-container {
-            height: 100%;
-            margin: 0;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 56px 1fr 0.5fr;
-            grid-template-areas: "Table-buttons Table-buttons Page-buttons" "main-table main-table main-form" "console console console";
-        }
-
-        .grid-container > div {
-            border: 1px solid #999999;
-            overflow: auto;
-            padding: 5px;
-        }
-
-        .Table-buttons {
-            grid-area: Table-buttons;
-        }
-
-        .Page-buttons {
-            grid-area: Page-buttons;
-        }
-
-        .main-table {
-            grid-area: main-table;
-            font-size: 40%;
-        }
-
-        .main-table td, .main-table th {
-            text-align: left;
-            border-bottom: 1px solid #AAAAAA;
-        }
-
-        .main-form {
-            grid-area: main-form;
-        }
-
-
-        .console {
-            grid-area: console;
-            white-space: pre;
-            font-family: monospace;
-            background-color: #2A2A2A;
-            color: limegreen;
-        }
-
-        .console > div {
-            padding: 0;
-            margin: 0;
-        }
-
-        .synthetic {
-            background-color: #CCCCCC;
-            color: #666666;
-        }
-
-        .form-elt {
-            padding: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="flashflood.css"/>
 </head>
 <body>
 
@@ -85,7 +22,7 @@
             </div>
         </div>
         <div class="Page-buttons">
-            {{ffal.user.displayName}}
+            <b>LOBDEV</b> -
             <a href="#" onclick="FFAL.logout()">Sign Out</a>
         </div>
         <div class="main-table">
@@ -221,9 +158,6 @@
 </div>
 <script>
 
-    //Vue.use(VueMaterial.default)
-
-
     new Vue({
         el: '#app',
         data() {
@@ -245,7 +179,7 @@
                 uatTenantIdField: "",
                 uatTenantIdFormula: "",
                 tenantNameField: "",
-                userEmailField:"",
+                userEmailField: "",
                 cores: [
                     {name: "MortgageBot", apis: []},
                     {name: "Malauzai", apis: []},
