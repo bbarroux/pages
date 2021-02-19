@@ -243,11 +243,11 @@
                 Papa.parse(file, {
                     header: true,
                     encoding: "windows-1252",
+                    skipEmptyLines: true,
                     complete: r => {
                         this.fields = r.meta.fields;
                         this.banks = r.data.map((b, ffid) => ({ffid, ...b, ffstatus: "unchecked"}));
                         this.log(`Loaded csv file. ${this.banks.length} banks, ${this.fields.length} fields`)
-
                     }
                 });
             },
