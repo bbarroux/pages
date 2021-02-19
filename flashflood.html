@@ -98,6 +98,17 @@
                 Read File
                 <input type="file" @change="loadCsv">
             </label>
+            <div v-if="fields.length">
+                <div>
+                    <label for="orgIdFieldName">OrgId Field</label>
+                    <select name="orgIdFieldName" id="orgIdFieldName" v-model="orgIdField">
+                        <option value="formula">Formula...</option>
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+
+                </div>
+                <div>{{orgIdField}}</div>
+            </div>
         </div>
         <div class="console" id="logdiv" style="">
             <div v-for="l in logtext">{{l}}</div>
@@ -120,7 +131,19 @@
                 ffdc: {
                     tenants: [],
                     organizations: []
-                }
+                },
+                orgIdField: "",
+                orgNameField: "",
+                prodTenantIdField: "",
+                prodTenantIdFormula: "",
+
+                uatTenantIdField: "",
+                uatTenantIdFormula: "",
+                tenantNameField: "",
+                cores: [
+                    {name: "MortgageBot", apis: []},
+                    {name: "Malauzai", apis: []},
+                ]
             }
         },
         computed: {},
@@ -162,7 +185,7 @@
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
                 this.banks.map(b => this.checkBank(b, "Description"));
-                this.banks.sort((b1,b2)=>b1.relDist - b2.relDist);
+                this.banks.sort((b1, b2) => b1.relDist - b2.relDist);
                 this.log("Duplicate check complete!")
             },
             checkBank(bank, nameField) {
@@ -181,11 +204,11 @@
                     const reldist = mostSim.distance / name.length;
                     bank.relDist = reldist;
                     bank.mostSim = mostSim;
-                    if (reldist ===0) bank.ffstatus = "Duplicate";
+                    if (reldist === 0) bank.ffstatus = "Duplicate";
                     if (reldist < 0.1) bank.ffstatus = "Highly suspect";
                     else if (reldist < 0.2) bank.ffstatus = "Very suspect";
                     else if (reldist < 0.3) bank.ffstatus = "Suspect";
-                    else if (reldist < 0.5) bank.ffstatus = "Slightly suspect";
+                    else if (reldist < 0.4) bank.ffstatus = "Slightly suspect";
                     else bank.ffstatus = "Checked";
                 }
             },
