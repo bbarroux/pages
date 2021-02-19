@@ -205,7 +205,15 @@
     </div>
 </div>
 <script>
-
+    const ORG_ADMIN_API = "org-admin/v1"
+    const TENANT_MGT_API = "tenant-management/v1"
+    const POST={headers: {
+            'Content-Type': 'application/json'
+            // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: JSON.stringify(data)}
     new Vue({
         el: '#app',
         data() {
@@ -244,11 +252,11 @@
                     attachRouting: false,
                     attachUser: false,
                     maxEntries: 0,
-                    confidenceLevel: "Checked",
+                    confidenceLevel: "OK",
                     selectedCore: null
                 },
                 hideSynthetic: false,
-                statuses: ["Checked", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
+                statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
 
             }
         },
@@ -278,6 +286,13 @@
                     elem.scrollTop = elem.scrollHeight
                 },100);
             },
+            async post(api, data){
+                const body = JSON.stringify(data);
+                this.log(`Posting on ${api}. data:${body}`)
+                const headers = {'Content-Type': 'application/json'};
+                const req = {method: 'POST', headers, body};
+                return this.fetch(api, req);
+            },
             async fetch(api, req) {
                 this.log("calling " + api)
                 const resp = await this.ffal.fetch(api, req);
@@ -286,8 +301,8 @@
             },
             loadFfdc() {
                 this.log("Loading ffdc data...")
-                const p1 = this.loadAll("tenant-management/v1/tenants", [], 1).then(items => this.ffdc.tenants = items);
-                const p2 = this.loadAll("org-admin/v1/organizations", [], 1).then(items => this.ffdc.organizations = items);
+                const p1 = this.loadAll(`${TENANT_MGT_API}/tenants`, [], 1).then(items => this.ffdc.tenants = items);
+                const p2 = this.loadAll(`${ORG_ADMIN_API}/organizations`, [], 1).then(items => this.ffdc.organizations = items);
                 Promise.all([p1, p2]).then(this.checkFile)
             },
             checkFile() {
@@ -338,6 +353,22 @@
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
             process() {
+                const cfg = this.processConfig;
+                this.log(`Starting processing for max ${cfg.maxEntries}....`);
+                this.log("processing config : " + JSON.stringify(cfg));
+                this.banks.slice(0, cfg.maxEntries).forEach(b => this.processBank(b));
+            },
+            async processBank(bank){
+                const displayName = bank[this.orgNameField];
+                this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status}`);
+                if (this.cfg.createOrg){
+                    this.log(`Creating org ${displayName};OrgStatus: ${bank.orgCheck.status}`)
+                    if (this.orgCheck.status==="OK"){
+                        const orgJson = await this.fetch(`${ORG_ADMIN_API}/organizations`,{method:"POST"})
+                        this.log(`Created organization ${JSON.stringify(orgJson)}`)
+                        bank.createdOrg = orgJson;
+                    }
+                }
             },
             saveResult() {
             },
