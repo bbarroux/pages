@@ -49,12 +49,19 @@
         .console {
             grid-area: console;
             white-space: pre;
-            font-family: monospace
+            font-family: monospace;
+            background-color: #2A2A2A;
+            color: green;
         }
 
         .console > div {
             padding: 0;
             margin: 0;
+        }
+
+        .synthetic {
+            background-color: #CCCCCC;
+            color: #666666;
         }
     </style>
 </head>
@@ -75,17 +82,19 @@
             <table v-if="fields.length">
                 <thead>
                 <tr>
-                    <th>ffid</th>
-                    <th>status</th>
-                    <th>closest</th>
+                    <th class="synthetic">ffid</th>
+                    <th class="synthetic">status</th>
+                    <th class="synthetic">closest</th>
                     <th v-for="f in fields">{{f}}</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="bank in banks" :key="bank.ffid">
-                    <td>{{bank.ffid}}</td>
-                    <td>{{bank.ffstatus}}</td>
-                    <td><span v-if="bank.mostSim">({{bank.mostSim.distance}}){{bank.mostSim.displayName}}</span></td>
+                    <td class="synthetic">{{bank.ffid}}</td>
+                    <td class="synthetic">{{bank.ffstatus}}</td>
+                    <td class="synthetic"><span v-if="bank.mostSim"
+                                                style="font-size: 60%">({{bank.mostSim.distance}}){{bank.mostSim.displayName}}</span>
+                    </td>
                     <td v-for="f in fields">
                         {{bank[f]}}
                     </td>
@@ -98,19 +107,41 @@
                 Read File
                 <input type="file" @change="loadCsv">
             </label>
+            <hr>
             <div v-if="fields.length">
                 <div>
-                    <label for="orgIdFieldName">OrgId Field</label>
-                    <select name="orgIdFieldName" id="orgIdFieldName" v-model="orgIdField">
+                    <label for="orgIdField">OrgId Field</label>
+                    <select name="orgIdField" id="orgIdField" v-model="orgIdField">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
 
                 </div>
-                <div>{{orgIdField}}</div>
+                <div>
+                    <label for="orgNameField">OrgId Field</label>
+                    <select name="orgNameField" id="orgNameField" v-model="orgNameField">
+                        <option value="formula">Formula...</option>
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div v-if="orgNameField === 'formula'">
+                    <label for="orgNameFormula">OrgName Formula</label>
+                    <input type="text" id="orgNameFormula" v-model="orgNameFormula">
+                </div>
+                <div>
+                    <button @click="loadFfdc"></button>
+                    <span v-if="checked">Check complete</span>
+                </div>
+                <div v-if="checked">
+                    <div>
+                        <input type="checkbox" id="createOrg" v-model="createOrg">
+                        <label for="createOrg">Create Organizations</label>
+                    </div>
+                </div>
             </div>
+
         </div>
-        <div class="console" id="logdiv" style="">
+        <div class="console" id="logdiv">
             <div v-for="l in logtext">{{l}}</div>
         </div>
     </div>
@@ -134,6 +165,7 @@
                 },
                 orgIdField: "",
                 orgNameField: "",
+                orgNameFormula: "",
                 prodTenantIdField: "",
                 prodTenantIdFormula: "",
 
@@ -143,7 +175,8 @@
                 cores: [
                     {name: "MortgageBot", apis: []},
                     {name: "Malauzai", apis: []},
-                ]
+                ],
+                checked: false,
             }
         },
         computed: {},
@@ -152,6 +185,7 @@
         },
         methods: {
             loadCsv(ev) {
+                this.checked = false;
                 const file = ev.target.files[0];
                 Papa.parse(file, {
                     header: true,
@@ -160,7 +194,7 @@
                         this.fields = r.meta.fields;
                         this.banks = r.data.map((b, ffid) => ({ffid, ...b, ffstatus: "unchecked"}));
                         this.log(`Loaded csv file. ${this.banks.length} banks, ${this.fields.length} fields`)
-                        this.loadFfdc();
+
                     }
                 });
             },
@@ -186,7 +220,8 @@
                 this.log("Checking for duplicates...")
                 this.banks.map(b => this.checkBank(b, "Description"));
                 this.banks.sort((b1, b2) => b1.relDist - b2.relDist);
-                this.log("Duplicate check complete!")
+                this.log("Duplicate check complete!");
+                this.checked = true;
             },
             checkBank(bank, nameField) {
                 const name = bank[nameField];
