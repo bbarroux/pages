@@ -65,7 +65,7 @@
                     </select>
                 </div>
                 <div class="form-elt">
-                    <label for="orgNameField">OrgId Field</label>
+                    <label for="orgNameField">Org Name Field</label>
                     <select name="orgNameField" id="orgNameField" v-model="orgNameField">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
@@ -106,7 +106,7 @@
                     </select>
                 </div>
                 <div class="form-elt">
-                    <button @click="loadFfdc" :disabled="checked">Check</button>
+                    <button @click="loadFfdc" :disabled="checked || orgNameField.length ===0">Check</button>
                     <span v-if="checked">Check complete</span>
                 </div>
 
@@ -193,6 +193,7 @@
                 createUser: false,
                 maxEntries: 0,
                 hideSynthetic: false,
+                statuses:["Checked", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"]
 
             }
         },
@@ -235,7 +236,7 @@
             checkFile() {
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
-                this.banks.map(b => this.checkBank(b, "Description"));
+                this.banks.map(b => this.checkBank(b, this.orgNameField));
                 this.banks.sort((b1, b2) => b1.relDist - b2.relDist);
                 this.log("Duplicate check complete!");
                 this.checked = true;
