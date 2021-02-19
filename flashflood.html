@@ -242,22 +242,24 @@
             checkFile() {
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
-                this.banks.map(b => this.checkBank(b, this.orgNameField));
+                this.banks.map(b => this.checkBank(b, this.orgNameField, this.uatTenantIdField, this.prodTenantIdField));
                 this.banks.sort((b1, b2) => b1.relDist - b2.relDist);
                 this.log("Duplicate check complete!");
                 this.checked = true;
             },
-            checkBank(bank, nameField) {
+            checkBank(bank, nameField, uatTenantIdField, prodTenantIdField) {
                 const name = bank[nameField];
+                const relevant = s => s.toLowerCase().replaceAll(" ?bank", "").replaceAll(" ?union", "");
+
                 if (name === undefined || name.length === 0) {
                     bank.ffstatus = "error";
                 } else {
-                    const relevantName=name.toLowerCase().replaceAll(" ?bank","").replaceAll(" ?union","")
+                    const relevantName = relevant(name);
                     bank.similarOrgs = this.ffdc.organizations
-                        .map(o => ({...o, distance: LEV.distance(relevantName, o.displayName.toLowerCase().replaceAll(" ?bank","").replaceAll(" ?union",""))}))
+                        .map(o => ({...o, distance: LEV.distance(relevantName, relevant(o.displayName))}))
                         .sort((s1, s2) => s1.distance - s2.distance);
                     bank.similarTenants = this.ffdc.tenants
-                        .map(t => ({...t, distance: LEV.distance(relevantName, t.name.toLowerCase().replaceAll(" ?bank","").replaceAll(" ?union",""))}))
+                        .map(t => ({...t, distance: LEV.distance(relevantName, relevant(t.name))}))
                         .sort((s1, s2) => s1.distance - s2.distance);
 
                     const mostSim = bank.similarOrgs[0]
