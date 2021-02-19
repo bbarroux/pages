@@ -7,7 +7,7 @@ html, body, .grid-container {
 .grid-container {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 56px 1fr 0.5fr;
+    grid-template-rows: 56px 1fr 0.35fr;
     grid-template-areas: "Table-buttons Table-buttons Page-buttons" "main-table main-table main-form" "console console console";
 }
 
