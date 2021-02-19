@@ -199,8 +199,8 @@
                 createUser: false,
                 maxEntries: 0,
                 hideSynthetic: false,
-                statuses:["Checked", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
-                confidenceLevel:"Checked"
+                statuses: ["Checked", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
+                confidenceLevel: "Checked"
             }
         },
         computed: {},
@@ -230,7 +230,7 @@
             async fetch(api, req) {
                 this.log("calling " + api)
                 const resp = await this.ffal.fetch(api, req);
-                this.log("received response for " + api + ":" + resp.status);
+                this.log("received response for " + api + ":" + resp.status + " = ff-trace-id" + resp.headers["ff-trace-id"]);
                 return resp.json();
             },
             loadFfdc() {
