@@ -145,6 +145,12 @@
                         </select>
                     </div>
                     <div class="form-elt">
+                        <label for="confidenceLevel">Confidence Level</label>
+                        <select name="confidenceLevel" id="confidenceLevel" v-model="confidenceLevel">
+                            <option v-for="s in statuses">{{s}}</option>
+                        </select>
+                    </div>
+                    <div class="form-elt">
                         <button @click="process" :disabled="maxEntries<=0">Go!</button>
                     </div>
                 </div>
@@ -193,8 +199,8 @@
                 createUser: false,
                 maxEntries: 0,
                 hideSynthetic: false,
-                statuses:["Checked", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"]
-
+                statuses:["Checked", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
+                confidenceLevel:"Checked"
             }
         },
         computed: {},
