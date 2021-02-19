@@ -2,7 +2,7 @@
 <head>
     <title>Flashflood</title>
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
-    <script src="https://lobdev.fficaas.net/ffal.js"></script>
+    <script src="https://go.fficaas.net/ffal.js"></script>
     <script src="levenshtein.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="flashflood.css"/>
@@ -22,7 +22,7 @@
             </div>
         </div>
         <div class="Page-buttons">
-            <b>LOBDEV</b> -
+            <b>PREPROD</b> -
             <button onclick="FFAL.logout()">Sign Out</button>
         </div>
         <div class="main-table">
@@ -252,15 +252,16 @@
                 if (name === undefined || name.length === 0) {
                     bank.ffstatus = "error";
                 } else {
+                    const relevantName=name.toLowerCase().replaceAll(" ?bank","").replaceAll(" ?union","")
                     bank.similarOrgs = this.ffdc.organizations
-                        .map(o => ({...o, distance: LEV.distance(name.toLowerCase(), o.displayName.toLowerCase())}))
+                        .map(o => ({...o, distance: LEV.distance(relevantName, o.displayName.toLowerCase().replaceAll(" ?bank","").replaceAll(" ?union",""))}))
                         .sort((s1, s2) => s1.distance - s2.distance);
                     bank.similarTenants = this.ffdc.tenants
-                        .map(t => ({...t, distance: LEV.distance(name.toLowerCase(), t.name.toLowerCase())}))
+                        .map(t => ({...t, distance: LEV.distance(relevantName, t.name.toLowerCase().replaceAll(" ?bank","").replaceAll(" ?union",""))}))
                         .sort((s1, s2) => s1.distance - s2.distance);
 
                     const mostSim = bank.similarOrgs[0]
-                    const reldist = mostSim.distance / name.length;
+                    const reldist = mostSim.distance / relevantName.length;
                     bank.relDist = reldist;
                     bank.mostSim = mostSim;
                     if (reldist === 0) bank.ffstatus = "Duplicate";
