@@ -44,25 +44,35 @@
                 <tbody>
                 <tr v-for="bank in banks" :key="bank.ffid">
                     <td class="synthetic" v-if="!hideSynthetic">{{bank.ffid}}</td>
-
-                    <td class="synthetic" v-if="!hideSynthetic  && bank.orgCheck">{{bank.orgCheck.status}}</td>
-                    <td class="synthetic" v-if="!hideSynthetic  && bank.orgCheck && bank.orgCheck.status!=='OK'">
-                        <span v-if="bank.orgCheck.mostSim" style="font-size: 80%">
-                            ({{bank.orgCheck.mostSim.distance}}){{bank.orgCheck.mostSim.displayName}}
-                        </span>
-                    </td>
-                    <td class="synthetic" v-if="!hideSynthetic  && bank.uatTenantCheck">{{bank.uatTenantCheck.status}}</td>
-                    <td class="synthetic" v-if="!hideSynthetic  && bank.uatTenantCheck && bank.uatTenantCheck.status!=='OK'">
-                        <span v-if="bank.uatTenantCheck.mostSim" style="font-size: 80%">
-                            ({{bank.uatTenantCheck.mostSim.distance}}){{bank.uatTenantCheck.mostSim.name}}
-                        </span>
-                    </td>
-                    <td class="synthetic" v-if="!hideSynthetic  && bank.prodTenantCheck">{{bank.prodTenantCheck.status}}</td>
-                    <td class="synthetic" v-if="!hideSynthetic  && bank.prodTenantCheck && bank.prodTenantCheck.status!=='OK'">
-                        <span v-if="bank.prodTenantCheck.mostSim" style="font-size: 80%">
-                            ({{bank.prodTenantCheck.mostSim.distance}}){{bank.prodTenantCheck.mostSim.name}}
-                        </span>
-                    </td>
+                    <template v-if="!hideSynthetic && checked ">
+                        <template v-if="bank.orgCheck!==undefined ">
+                            <td class="synthetic">{{bank.orgCheck.status}}</td>
+                            <td class="synthetic">
+                                <span v-if="bank.orgCheck.status!=='OK' && bank.orgCheck.mostSim"
+                                      style="font-size: 80%">
+                                    ({{bank.orgCheck.mostSim.distance}}){{bank.orgCheck.mostSim.displayName}}
+                                </span>
+                            </td>
+                        </template>
+                        <template v-if="bank.uatTenantCheck!==undefined ">
+                            <td class="synthetic">{{bank.uatTenantCheck.status}}</td>
+                            <td class="synthetic">
+                                <span v-if="bank.uatTenantCheck.status!=='OK' && bank.uatTenantCheck.mostSim"
+                                      style="font-size: 80%">
+                                    ({{bank.uatTenantCheck.mostSim.distance}}){{bank.uatTenantCheck.mostSim.name}}
+                                </span>
+                            </td>
+                        </template>
+                        <template v-if="bank.prodTenantCheck!==undefined ">
+                            <td class="synthetic">{{bank.prodTenantCheck.status}}</td>
+                            <td class="synthetic">
+                                <span v-if="bank.prodTenantCheck.status!=='OK' && bank.prodTenantCheck.mostSim"
+                                      style="font-size: 80%">
+                                    ({{bank.prodTenantCheck.mostSim.distance}}){{bank.uatTenantCheck.mostSim.name}}
+                                </span>
+                            </td>
+                        </template>
+                    </template>
                     <td v-for="f in fields">
                         {{bank[f]}}
                     </td>
@@ -261,15 +271,15 @@
             checkFile() {
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
-                this.banks.forEach(b => b.orgCheck = this.checkBank(b,  this.orgNameField, this.ffdc.organizations, i=>i.displayName));
-                this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b,  this.prodTenantIdField, this.ffdc.tenants, i=>i.name));
-                this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b,  this.uatTenantIdField, this.ffdc.tenants, i=>i.name));
+                this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName));
+                this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name));
+                this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name));
                 //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
                 this.log("Duplicate check complete!");
                 this.checked = true;
             },
             checkBank(bank, nameField, coll, nameAccessor) {
-                if (nameField===undefined||nameField.length===0) return null;
+                if (nameField === undefined || nameField.length === 0) return undefined;
                 const name = bank[nameField];
                 const checkResult = {nameField, name, nameAccessor};
                 const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "");
