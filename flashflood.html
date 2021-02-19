@@ -29,9 +29,8 @@
             <table v-if="fields.length">
                 <thead>
                 <tr>
-                    <th v-for="f in fields">{{f}}</th>
+                    <th class="synthetic" v-if="!hideSynthetic">ffid</th>
                     <template v-if="!hideSynthetic && checked ">
-                        <th class="synthetic" v-if="!hideSynthetic">ffid</th>
                         <th class="synthetic" v-if="orgNameField">org status</th>
                         <th class="synthetic" v-if="prodTenantIdField">prod tenant status</th>
                         <th class="synthetic" v-if="uatTenantIdField">uat tenant status</th>
@@ -39,6 +38,7 @@
                         <th class="synthetic" v-if="prodTenantIdField">closest prod Tenant</th>
                         <th class="synthetic" v-if="uatTenantIdField">closest uat Tenant</th>
                     </template>
+                    <th v-for="f in fields">{{f}}</th>
                 </tr>
                 </thead>
                 <tbody>
