@@ -30,18 +30,35 @@
                 <thead>
                 <tr>
                     <th class="synthetic" v-if="!hideSynthetic">ffid</th>
-                    <th class="synthetic" v-if="!hideSynthetic">status</th>
-                    <th class="synthetic" v-if="!hideSynthetic">closest</th>
+                    <th class="synthetic" v-if="!hideSynthetic && orgNameField">org status</th>
+                    <th class="synthetic" v-if="!hideSynthetic && prodTenantIdField">prod tenant status</th>
+                    <th class="synthetic" v-if="!hideSynthetic && uatTenantIdField">uat tenant status</th>
+                    <th class="synthetic" v-if="!hideSynthetic && orgNameField">closest org</th>
+                    <th class="synthetic" v-if="!hideSynthetic && prodTenantIdField">closest prod Tenant</th>
+                    <th class="synthetic" v-if="!hideSynthetic && uatTenantIdField">closest uat Tenant</th>
                     <th v-for="f in fields">{{f}}</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="bank in banks" :key="bank.ffid">
                     <td class="synthetic" v-if="!hideSynthetic">{{bank.ffid}}</td>
-                    <td class="synthetic" v-if="!hideSynthetic">{{bank.ffstatus}}</td>
-                    <td class="synthetic" v-if="!hideSynthetic">
-                        <span v-if="bank.mostSim" style="font-size: 80%">
-                            ({{bank.mostSim.distance}}){{bank.mostSim.displayName}}
+
+                    <td class="synthetic" v-if="!hideSynthetic  && bank.orgCheck">{{bank.orgCheck.status}}</td>
+                    <td class="synthetic" v-if="!hideSynthetic  && bank.orgCheck && bank.orgCheck.status!=='OK'">
+                        <span v-if="bank.orgCheck.mostSim" style="font-size: 80%">
+                            ({{bank.orgCheck.mostSim.distance}}){{bank.orgCheck.mostSim.displayName}}
+                        </span>
+                    </td>
+                    <td class="synthetic" v-if="!hideSynthetic  && bank.uatTenantCheck">{{bank.uatTenantCheck.status}}</td>
+                    <td class="synthetic" v-if="!hideSynthetic  && bank.uatTenantCheck && bank.uatTenantCheck.status!=='OK'">
+                        <span v-if="bank.uatTenantCheck.mostSim" style="font-size: 80%">
+                            ({{bank.uatTenantCheck.mostSim.distance}}){{bank.uatTenantCheck.mostSim.name}}
+                        </span>
+                    </td>
+                    <td class="synthetic" v-if="!hideSynthetic  && bank.prodTenantCheck">{{bank.prodTenantCheck.status}}</td>
+                    <td class="synthetic" v-if="!hideSynthetic  && bank.prodTenantCheck && bank.prodTenantCheck.status!=='OK'">
+                        <span v-if="bank.prodTenantCheck.mostSim" style="font-size: 80%">
+                            ({{bank.prodTenantCheck.mostSim.distance}}){{bank.prodTenantCheck.mostSim.name}}
                         </span>
                     </td>
                     <td v-for="f in fields">
@@ -242,37 +259,44 @@
             checkFile() {
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
-                this.banks.map(b => this.checkBank(b, this.orgNameField, this.uatTenantIdField, this.prodTenantIdField));
-                this.banks.sort((b1, b2) => b1.relDist - b2.relDist);
+                this.banks.forEach(b => b.orgCheck = this.checkBank(b,  this.orgNameField, this.ffdc.organizations, i=>i.displayName));
+                this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b,  this.prodTenantIdField, this.ffdc.tenants, i=>i.name));
+                this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b,  this.uatTenantIdField, this.ffdc.tenants, i=>i.name));
+                //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
                 this.log("Duplicate check complete!");
                 this.checked = true;
             },
-            checkBank(bank, nameField, uatTenantIdField, prodTenantIdField) {
+            checkBank(bank, nameField, coll, nameAccessor) {
+                if (nameField===undefined||nameField.length===0) return null;
                 const name = bank[nameField];
-                const relevant = s => s.toLowerCase().replaceAll(" ?bank", "").replaceAll(" ?union", "");
+                const checkResult = {nameField, name, nameAccessor};
+                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/, "").replaceAll(/ ?union/, "");
 
                 if (name === undefined || name.length === 0) {
-                    bank.ffstatus = "error";
+                    checkResult.status = "N/A";
                 } else {
                     const relevantName = relevant(name);
-                    bank.similarOrgs = this.ffdc.organizations
-                        .map(o => ({...o, distance: LEV.distance(relevantName, relevant(o.displayName))}))
-                        .sort((s1, s2) => s1.distance - s2.distance);
-                    bank.similarTenants = this.ffdc.tenants
-                        .map(t => ({...t, distance: LEV.distance(relevantName, relevant(t.name))}))
+                    checkResult.similar = coll
+                        .map(o => ({...o, distance: LEV.distance(relevantName, relevant(nameAccessor(o)))}))
                         .sort((s1, s2) => s1.distance - s2.distance);
 
-                    const mostSim = bank.similarOrgs[0]
+                    const mostSim = checkResult.similar[0]
                     const reldist = mostSim.distance / relevantName.length;
-                    bank.relDist = reldist;
-                    bank.mostSim = mostSim;
-                    if (reldist === 0) bank.ffstatus = "Duplicate";
-                    if (reldist < 0.1) bank.ffstatus = "Highly suspect";
-                    else if (reldist < 0.2) bank.ffstatus = "Very suspect";
-                    else if (reldist < 0.3) bank.ffstatus = "Suspect";
-                    else if (reldist < 0.4) bank.ffstatus = "Slightly suspect";
-                    else bank.ffstatus = "Checked";
+                    checkResult.relDist = reldist;
+                    checkResult.mostSim = mostSim;
+
+                    if (reldist === 0) {
+                        checkResult.status = "Duplicate";
+                        checkResult.existing = mostSim;
+                    }
+                    if (reldist < 0.1) checkResult.status = "Highly suspect";
+                    else if (reldist < 0.2) checkResult.status = "Very suspect";
+                    else if (reldist < 0.3) checkResult.status = "Suspect";
+                    else if (reldist < 0.4) checkResult.status = "Slightly suspect";
+                    else checkResult.status = "OK";
+                    return checkResult
                 }
+
             },
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
