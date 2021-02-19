@@ -129,8 +129,8 @@
                     <input type="text" id="orgNameFormula" v-model="orgNameFormula">
                 </div>
                 <div>
-                    <button @click="loadFfdc"></button>
-                    <span v-if="checked">Check complete</span>
+                    <button @click="loadFfdc"  :disabled="checked">Check</button>
+                    <span v-if="checked" >Check complete</span>
                 </div>
                 <div v-if="checked">
                     <div>
