@@ -270,7 +270,7 @@
                 if (nameField===undefined||nameField.length===0) return null;
                 const name = bank[nameField];
                 const checkResult = {nameField, name, nameAccessor};
-                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/, "").replaceAll(/ ?union/, "");
+                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "");
 
                 if (name === undefined || name.length === 0) {
                     checkResult.status = "N/A";
