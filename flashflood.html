@@ -29,14 +29,16 @@
             <table v-if="fields.length">
                 <thead>
                 <tr>
-                    <th class="synthetic" v-if="!hideSynthetic">ffid</th>
-                    <th class="synthetic" v-if="!hideSynthetic && checked && orgNameField">org status</th>
-                    <th class="synthetic" v-if="!hideSynthetic && checked && prodTenantIdField">prod tenant status</th>
-                    <th class="synthetic" v-if="!hideSynthetic && checked && uatTenantIdField">uat tenant status</th>
-                    <th class="synthetic" v-if="!hideSynthetic && checked && orgNameField">closest org</th>
-                    <th class="synthetic" v-if="!hideSynthetic && checked && prodTenantIdField">closest prod Tenant</th>
-                    <th class="synthetic" v-if="!hideSynthetic && checked && uatTenantIdField">closest uat Tenant</th>
                     <th v-for="f in fields">{{f}}</th>
+                    <template v-if="!hideSynthetic && checked ">
+                        <th class="synthetic" v-if="!hideSynthetic">ffid</th>
+                        <th class="synthetic" v-if="orgNameField">org status</th>
+                        <th class="synthetic" v-if="prodTenantIdField">prod tenant status</th>
+                        <th class="synthetic" v-if="uatTenantIdField">uat tenant status</th>
+                        <th class="synthetic" v-if="orgNameField">closest org</th>
+                        <th class="synthetic" v-if="prodTenantIdField">closest prod Tenant</th>
+                        <th class="synthetic" v-if="uatTenantIdField">closest uat Tenant</th>
+                    </template>
                 </tr>
                 </thead>
                 <tbody>
