@@ -194,7 +194,7 @@
                         </select>
                     </div>
                     <div class="form-elt">
-                        <button @click="process" :disabled="maxEntries<=0">Go!</button>
+                        <button @click="process" :disabled="processConfig.maxEntries<=0">Go!</button>
                     </div>
                 </div>
             </div>
@@ -351,12 +351,12 @@
                 const cfg = this.processConfig;
                 this.log(`Starting processing for max ${cfg.maxEntries}....`);
                 this.log("processing config : " + JSON.stringify(cfg));
-                this.banks.slice(0, cfg.maxEntries).forEach(b => this.processBank(b));
+                this.banks.slice(0, cfg.maxEntries).forEach(b => this.processBank(b, cfg));
             },
-            async processBank(bank){
+            async processBank(bank, cfg){
                 const displayName = bank[this.orgNameField];
                 this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status}`);
-                if (this.cfg.createOrg){
+                if (cfg.createOrg){
                     this.log(`Creating org ${displayName};OrgStatus: ${bank.orgCheck.status}`)
                     if (this.orgCheck.status==="OK"){
                         const orgJson = await this.fetch(`${ORG_ADMIN_API}/organizations`,{method:"POST"})
