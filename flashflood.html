@@ -77,7 +77,8 @@
     <div v-if="ffal" class="grid-container">
 
         <div class="Table-buttons">
-
+            <input type="checkbox" id="hideSynthetic" v-model="hideSynthetic">
+            <label for="hideSynthetic">Hide Synthetic columns</label>
         </div>
         <div class="Page-buttons">
             {{ffal.user.displayName}}
@@ -87,17 +88,18 @@
             <table v-if="fields.length">
                 <thead>
                 <tr>
-                    <th class="synthetic">ffid</th>
-                    <th class="synthetic">status</th>
-                    <th class="synthetic">closest</th>
+                    <th class="synthetic" v-if="!hideSynthetic">ffid</th>
+                    <th class="synthetic" v-if="!hideSynthetic">status</th>
+                    <th class="synthetic" v-if="!hideSynthetic">closest</th>
                     <th v-for="f in fields">{{f}}</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr v-for="bank in banks" :key="bank.ffid">
-                    <td class="synthetic">{{bank.ffid}}</td>
-                    <td class="synthetic">{{bank.ffstatus}}</td>
-                    <td class="synthetic">
+
+                    <td class="synthetic" v-if="!hideSynthetic">{{bank.ffid}}</td>
+                    <td class="synthetic" v-if="!hideSynthetic">{{bank.ffstatus}}</td>
+                    <td class="synthetic" v-if="!hideSynthetic">
                         <span v-if="bank.mostSim" style="font-size: 80%">
                             ({{bank.mostSim.distance}}){{bank.mostSim.displayName}}
                         </span>
@@ -222,6 +224,8 @@
                 createRouting: false,
                 createUser: false,
                 maxEntries: 0,
+                hideSynthetic: false,
+
             }
         },
         computed: {},
