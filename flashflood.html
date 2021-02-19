@@ -230,7 +230,7 @@
             async fetch(api, req) {
                 this.log("calling " + api)
                 const resp = await this.ffal.fetch(api, req);
-                this.log("received response for " + api + ":" + resp.status + " = ff-trace-id" + resp.headers["ff-trace-id"]);
+                this.log("received response for " + api + ":" + resp.status + " = ff-trace-id" + resp.headers.get("ff-trace-id"));
                 return resp.json();
             },
             loadFfdc() {
