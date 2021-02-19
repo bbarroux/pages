@@ -143,39 +143,52 @@
                 <div v-if="checked">
                     <hr>
                     <div class="form-elt">
-                        <input type="checkbox" id="createOrg" v-model="createOrg">
+                        <input type="checkbox" id="createOrg" v-model="processConfig.createOrg">
                         <label for="createOrg">Create Organizations</label>
                     </div>
                     <div class="form-elt">
-                        <input type="checkbox" id="createUatTenant" v-model="createUatTenant">
+                        <input type="checkbox" id="createUatTenant" v-model="processConfig.createUatTenant">
                         <label for="createUatTenant">Create UAT Tenants</label>
                     </div>
                     <div class="form-elt">
-                        <input type="checkbox" id="createProdTenant" v-model="createProdTenant">
+                        <input type="checkbox" id="createProdTenant" v-model="processConfig.createProdTenant">
                         <label for="createProdTenant">Create PROD Tenants</label>
                     </div>
                     <div class="form-elt">
-                        <input type="checkbox" id="createRouting" v-model="createRouting">
+                        <input type="checkbox" id="createRouting" v-model="processConfig.createRouting">
                         <label for="createRouting">Weave routing</label>
                     </div>
                     <div class="form-elt">
-                        <input type="checkbox" id="createUser" v-model="createUser">
+                        <input type="checkbox" id="createUser" v-model="processConfig.createUser">
                         <label for="createUser">Create Users</label>
                     </div>
                     <hr>
                     <div class="form-elt">
+                        <input type="checkbox" id="attachTenant" v-model="processConfig.attachTenant">
+                        <label for="attachTenant">Attach tenants to pre-existing org</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="attachRouting" v-model="processConfig.attachRouting">
+                        <label for="attachRouting">Weave routing for pre-existing tenant</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="attachUser" v-model="processConfig.attachUser">
+                        <label for="attachUser">Attach users to pre-existing org</label>
+                    </div>
+                    <hr>
+                    <div class="form-elt">
                         <label for="maxEntries">Max entries</label>
-                        <input type="text" id="maxEntries" v-model="maxEntries">
+                        <input type="text" id="maxEntries" v-model="processConfig.maxEntries">
                     </div>
                     <div class="form-elt">
                         <label for="selectedCore">Core Product</label>
-                        <select name="selectedCore" id="selectedCore" v-model="selectedCore">
+                        <select name="selectedCore" id="selectedCore" v-model="processConfig.selectedCore">
                             <option v-for="c in cores">{{c.name}}</option>
                         </select>
                     </div>
                     <div class="form-elt">
                         <label for="confidenceLevel">Confidence Level</label>
-                        <select name="confidenceLevel" id="confidenceLevel" v-model="confidenceLevel">
+                        <select name="confidenceLevel" id="confidenceLevel" v-model="processConfig.confidenceLevel">
                             <option v-for="s in statuses">{{s}}</option>
                         </select>
                     </div>
@@ -216,20 +229,27 @@
                 tenantNameField: "",
                 userEmailField: "",
                 cores: [
-                    {name: "MortgageBot", apis: []},
+                    {name: "MortgageBot LOS", apis: []},
+                    {name: "MortgageBot POS", apis: []},
                     {name: "Malauzai", apis: []},
                 ],
-                selectedCore: null,
                 checked: false,
-                createOrg: false,
-                createUatTenant: false,
-                createProdTenant: false,
-                createRouting: false,
-                createUser: false,
-                maxEntries: 0,
+                processConfig: {
+                    createOrg: false,
+                    createUatTenant: false,
+                    createProdTenant: false,
+                    createRouting: false,
+                    createUser: false,
+                    attachTenant: false,
+                    attachRouting: false,
+                    attachUser: false,
+                    maxEntries: 0,
+                    confidenceLevel: "Checked",
+                    selectedCore: null
+                },
                 hideSynthetic: false,
                 statuses: ["Checked", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
-                confidenceLevel: "Checked"
+
             }
         },
         computed: {},
@@ -253,8 +273,10 @@
             },
             log(msg) {
                 this.logtext.push(msg)
-                const elem = document.getElementById('logdiv');
-                elem.scrollTop = elem.scrollHeight;
+                setTimeout( () => {
+                    const elem = document.getElementById('logdiv');
+                    elem.scrollTop = elem.scrollHeight
+                },100);
             },
             async fetch(api, req) {
                 this.log("calling " + api)
