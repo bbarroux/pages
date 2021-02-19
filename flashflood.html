@@ -77,8 +77,12 @@
     <div v-if="ffal" class="grid-container">
 
         <div class="Table-buttons">
-            <input type="checkbox" id="hideSynthetic" v-model="hideSynthetic">
-            <label for="hideSynthetic">Hide Synthetic columns</label>
+            <div v-if="field.length">
+                <input type="checkbox" id="hideSynthetic" v-model="hideSynthetic">
+                <label for="hideSynthetic">Hide Synthetic columns</label>
+                <button @click="saveResult">Save Result</button>
+                <button @click="saveOutput">Save Output</button>
+            </div>
         </div>
         <div class="Page-buttons">
             {{ffal.user.displayName}}
@@ -96,7 +100,6 @@
                 </thead>
                 <tbody>
                 <tr v-for="bank in banks" :key="bank.ffid">
-
                     <td class="synthetic" v-if="!hideSynthetic">{{bank.ffid}}</td>
                     <td class="synthetic" v-if="!hideSynthetic">{{bank.ffstatus}}</td>
                     <td class="synthetic" v-if="!hideSynthetic">
@@ -121,10 +124,8 @@
                 <div class="form-elt">
                     <label for="orgIdField">OrgId Field</label>
                     <select name="orgIdField" id="orgIdField" v-model="orgIdField">
-                        <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
-
                 </div>
                 <div class="form-elt">
                     <label for="orgNameField">OrgId Field</label>
@@ -137,10 +138,42 @@
                     <label for="orgNameFormula">OrgName Formula</label>
                     <input type="text" id="orgNameFormula" v-model="orgNameFormula">
                 </div>
+                <hr>
+                <div class="form-elt">
+                    <label for="prodTenantIdField">PROD Tenant id Field</label>
+                    <select name="prodTenantIdField" id="prodTenantIdField" v-model="prodTenantIdField">
+                        <option value="formula">Formula...</option>
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div v-if="prodTenantIdField === 'formula'" class="form-elt">
+                    <label for="prodTenantIdFormula">PROD Tenant id Formula</label>
+                    <input type="text" id="prodTenantIdFormula" v-model="prodTenantIdFormula">
+                </div>
+                <div class="form-elt">
+                    <label for="uatTenantIdField">UAT Tenant id Field</label>
+                    <select name="prodTenantIdField" id="uatTenantIdField" v-model="uatTenantIdField">
+                        <option value="formula">Formula...</option>
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div v-if="uatTenantIdField === 'formula'" class="form-elt">
+                    <label for="uatTenantIdFormula">UAT Tenant id Formula</label>
+                    <input type="text" id="uatTenantIdFormula" v-model="uatTenantIdFormula">
+                </div>
+                <hr>
+                <div class="form-elt">
+                    <label for="userEmailField">User Email Field</label>
+                    <select name="userEmailField" id="userEmailField" v-model="userEmailField">
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
                 <div class="form-elt">
                     <button @click="loadFfdc" :disabled="checked">Check</button>
                     <span v-if="checked">Check complete</span>
                 </div>
+
+                <hr>
                 <div v-if="checked">
                     <hr>
                     <div class="form-elt">
@@ -212,6 +245,7 @@
                 uatTenantIdField: "",
                 uatTenantIdFormula: "",
                 tenantNameField: "",
+                userEmailField:"",
                 cores: [
                     {name: "MortgageBot", apis: []},
                     {name: "Malauzai", apis: []},
@@ -300,6 +334,12 @@
                 if (items.length >= totalCount) return items;
                 const json = await this.fetch(api + "?offset=" + items.length);
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
+            },
+            process() {
+            },
+            saveResult() {
+            },
+            saveOutput() {
             },
         }
     })
