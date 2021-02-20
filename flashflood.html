@@ -359,7 +359,7 @@
                 if (cfg.createOrg){
                     this.log(`Creating org ${displayName};OrgStatus: ${bank.orgCheck.status}`)
                     if (bank.orgCheck.status==="OK"){
-                        const orgJson = await this.fetch(`${ORG_ADMIN_API}/organizations`,{method:"POST"})
+                        const orgJson = await this.post(`${ORG_ADMIN_API}/organizations`,{displayName})
                         this.log(`Created organization ${JSON.stringify(orgJson)}`)
                         bank.createdOrg = orgJson;
                     }
