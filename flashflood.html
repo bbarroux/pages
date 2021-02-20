@@ -344,11 +344,11 @@
 
             },
             async attachExistingTenants(bank) {
-                this.log(`Getting existing tenants for ${bank.existing.orgId}`)
-                this.fetch(`${ORG_ADMIN_API}/organisations/${bank.existing.orgId}/tenants`)
+                this.log(`Getting existing tenants for ${bank.orgCheck.existing.orgId}`)
+                this.fetch(`${ORG_ADMIN_API}/organisations/${bank.orgCheck.existing.orgId}/tenants`)
                     .then(j => {
                         bank.existingTenants = j.items;
-                        this.log(`Found ${j.items.length} tenants for ${bank.existing.orgId}`)
+                        this.log(`Found ${j.items.length} tenants for ${bank.orgCheck.existing.orgId}`)
                     });
             },
             async loadAll(api, items, totalCount) {
