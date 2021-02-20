@@ -329,7 +329,7 @@
                     checkResult.relDist = reldist;
                     checkResult.mostSim = mostSim;
 
-                    if (reldist === 0) {
+                    if (mostSim.distance === 0) {
                         checkResult.status = "Duplicate";
                         checkResult.existing = mostSim;
                     }
