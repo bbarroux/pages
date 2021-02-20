@@ -308,7 +308,7 @@
                 this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name));
                 //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
                 this.log("Duplicate check complete!");
-                this.banks.filter(b => b.orgCheck.status === "Duplicate").forEach(b => this.attachExistingTenants(b))
+                this.banks.filter(b => b.orgCheck.existing ).forEach(b => this.attachExistingTenants(b))
                 this.checked = true;
             },
             checkBank(bank, nameField, coll, nameAccessor) {
@@ -330,7 +330,7 @@
                     checkResult.relDist = reldist;
                     checkResult.mostSim = mostSim;
 
-                    if (mostSim.distance === 0) {
+                    if (reldist === 0) {
                         checkResult.status = "Duplicate";
                         checkResult.existing = mostSim;
                     }
@@ -344,11 +344,11 @@
 
             },
             async attachExitingTenants(bank) {
-                this.log(`Getting existing tenants for ${bank.mostSim.orgId}`)
-                this.fetch(`${ORG_ADMIN_API}/organisations/${bank.mostSim.orgId}/tenants`)
+                this.log(`Getting existing tenants for ${bank.existing.orgId}`)
+                this.fetch(`${ORG_ADMIN_API}/organisations/${bank.existing.orgId}/tenants`)
                     .then(j => {
                         bank.existingTenants = j.items;
-                        this.log(`Found ${j.items.length} tenants for ${bank.mostSim.orgId}`)
+                        this.log(`Found ${j.items.length} tenants for ${bank.existing.orgId}`)
                     });
             },
             async loadAll(api, items, totalCount) {
