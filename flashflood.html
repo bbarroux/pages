@@ -343,7 +343,7 @@
                 }
 
             },
-            async attachExitingTenants(bank) {
+            async attachExistingTenants(bank) {
                 this.log(`Getting existing tenants for ${bank.existing.orgId}`)
                 this.fetch(`${ORG_ADMIN_API}/organisations/${bank.existing.orgId}/tenants`)
                     .then(j => {
