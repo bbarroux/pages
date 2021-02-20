@@ -276,12 +276,12 @@
             },
             log(msg) {
                 this.logtext.push(msg)
-                setTimeout( () => {
+                setTimeout(() => {
                     const elem = document.getElementById('logdiv');
                     elem.scrollTop = elem.scrollHeight
-                },100);
+                }, 100);
             },
-            async post(api, data){
+            async post(api, data) {
                 const body = JSON.stringify(data);
                 this.log(`Posting on ${api}. data:${body}`)
                 const headers = {'Content-Type': 'application/json'};
@@ -308,6 +308,7 @@
                 this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name));
                 //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
                 this.log("Duplicate check complete!");
+                this.banks.filter(b => b.orgCheck.status === "Duplicate").forEach(b => this.attachExistingTenants(b))
                 this.checked = true;
             },
             checkBank(bank, nameField, coll, nameAccessor) {
@@ -342,6 +343,14 @@
                 }
 
             },
+            async attachExitingTenants(bank) {
+                this.log(`Getting existing tenants for ${bank.mostSim.orgId}`)
+                this.fetch(`${ORG_ADMIN_API}/organisations/${bank.mostSim.orgId}/tenants`)
+                    .then(j => {
+                        bank.existingTenants = j.items;
+                        this.log(`Found ${j.items.length} tenants for ${bank.mostSim.orgId}`)
+                    });
+            },
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
                 const json = await this.fetch(api + "?offset=" + items.length);
@@ -353,13 +362,13 @@
                 this.log("processing config : " + JSON.stringify(cfg));
                 this.banks.slice(0, cfg.maxEntries).forEach(b => this.processBank(b, cfg));
             },
-            async processBank(bank, cfg){
+            async processBank(bank, cfg) {
                 const displayName = bank[this.orgNameField];
                 this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status}`);
-                if (cfg.createOrg){
+                if (cfg.createOrg) {
                     this.log(`Creating org ${displayName};OrgStatus: ${bank.orgCheck.status}`)
-                    if (bank.orgCheck.status==="OK"){
-                        const orgJson = await this.post(`${ORG_ADMIN_API}/organizations`,{displayName})
+                    if (bank.orgCheck.status === "OK") {
+                        const orgJson = await this.post(`${ORG_ADMIN_API}/organizations`, {displayName})
                         this.log(`Created organization ${JSON.stringify(orgJson)}`)
                         bank.createdOrg = orgJson;
                     }
