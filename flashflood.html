@@ -417,7 +417,7 @@
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
                     if (cfg.createRouting){
-                        await this.createRouting(displayName, bank, name, this.selectedCore.backendInstanceIds["prod"],cfg)
+                        await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["prod"],cfg)
                     }
                 }
             },
