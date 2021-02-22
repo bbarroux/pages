@@ -288,6 +288,13 @@
                 const req = {method: 'POST', headers, body};
                 return this.fetch(api, req);
             },
+            async put(api, data) {
+                const body = JSON.stringify(data);
+                this.log(`Putting on ${api}. data:${body}`)
+                const headers = {'Content-Type': 'application/json'};
+                const req = {method: 'PUT', headers, body};
+                return this.fetch(api, req);
+            },
             async fetch(api, req) {
                 this.log("calling " + api)
                 const resp = await this.ffal.fetch(api, req);
@@ -308,7 +315,7 @@
                 this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name));
                 //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
                 this.log("Duplicate check complete!");
-                this.banks.filter(b => b.orgCheck.existing ).forEach(b => this.attachExistingTenants(b))
+                this.banks.filter(b => b.orgCheck.existing).forEach(b => this.attachExistingTenants(b))
                 this.checked = true;
             },
             checkBank(bank, nameField, coll, nameAccessor) {
@@ -333,12 +340,14 @@
                     if (reldist === 0) {
                         checkResult.status = "Duplicate";
                         checkResult.existing = mostSim;
-                    }
-                    else if (reldist < 0.1) checkResult.status = "Highly suspect";
+                    } else if (reldist < 0.1) checkResult.status = "Highly suspect";
                     else if (reldist < 0.2) checkResult.status = "Very suspect";
                     else if (reldist < 0.3) checkResult.status = "Suspect";
                     else if (reldist < 0.4) checkResult.status = "Slightly suspect";
-                    else checkResult.status = "OK";
+                    else {
+                        checkResult.status = "OK";
+                        checkResult.checked = true;
+                    }
                     return checkResult
                 }
 
@@ -356,23 +365,84 @@
                 const json = await this.fetch(api + "?offset=" + items.length);
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
-            process() {
+            async process() {
                 const cfg = this.processConfig;
                 this.log(`Starting processing for max ${cfg.maxEntries}....`);
                 this.log("processing config : " + JSON.stringify(cfg));
-                this.banks.slice(0, cfg.maxEntries).forEach(b => this.processBank(b, cfg));
+                for (let i = 0; i < cfg.maxEntries; i++) {
+                    await this.processBank(this.banks[i], cfg);
+                }
             },
             async processBank(bank, cfg) {
                 const displayName = bank[this.orgNameField];
                 this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status}`);
-                if (cfg.createOrg) {
+                await this.createOrg(displayName, bank, cfg);
+                await this.createProdTenant(displayName, bank, cfg);
+                await this.createUatTenant(displayName, bank, cfg);
+                await this.createRouting(displayName, bank, cfg)
+                await this.createUser(displayName, bank, cfg);
+                this.log(`Processing complete for  ${displayName}.`);
+            },
+            async createOrg(displayName, bank, cfg) {
+                if (!cfg.createOrg) {
+                    this.log("Skipping org creation since it's not selected")
+                } else if (!bank.orgCheck.checked) {
+                    this.log("Skipping org creation since it did not pass control checks")
+                } else {
                     this.log(`Creating org ${displayName};OrgStatus: ${bank.orgCheck.status}`)
-                    if (bank.orgCheck.status === "OK") {
-                        const orgJson = await this.post(`${ORG_ADMIN_API}/organizations`, {displayName})
-                        this.log(`Created organization ${JSON.stringify(orgJson)}`)
-                        bank.createdOrg = orgJson;
-                    }
+                    const orgJson = await this.post(`${ORG_ADMIN_API}/organizations`, {displayName})
+                    this.log(`Created organization ${JSON.stringify(orgJson)}`)
+                    bank.createdOrg = orgJson;
                 }
+            },
+            async createProdTenant(displayName, bank, cfg) {
+                const tenantName = `${displayName} [PROD]`
+                const name = bank[this.prodTenantIdField];
+                const flavor = "PROD";
+                if (!cfg.createProdTenant) {
+                    this.log("Skipping prodTenant creation since it's not selected")
+                } else if (!bank.prodTenantCheck.checked) {
+                    this.log("Skipping prodTenant creation since it did not pass control checks")
+                } else if (!bank.createdOrg && !bank.orgCheck.existing) {
+                    this.log("Skipping prodTenant creation since org is not known")
+                } else {
+                    this.log(`Creating prodTenant for ${displayName};tenantStatus: ${bank.prodTenantCheck.status}`)
+                    const json = await this.post(`${TENANT_MGT_API}/tenants`, {displayName: tenantName, name, flavor})
+                    this.log(`Created prodTenant ${JSON.stringify(json)}`)
+                    bank.createdProdTenant = json;
+
+                    const orgId = bank.createdOrg?bank.createdOrg.orgId:bank.orgCheck.existing.orgId;
+                    this.log(`attaching tenant ${name} for ${displayName};`)
+                    await this.put(`${ORG_ADMIN_API}/${orgId}/tenants/${name}`)
+                    this.log(`attached tenant for ${displayName};`)
+
+                }
+            },
+            async createUatTenant(displayName, bank, cfg) {
+                const tenantName = `${displayName} [UAT]`
+                const name = bank[this.uatTenantIdField];
+                const flavor = "UAT";
+                if (!cfg.createUatTenant) {
+                    this.log("Skipping uatTenant creation since it's not selected")
+                } else if (!bank.uatTenantCheck.checked) {
+                    this.log("Skipping uatTenant creation since it did not pass control checks")
+                } else if (!bank.createdOrg && !bank.orgCheck.existing) {
+                    this.log("Skipping uatTenant creation since org is not known")
+                } else {
+                    this.log(`Creating uatTenant for ${displayName};tenantStatus: ${bank.uatTenantCheck.status}`)
+                    const json = await this.post(`${TENANT_MGT_API}/tenants`, {displayName: tenantName, name, flavor})
+                    this.log(`Created uatTenant ${JSON.stringify(json)}`)
+                    bank.createdUatTenant = json;
+
+                    const orgId = bank.createdOrg?bank.createdOrg.orgId:bank.orgCheck.existing.orgId;
+                    this.log(`attaching tenant ${name} for ${displayName};`)
+                    await this.put(`${ORG_ADMIN_API}/${orgId}/tenants/${name}`)
+                    this.log(`attached tenant for ${displayName};`)
+                }
+            },
+            async createRouting(displayName, bank, cfg) {
+            },
+            async createUser(displayName, bank, cfg) {
             },
             saveResult() {
             },
@@ -381,15 +451,6 @@
         }
     })
 
-
-    // (async () => {
-    //     const set = (id, t) => document.getElementById(id).innerText = t;
-    //     this.ffal = await FFAL.login("ffdc", "employee");
-    //     set("info", `${ffal.user.name} (on ${ffal.user.tenant}/${ffal.user.idp})`);
-    //     document.getElementById("actions").style.display = "inline"
-    //     const json = await ffal.fetch(apis[ffal.user.idp]).then(r=>r.json()).catch(error => ({error}));
-    //     set("resp-data", JSON.stringify(json, null, 2))
-    // })();
 </script>
 </body>
 </html>
