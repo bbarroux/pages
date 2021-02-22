@@ -232,9 +232,9 @@
                 tenantNameField: "",
                 userEmailField: "",
                 cores: [
-                    {name: "MortgageBot LOS", apis: []},
-                    {name: "MortgageBot POS", apis: []},
-                    {name: "Malauzai", apis: []},
+                    {name: "MortgageBot LOS", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
+                    {name: "MortgageBot POS", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
+                    {name: "Malauzai", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
                 ],
                 checked: false,
                 processConfig: {
@@ -372,6 +372,7 @@
                 for (let i = 0; i < cfg.maxEntries; i++) {
                     await this.processBank(this.banks[i], cfg);
                 }
+                this.log("Proc")
             },
             async processBank(bank, cfg) {
                 const displayName = bank[this.orgNameField];
@@ -414,7 +415,7 @@
 
                     const orgId = bank.createdOrg?bank.createdOrg.orgId:bank.orgCheck.existing.orgId;
                     this.log(`attaching tenant ${name} for ${displayName};`)
-                    await this.put(`${ORG_ADMIN_API}/${orgId}/tenants/${name}`)
+                    await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
                 }
             },
@@ -437,7 +438,7 @@
 
                     const orgId = bank.createdOrg?bank.createdOrg.orgId:bank.orgCheck.existing.orgId;
                     this.log(`attaching tenant ${name} for ${displayName};`)
-                    await this.put(`${ORG_ADMIN_API}/${orgId}/tenants/${name}`)
+                    await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
                 }
             },
