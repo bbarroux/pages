@@ -397,7 +397,7 @@
             },
             async createProdTenant(displayName, bank, cfg) {
                 const tenantName = `${displayName} [PROD]`
-                const name = bank[this.prodTenantIdField];
+                const name = bank[this.prodTenantIdField].toLowerCase();
                 const flavor = "PROD";
                 if (!cfg.createProdTenant) {
                     this.log("Skipping prodTenant creation since it's not selected")
@@ -420,7 +420,7 @@
             },
             async createUatTenant(displayName, bank, cfg) {
                 const tenantName = `${displayName} [UAT]`
-                const name = bank[this.uatTenantIdField];
+                const name = bank[this.uatTenantIdField].toLowerCase();
                 const flavor = "UAT";
                 if (!cfg.createUatTenant) {
                     this.log("Skipping uatTenant creation since it's not selected")
