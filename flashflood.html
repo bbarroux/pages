@@ -33,10 +33,10 @@
                     <th class="synthetic" v-if="!hideSynthetic">ffid</th>
                     <template v-if="!hideSynthetic && checked ">
                         <th class="synthetic" v-if="orgNameField">org status</th>
-                        <th class="synthetic" v-if="prodTenantIdField">prod tenant status</th>
-                        <th class="synthetic" v-if="uatTenantIdField">uat tenant status</th>
                         <th class="synthetic" v-if="orgNameField">closest org</th>
+                        <th class="synthetic" v-if="prodTenantIdField">prod tenant status</th>
                         <th class="synthetic" v-if="prodTenantIdField">closest prod Tenant</th>
+                        <th class="synthetic" v-if="uatTenantIdField">uat tenant status</th>
                         <th class="synthetic" v-if="uatTenantIdField">closest uat Tenant</th>
                     </template>
                     <th v-for="f in fields">{{f}}</th>
@@ -396,9 +396,7 @@
                 }
             },
             async createProdTenant(displayName, bank, cfg) {
-                const tenantName = `${displayName} [PROD]`
-                const name = bank[this.prodTenantIdField].toLowerCase();
-                const flavor = "PROD";
+
                 if (!cfg.createProdTenant) {
                     this.log("Skipping prodTenant creation since it's not selected")
                 } else if (!bank.prodTenantCheck.checked) {
@@ -406,6 +404,9 @@
                 } else if (!bank.createdOrg && !bank.orgCheck.existing) {
                     this.log("Skipping prodTenant creation since org is not known")
                 } else {
+                    const tenantName = `${displayName} [PROD]`
+                    const name = bank[this.prodTenantIdField].toLowerCase();
+                    const flavor = "PROD";
                     this.log(`Creating prodTenant for ${displayName};tenantStatus: ${bank.prodTenantCheck.status}`)
                     const json = await this.post(`${TENANT_MGT_API}/tenants`, {displayName: tenantName, name, flavor})
                     this.log(`Created prodTenant ${JSON.stringify(json)}`)
@@ -415,13 +416,10 @@
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
-
                 }
             },
             async createUatTenant(displayName, bank, cfg) {
-                const tenantName = `${displayName} [UAT]`
-                const name = bank[this.uatTenantIdField].toLowerCase();
-                const flavor = "UAT";
+
                 if (!cfg.createUatTenant) {
                     this.log("Skipping uatTenant creation since it's not selected")
                 } else if (!bank.uatTenantCheck.checked) {
@@ -429,6 +427,9 @@
                 } else if (!bank.createdOrg && !bank.orgCheck.existing) {
                     this.log("Skipping uatTenant creation since org is not known")
                 } else {
+                    const tenantName = `${displayName} [UAT]`
+                    const name = bank[this.uatTenantIdField].toLowerCase();
+                    const flavor = "UAT";
                     this.log(`Creating uatTenant for ${displayName};tenantStatus: ${bank.uatTenantCheck.status}`)
                     const json = await this.post(`${TENANT_MGT_API}/tenants`, {displayName: tenantName, name, flavor})
                     this.log(`Created uatTenant ${JSON.stringify(json)}`)
