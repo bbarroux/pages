@@ -208,6 +208,7 @@
 <script>
     const ORG_ADMIN_API = "org-admin/v1"
     const TENANT_MGT_API = "tenant-management/v1"
+    const ROUTING_MGT_API = "routing-management/v1"
 
     new Vue({
         el: '#app',
@@ -252,12 +253,15 @@
                 },
                 hideSynthetic: false,
                 statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
-
             }
         },
         computed: {},
         async created() {
             this.ffal = await FFAL.login("ffdc", "employee");
+            setInterval(() => {
+                const elem = document.getElementById('logdiv');
+                if (elem) elem.scrollTop = elem.scrollHeight
+            }, 200)
         },
         methods: {
             loadCsv(ev) {
@@ -276,10 +280,6 @@
             },
             log(msg) {
                 this.logtext.push(msg)
-                setTimeout(() => {
-                    const elem = document.getElementById('logdiv');
-                    elem.scrollTop = elem.scrollHeight
-                }, 100);
             },
             async post(api, data) {
                 const body = JSON.stringify(data);
@@ -372,7 +372,7 @@
                 for (let i = 0; i < cfg.maxEntries; i++) {
                     await this.processBank(this.banks[i], cfg);
                 }
-                this.log("Proc")
+                this.log("Processing complete.");
             },
             async processBank(bank, cfg) {
                 const displayName = bank[this.orgNameField];
@@ -380,7 +380,6 @@
                 await this.createOrg(displayName, bank, cfg);
                 await this.createProdTenant(displayName, bank, cfg);
                 await this.createUatTenant(displayName, bank, cfg);
-                await this.createRouting(displayName, bank, cfg)
                 await this.createUser(displayName, bank, cfg);
                 this.log(`Processing complete for  ${displayName}.`);
             },
@@ -417,6 +416,9 @@
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
+                    if (cfg.createRouting){
+                        await this.createRouting(displayName, bank, name, this.selectedCore.backendInstanceIds["prod"],cfg)
+                    }
                 }
             },
             async createUatTenant(displayName, bank, cfg) {
@@ -440,9 +442,16 @@
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
+                    if (cfg.createRouting){
+                        await this.createRouting(displayName, bank, name, this.selectedCore.backendInstanceIds["uat"],cfg)
+                    }
                 }
             },
-            async createRouting(displayName, bank, cfg) {
+            async createRouting(displayName, bank, tenantId, backendId, cfg) {
+                this.log(`Creating routing for ${displayName}`);
+                await this.put(`${ROUTING_MGT_API}/tenants/${tenantId}/back-ends/${backendId}`,{available:true});
+                this.log(`Created routing for ${displayName}`);
+
             },
             async createUser(displayName, bank, cfg) {
             },
