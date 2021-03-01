@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="win"></div>
+<div id="loss"></div>
+<div style="white-space:pre" id="i"></div>
+</body>
+<script>
+
+    let dice = () => Math.ceil(Math.random() * 6);
+    let nbwin = 0;
+    let nbloss = 0;
+    let nbGame = 1000000;
+
+    function playGame() {
+        let dices = 8;
+        while (dices > 0) {
+            let coins = 0
+            for (let i = 0; i < dices; i++) {
+                let res = dice()
+                if (res === 1) return false
+                if (res === 6) coins = coins + 1;
+            }
+            dices = dices - coins
+        }
+        return true;
+    }
+
+    while (nbGame > 0) {
+        nbGame = nbGame - 1;
+        if (playGame()) {
+            nbwin++
+        } else {
+            nbloss++
+        }
+    }
+
+    document.getElementById("win").innerText = nbwin + "-" + (nbwin * 100 / (nbwin + nbloss)) + "%"
+    document.getElementById("loss").innerText = nbloss
+</script>
+</html>

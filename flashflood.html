@@ -27,7 +27,7 @@
             <button onclick="FFAL.logout()">Sign Out</button>
         </div>
         <div class="main-table">
-            <table v-if="fields.length">
+            <table v-if="fields.length && !working">
                 <thead>
                 <tr>
                     <th class="synthetic" v-if="!hideSynthetic">ffid</th>
@@ -222,6 +222,18 @@
                     tenants: [],
                     organizations: []
                 },
+                fileConfig:{
+                    orgIdField: "",
+                    orgNameField: "",
+                    orgNameFormula: "",
+                    prodTenantIdField: "",
+                    prodTenantIdFormula: "",
+
+                    uatTenantIdField: "",
+                    uatTenantIdFormula: "",
+                    tenantNameField: "",
+                    userEmailField: "",
+                },
                 orgIdField: "",
                 orgNameField: "",
                 orgNameFormula: "",
@@ -237,7 +249,6 @@
                     {name: "MortgageBot POS", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
                     {name: "Malauzai", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
                 ],
-                checked: false,
                 processConfig: {
                     createOrg: false,
                     createUatTenant: false,
@@ -251,6 +262,8 @@
                     confidenceLevel: "OK",
                     selectedCore: null
                 },
+                checked: false,
+                working:false,
                 hideSynthetic: false,
                 statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
             }
@@ -308,6 +321,7 @@
                 Promise.all([p1, p2]).then(this.checkFile)
             },
             checkFile() {
+                this.working=true;
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
                 this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName));
@@ -317,6 +331,7 @@
                 this.log("Duplicate check complete!");
                 this.banks.filter(b => b.orgCheck.existing).forEach(b => this.attachExistingTenants(b))
                 this.checked = true;
+                this.working=false;
             },
             checkBank(bank, nameField, coll, nameAccessor) {
                 if (nameField === undefined || nameField.length === 0) return undefined;
@@ -366,6 +381,7 @@
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
             async process() {
+                this.working=true;
                 const cfg = this.processConfig;
                 this.log(`Starting processing for max ${cfg.maxEntries}....`);
                 this.log("processing config : " + JSON.stringify(cfg));
@@ -373,6 +389,7 @@
                     await this.processBank(this.banks[i], cfg);
                 }
                 this.log("Processing complete.");
+                this.working=false;
             },
             async processBank(bank, cfg) {
                 const displayName = bank[this.orgNameField];
