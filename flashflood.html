@@ -183,8 +183,8 @@
                     </div>
                     <div class="form-elt">
                         <label for="selectedCore">Core Product</label>
-                        <select name="selectedCore" id="selectedCore" v-model="processConfig.selectedCore">
-                            <option v-for="c in cores" :value="c">{{c.name}}</option>
+                        <select name="selectedCore" id="selectedCore" v-model="processConfig.selectedCore[this.env]">
+                            <option v-for="c in cores[this.env]" :value="c">{{c.name}}</option>
                         </select>
                     </div>
                     <div class="form-elt">
@@ -214,6 +214,7 @@
         el: '#app',
         data() {
             return {
+                env: "preprod",
                 ffal: null,
                 logtext: ['Welcome on flashflood console'],
                 fields: [],
@@ -222,7 +223,7 @@
                     tenants: [],
                     organizations: []
                 },
-                fileConfig:{
+                fileConfig: {
                     orgIdField: "",
                     orgNameField: "",
                     orgNameFormula: "",
@@ -244,11 +245,48 @@
                 uatTenantIdFormula: "",
                 tenantNameField: "",
                 userEmailField: "",
-                cores: [
-                    {name: "MortgageBot LOS", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
-                    {name: "MortgageBot POS", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
-                    {name: "Malauzai", backendInstanceIds: {uat:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce", prod:"acc5e3c6-223f-49c1-9f0b-2635dc3fddce"}},
-                ],
+                cores: {
+                    "preprod": [
+                        {name: "MortgageBot LOS",
+                            backendInstanceIds: {
+                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
+                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
+                            }
+                        },
+                        {name: "MortgageBot POS",
+                            backendInstanceIds: {
+                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
+                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
+                            }
+                        },
+                        {name: "Malauzai",
+                            backendInstanceIds: {
+                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
+                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
+                            }
+                        },
+                    ],
+                    "prod": [
+                        {name: "MortgageBot LOS",
+                            backendInstanceIds: {
+                                uat: "d18271b6-a698-4603-91b6-133aaca0550c",
+                                prod: "09bd0356-a047-4b89-9366-a36274d62d0a"
+                            }
+                        },
+                        {name: "MortgageBot POS",
+                            backendInstanceIds: {
+                                uat: "c4cf3c66-3ae1-47be-b70a-7c901f41f17e",
+                                prod: "edf3cf08-9cc0-4ed2-9cad-d128a996610a"
+                            }
+                        },
+                        {name: "Malauzai",
+                            backendInstanceIds: {
+                                uat: "97366e9a-f270-4736-ac3c-98befe73c893",
+                                prod: "4bf5147a-e88a-4cc5-8465-0c2762c8b2f5"
+                            }
+                        },
+                    ]
+                },
                 processConfig: {
                     createOrg: false,
                     createUatTenant: false,
@@ -263,18 +301,22 @@
                     selectedCore: null
                 },
                 checked: false,
-                working:false,
+                working: false,
                 hideSynthetic: false,
                 statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
             }
         },
         computed: {},
         async created() {
+            if (window.location.host.startsWith("prod.")) {
+                FFAL.server = "https://be.fficaas.net";
+                this.env = "prod";
+            }
             this.ffal = await FFAL.login("ffdc", "employee");
             setInterval(() => {
                 const elem = document.getElementById('logdiv');
                 if (elem) elem.scrollTop = elem.scrollHeight
-            }, 200)
+            }, 3000)
         },
         methods: {
             loadCsv(ev) {
@@ -321,7 +363,7 @@
                 Promise.all([p1, p2]).then(this.checkFile)
             },
             checkFile() {
-                this.working=true;
+                this.working = true;
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
                 this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName));
@@ -331,7 +373,7 @@
                 this.log("Duplicate check complete!");
                 this.banks.filter(b => b.orgCheck.existing).forEach(b => this.attachExistingTenants(b))
                 this.checked = true;
-                this.working=false;
+                this.working = false;
             },
             checkBank(bank, nameField, coll, nameAccessor) {
                 if (nameField === undefined || nameField.length === 0) return undefined;
@@ -381,7 +423,7 @@
                 return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
             },
             async process() {
-                this.working=true;
+                this.working = true;
                 const cfg = this.processConfig;
                 this.log(`Starting processing for max ${cfg.maxEntries}....`);
                 this.log("processing config : " + JSON.stringify(cfg));
@@ -389,7 +431,7 @@
                     await this.processBank(this.banks[i], cfg);
                 }
                 this.log("Processing complete.");
-                this.working=false;
+                this.working = false;
             },
             async processBank(bank, cfg) {
                 const displayName = bank[this.orgNameField];
@@ -429,12 +471,12 @@
                     this.log(`Created prodTenant ${JSON.stringify(json)}`)
                     bank.createdProdTenant = json;
 
-                    const orgId = bank.createdOrg?bank.createdOrg.orgId:bank.orgCheck.existing.orgId;
+                    const orgId = bank.createdOrg ? bank.createdOrg.orgId : bank.orgCheck.existing.orgId;
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
-                    if (cfg.createRouting){
-                        await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["prod"],cfg)
+                    if (cfg.createRouting) {
+                        await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["prod"], cfg)
                     }
                 }
             },
@@ -455,18 +497,18 @@
                     this.log(`Created uatTenant ${JSON.stringify(json)}`)
                     bank.createdUatTenant = json;
 
-                    const orgId = bank.createdOrg?bank.createdOrg.orgId:bank.orgCheck.existing.orgId;
+                    const orgId = bank.createdOrg ? bank.createdOrg.orgId : bank.orgCheck.existing.orgId;
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
-                    if (cfg.createRouting){
-                        await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["uat"],cfg)
+                    if (cfg.createRouting) {
+                        await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["uat"], cfg)
                     }
                 }
             },
             async createRouting(displayName, bank, tenantId, backendId, cfg) {
                 this.log(`Creating routing for ${displayName}`);
-                await this.put(`${ROUTING_MGT_API}/tenants/${tenantId}/back-ends/${backendId}`,{available:true});
+                await this.put(`${ROUTING_MGT_API}/tenants/${tenantId}/back-ends/${backendId}`, {available: true});
                 this.log(`Created routing for ${displayName}`);
 
             },
