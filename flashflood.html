@@ -183,7 +183,7 @@
                     </div>
                     <div class="form-elt">
                         <label for="selectedCore">Core Product</label>
-                        <select name="selectedCore" id="selectedCore" v-model="processConfig.selectedCore[this.env]">
+                        <select name="selectedCore" id="selectedCore" v-model="processConfig.selectedCore">
                             <option v-for="c in cores[this.env]" :value="c">{{c.name}}</option>
                         </select>
                     </div>
