@@ -546,7 +546,8 @@ Disable form on working and checked
                     bank.createdProdRouting = 0;
                     if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
                         const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
-                        for (coreName in coreNames) {
+                        let coreName;
+                        for (coreName of coreNames) {
                             const core = this.cores[this.env].filter(c => c.name === coreName);
                             if (!core.length) {
                                 this.log(`Could not find core ${coreName}`);
@@ -585,6 +586,7 @@ Disable form on working and checked
                     bank.createdUatRouting = 0;
                     if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
                         const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
+                        let coreName;
                         for (coreName of coreNames) {
                             const core = this.cores[this.env].filter(c => c.name === coreName);
                             if (!core.length) {
