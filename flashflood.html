@@ -486,7 +486,9 @@ Disable form on working and checked
             async loadAll(api, items, totalCount) {
                 if (items.length >= totalCount) return items;
                 const json = await this.fetch(api + "?offset=" + items.length);
-                return this.loadAll(api, items.concat(json.items), json._meta.totalCount)
+                return json._meta
+                    ? this.loadAll(api, items.concat(json.items), json._meta.totalCount)
+                    : items;
             },
             async process() {
                 this.working = true;
