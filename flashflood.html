@@ -397,7 +397,7 @@ Disable form on working and checked
                 });
             },
             log(msg) {
-                this.logtext.push(msg)
+                this.logtext.push(new Date().toISOString().replaceAll(/.*T/g,"") + "-" + msg)
             },
             async post(api, data) {
                 const body = JSON.stringify(data);
@@ -615,7 +615,7 @@ Disable form on working and checked
                 const blob = new Blob([csv], {
                     type: "text/csv;charset=utf-8"
                 });
-                saveAs(blob, "flashflood_result.csv")
+                saveAs(blob, "flashflood_result"+new Date().toISOString().replaceAll(":",".")+".csv")
             },
             saveOutput() {
                 const content = this.logtext.join('\n');
@@ -624,7 +624,7 @@ Disable form on working and checked
                     type: "text/plain;charset=utf-8"
                 });
 
-                saveAs(blob, "log.txt");
+                saveAs(blob, "flashflood-log-"+new Date().toISOString().replaceAll(":",".")+".txt");
             },
         }
     })
