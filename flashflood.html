@@ -28,7 +28,7 @@ Disable form on working and checked
             </div>
         </div>
         <div class="Page-buttons">
-            <b style="color: #157a52">{{env}}</b> -
+            <b style="color: #157a52; font-size: 200%">{{env}}</b> -
             <button onclick="FFAL.logout()">Sign Out</button>
         </div>
         <div class="main-table">
@@ -448,11 +448,11 @@ Disable form on working and checked
                     checkResult.status = "N/A";
                 } else {
                     const relevantName = relevant(name);
-                    checkResult.similar = coll
+                    const similar = coll
                         .map(o => ({...o, distance: LEV.distance(relevantName, relevant(nameAccessor(o)))}))
                         .sort((s1, s2) => s1.distance - s2.distance);
 
-                    const mostSim = checkResult.similar[0]
+                    const mostSim = similar[0]
                     const reldist = mostSim.distance / relevantName.length;
                     checkResult.relDist = reldist;
                     checkResult.mostSim = mostSim;
