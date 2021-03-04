@@ -5,7 +5,7 @@
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
     <script src="https://go.fficaas.net/ffal.js"></script>
     <script src="levenshtein.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="flashflood.css"/>
 </head>
@@ -23,12 +23,12 @@ Disable form on working and checked
             <div v-if="fields.length">
                 <input type="checkbox" id="hideSynthetic" v-model="hideSynthetic">
                 <label for="hideSynthetic">Hide Synthetic columns</label>
-                <button @click="saveResult">Save Result</button>
+                <button @click="saveResult" v-if="checked">Save Result</button>
                 <button @click="saveOutput">Save Output</button>
             </div>
         </div>
         <div class="Page-buttons">
-            <b>PREPROD</b> -
+            <b style="color: #157a52">{{env}}</b> -
             <button onclick="FFAL.logout()">Sign Out</button>
         </div>
         <div class="main-table">
@@ -87,10 +87,12 @@ Disable form on working and checked
                         </template>
                         <template v-if="processComplete">
                             <td class="synthetic"><span v-if="bank.createdOrg">{{bank.createdOrg.orgId}}</span></td>
-                            <td class="synthetic"><span v-if="bank.createdProdTenant">{{bank.createdProdTenant.name}}</span></td>
-                            <td class="synthetic"><span v-if="bank.createdUatTenant">{{bank.createdUatTenant.name}}</span></td>
-                            <td class="synthetic"><span >{{bank.createdProdRouting}}</span></td>
-                            <td class="synthetic"><span >{{bank.createdUatRouting}}</span></td>
+                            <td class="synthetic"><span
+                                    v-if="bank.createdProdTenant">{{bank.createdProdTenant.name}}</span></td>
+                            <td class="synthetic"><span
+                                    v-if="bank.createdUatTenant">{{bank.createdUatTenant.name}}</span></td>
+                            <td class="synthetic"><span>{{bank.createdProdRouting}}</span></td>
+                            <td class="synthetic"><span>{{bank.createdUatRouting}}</span></td>
                         </template>
                     </template>
                     <td v-for="f in fields">
@@ -266,19 +268,22 @@ Disable form on working and checked
                 userEmailField: "",
                 cores: {
                     "preprod": [
-                        {name: "MortgageBot LOS",
+                        {
+                            name: "LOS",
                             backendInstanceIds: {
                                 uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
                                 prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
                             }
                         },
-                        {name: "MortgageBot POS",
+                        {
+                            name: "POS",
                             backendInstanceIds: {
                                 uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
                                 prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
                             }
                         },
-                        {name: "Malauzai",
+                        {
+                            name: "MLZ",
                             backendInstanceIds: {
                                 uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
                                 prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
@@ -286,19 +291,22 @@ Disable form on working and checked
                         },
                     ],
                     "prod": [
-                        {name: "MortgageBot LOS",
+                        {
+                            name: "LOS",
                             backendInstanceIds: {
                                 uat: "d18271b6-a698-4603-91b6-133aaca0550c",
                                 prod: "09bd0356-a047-4b89-9366-a36274d62d0a"
                             }
                         },
-                        {name: "MortgageBot POS",
+                        {
+                            name: "POS",
                             backendInstanceIds: {
                                 uat: "c4cf3c66-3ae1-47be-b70a-7c901f41f17e",
                                 prod: "edf3cf08-9cc0-4ed2-9cad-d128a996610a"
                             }
                         },
-                        {name: "Malauzai",
+                        {
+                            name: "MLZ",
                             backendInstanceIds: {
                                 uat: "97366e9a-f270-4736-ac3c-98befe73c893",
                                 prod: "4bf5147a-e88a-4cc5-8465-0c2762c8b2f5"
@@ -321,12 +329,11 @@ Disable form on working and checked
                 },
                 checked: false,
                 working: false,
-                processComplete:false,
+                processComplete: false,
                 hideSynthetic: false,
                 statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
             }
         },
-        computed: {},
         async created() {
             if (window.location.host.startsWith("prod.")) {
                 FFAL.server = "https://be.fficaas.net";
@@ -338,7 +345,39 @@ Disable form on working and checked
                 if (elem) elem.scrollTop = elem.scrollHeight
             }, 3000)
         },
+        computed: {
+            bankTable() {
+                return this.banks.map(this.toTableRow)
+            }
+        },
         methods: {
+            toTableRow(bank) {
+                const row = {}
+                row._id = bank.ffid;
+                this.fields.forEach(f => row['f_' + f] = bank[f])
+                row.c_orgCheckStatus = bank.orgCheck.status;
+                row.c_prodTenantCheckStatus = bank.prodTenantCheck.status;
+                row.c_uatTenantCheckSatus = bank.uatTenantCheck.status;
+
+                row.c_orgCheckDistance = bank.orgCheck.distance;
+                row.c_prodTenantCheckDistance = bank.prodTenantCheck.distance;
+                row.c_uatTenantCheckDistance = bank.uatTenantCheck.distance;
+
+                row.c_orgCheckMostSim = bank.orgCheck.mostSim.displayName;
+                row.c_prodTenantCheckMostSim = bank.prodTenantCheck.mostSim.name;
+                row.c_uatTenantCheckMostSim = bank.uatTenantCheck.mostSim.name;
+
+                row.p_createdOrgId = bank.createdOrg ? bank.createdOrg.orgId : "";
+                row.p_createdOrgName = bank.createdOrg ? bank.createdOrg.displayName : "";
+                row.p_createdProdTenantId = bank.createdProdTenant ? bank.createdProdTenant.name : "";
+                row.p_createdProdTenantName = bank.createdProdTenant ? bank.createdProdTenant.displayName : "";
+                row.p_createdUatTenantId = bank.createdUatTenant ? bank.createdUatTenant.name : "";
+                row.p_createdUatTenantName = bank.createdUatTenant ? bank.createdUatTenant.displayName : "";
+
+                row.p_createdProdRouting = bank.createdProdRouting;
+                row.p_createdUatRouting = bank.createdUatRouting;
+                return row;
+            },
             loadCsv(ev) {
                 this.checked = false;
                 const file = ev.target.files[0];
@@ -454,7 +493,7 @@ Disable form on working and checked
                     await this.processBank(this.banks[i], cfg);
                 }
                 this.log("Processing complete.");
-                this.processComplete=true;
+                this.processComplete = true;
                 this.working = false;
             },
             async processBank(bank, cfg) {
@@ -479,9 +518,9 @@ Disable form on working and checked
                 }
             },
             async createProdTenant(displayName, bank, cfg) {
-                if(!bank.createdOrg && !cfg.attachTenant){
+                if (!bank.createdOrg && !cfg.attachTenant) {
                     this.log("skipping prodTenant creation since org has not been created && attach tenant not created");
-                }else if (!cfg.createProdTenant) {
+                } else if (!cfg.createProdTenant) {
                     this.log("Skipping prodTenant creation since it's not selected")
                 } else if (!bank.prodTenantCheck.checked) {
                     this.log("Skipping prodTenant creation since it did not pass control checks")
@@ -502,15 +541,15 @@ Disable form on working and checked
                     this.log(`attached tenant for ${displayName};`)
                     if (cfg.createRouting) {
                         await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["prod"], cfg)
-                        bank.createdProdRouting=true;
+                        bank.createdProdRouting = true;
                     }
                 }
             },
             async createUatTenant(displayName, bank, cfg) {
 
-                if(!bank.createdOrg && !cfg.attachTenant){
+                if (!bank.createdOrg && !cfg.attachTenant) {
                     this.log("skipping uatTenant creation since org has not been created && attach tenant not created");
-                }else if (!cfg.createUatTenant) {
+                } else if (!cfg.createUatTenant) {
                     this.log("Skipping uatTenant creation since it's not selected")
                 } else if (!bank.uatTenantCheck.checked) {
                     this.log("Skipping uatTenant creation since it did not pass control checks")
@@ -531,7 +570,7 @@ Disable form on working and checked
                     this.log(`attached tenant for ${displayName};`)
                     if (cfg.createRouting) {
                         await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["uat"], cfg)
-                        bank.createdUatRouting=true;
+                        bank.createdUatRouting = true;
                     }
                 }
             },
@@ -544,7 +583,11 @@ Disable form on working and checked
             async createUser(displayName, bank, cfg) {
             },
             saveResult() {
-                const data = this.banks
+                const csv = Papa.unparse(this.bankTable());
+                const blob = new Blob([csv], {
+                    type: "text/csv;charset=utf-8"
+                });
+                saveAs(blob, "flashflood_result.csv")
             },
             saveOutput() {
                 const content = this.logtext.join('\n');
