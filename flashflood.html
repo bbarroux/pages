@@ -355,17 +355,17 @@ Disable form on working and checked
                 const row = {}
                 row._id = bank.ffid;
                 this.fields.forEach(f => row['f_' + f] = bank[f])
-                row.c_orgCheckStatus = bank.orgCheck.status;
-                row.c_prodTenantCheckStatus = bank.prodTenantCheck.status;
-                row.c_uatTenantCheckSatus = bank.uatTenantCheck.status;
+                row.c_orgCheckStatus = bank.orgCheck ? bank.orgCheck.status : "";
+                row.c_prodTenantCheckStatus = bank.prodTenantCheck ? bank.prodTenantCheck.status : "";
+                row.c_uatTenantCheckSatus = bank.uatTenantCheck ? bank.uatTenantCheck.status : "";
 
-                row.c_orgCheckDistance = bank.orgCheck.distance;
-                row.c_prodTenantCheckDistance = bank.prodTenantCheck.distance;
-                row.c_uatTenantCheckDistance = bank.uatTenantCheck.distance;
+                row.c_orgCheckDistance = bank.orgCheck ? bank.orgCheck.distance : "";
+                row.c_prodTenantCheckDistance = bank.prodTenantCheck ? bank.prodTenantCheck.distance : "";
+                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.uatTenantCheck.distance : "";
 
-                row.c_orgCheckMostSim = bank.orgCheck.mostSim.displayName;
-                row.c_prodTenantCheckMostSim = bank.prodTenantCheck.mostSim.name;
-                row.c_uatTenantCheckMostSim = bank.uatTenantCheck.mostSim.name;
+                row.c_orgCheckMostSim = bank.orgCheck ? bank.orgCheck.mostSim.displayName : "";
+                row.c_prodTenantCheckMostSim = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.name : "";
+                row.c_uatTenantCheckMostSim = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.name : "";
 
                 row.p_createdOrgId = bank.createdOrg ? bank.createdOrg.orgId : "";
                 row.p_createdOrgName = bank.createdOrg ? bank.createdOrg.displayName : "";
