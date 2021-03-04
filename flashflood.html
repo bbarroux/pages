@@ -80,7 +80,7 @@
                                 </span>
                             </td>
                         </template>
-                        <template>
+                        <template v-if="processComplete">
                             <td class="synthetic"><span v-if="bank.createdOrg">{{bank.createdOrg.orgId}}</span></td>
                             <td class="synthetic"><span v-if="bank.createdProdTenant">{{bank.createdProdTenant.name}}</span></td>
                             <td class="synthetic"><span v-if="bank.createdUatTenant">{{bank.createdUatTenant.name}}</span></td>
