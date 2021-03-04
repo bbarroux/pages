@@ -548,7 +548,7 @@ Disable form on working and checked
                                 this.log(`Could not find core ${coreName}`);
                             }else {
                                 this.log(`creating routing for ${name} on core ${coreName}`);
-                                await this.createRouting(displayName, bank, name, this.cores[this.env].backendInstanceIds["prod"], cfg)
+                                await this.createRouting(displayName, bank, name, core[0].backendInstanceIds["prod"], cfg)
                                 bank.createdProdRouting += 1;
                             }
                         }
@@ -586,7 +586,7 @@ Disable form on working and checked
                                 this.log(`Could not find core ${coreName}`);
                             }else {
                                 this.log(`creating routing for ${name} on core ${coreName}`);
-                                await this.createRouting(displayName, bank, name, this.cores[this.env].backendInstanceIds["uat"], cfg)
+                                await this.createRouting(displayName, bank, name, core[0].backendInstanceIds["uat"], cfg)
                                 bank.createdUatRouting += 1;
                             }
                         }
