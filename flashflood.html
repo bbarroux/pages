@@ -38,6 +38,13 @@
                         <th class="synthetic" v-if="prodTenantIdField">closest prod Tenant</th>
                         <th class="synthetic" v-if="uatTenantIdField">uat tenant status</th>
                         <th class="synthetic" v-if="uatTenantIdField">closest uat Tenant</th>
+                        <template v-if="processComplete">
+                            <th class="synthetic">Created Org Id</th>
+                            <th class="synthetic">Created Prod Tenant</th>
+                            <th class="synthetic">Created Uat Tenant</th>
+                            <th class="synthetic">Created Prod Routing</th>
+                            <th class="synthetic">Created Uat Routing</th>
+                        </template>
                     </template>
                     <th v-for="f in fields">{{f}}</th>
                 </tr>
@@ -72,6 +79,13 @@
                                     ({{bank.prodTenantCheck.mostSim.distance}}){{bank.uatTenantCheck.mostSim.name}}
                                 </span>
                             </td>
+                        </template>
+                        <template>
+                            <td class="synthetic"><span v-if="bank.createdOrg">{{bank.createdOrg.orgId}}</span></td>
+                            <td class="synthetic"><span v-if="bank.createdProdTenant">{{bank.createdProdTenant.name}}</span></td>
+                            <td class="synthetic"><span v-if="bank.createdUatTenant">{{bank.createdUatTenant.name}}</span></td>
+                            <td class="synthetic"><span >{{bank.createdProdRouting}}</span></td>
+                            <td class="synthetic"><span >{{bank.createdUatRouting}}</span></td>
                         </template>
                     </template>
                     <td v-for="f in fields">
@@ -302,6 +316,7 @@
                 },
                 checked: false,
                 working: false,
+                processComplete:false,
                 hideSynthetic: false,
                 statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
             }
@@ -362,16 +377,19 @@
                 const p2 = this.loadAll(`${ORG_ADMIN_API}/organizations`, [], 1).then(items => this.ffdc.organizations = items);
                 Promise.all([p1, p2]).then(this.checkFile)
             },
-            checkFile() {
+            async checkFile() {
                 this.working = true;
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
                 this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName));
+                this.log("organizations duplicate check complete!");
                 this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name));
+                this.log("prod tenant duplicate check complete!");
                 this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name));
+                this.log("uat tenant duplicate check complete!");
                 //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
-                this.log("Duplicate check complete!");
-                this.banks.filter(b => b.orgCheck.existing).forEach(b => this.attachExistingTenants(b))
+                this.log("##### Duplicate check complete!");
+                await Promise.all(this.banks.filter(b => b.orgCheck.existing).forEach(b => this.attachExistingTenants(b)));
                 this.checked = true;
                 this.working = false;
             },
@@ -431,6 +449,7 @@
                     await this.processBank(this.banks[i], cfg);
                 }
                 this.log("Processing complete.");
+                this.processComplete=true;
                 this.working = false;
             },
             async processBank(bank, cfg) {
@@ -455,8 +474,9 @@
                 }
             },
             async createProdTenant(displayName, bank, cfg) {
-
-                if (!cfg.createProdTenant) {
+                if(!bank.createdOrg && !cfg.attachTenant){
+                    this.log("skipping prodTenant creation since org has not been created && attach tenant not created");
+                }else if (!cfg.createProdTenant) {
                     this.log("Skipping prodTenant creation since it's not selected")
                 } else if (!bank.prodTenantCheck.checked) {
                     this.log("Skipping prodTenant creation since it did not pass control checks")
@@ -477,12 +497,15 @@
                     this.log(`attached tenant for ${displayName};`)
                     if (cfg.createRouting) {
                         await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["prod"], cfg)
+                        bank.createdProdRouting=true;
                     }
                 }
             },
             async createUatTenant(displayName, bank, cfg) {
 
-                if (!cfg.createUatTenant) {
+                if(!bank.createdOrg && !cfg.attachTenant){
+                    this.log("skipping uatTenant creation since org has not been created && attach tenant not created");
+                }else if (!cfg.createUatTenant) {
                     this.log("Skipping uatTenant creation since it's not selected")
                 } else if (!bank.uatTenantCheck.checked) {
                     this.log("Skipping uatTenant creation since it did not pass control checks")
@@ -503,6 +526,7 @@
                     this.log(`attached tenant for ${displayName};`)
                     if (cfg.createRouting) {
                         await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["uat"], cfg)
+                        bank.createdUatRouting=true;
                     }
                 }
             },
