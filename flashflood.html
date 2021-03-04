@@ -5,11 +5,16 @@
     <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
     <script src="https://go.fficaas.net/ffal.js"></script>
     <script src="levenshtein.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js" ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link rel="stylesheet" href="flashflood.css"/>
 </head>
 <body>
-
+<!--  -
+Save to csv
+Disable form on working and checked
+ìmplement core product control
+-->
 <div id="app">
 
     <div v-if="ffal" class="grid-container">
@@ -100,7 +105,7 @@
                 Read File
                 <input type="file" @change="loadCsv">
             </label>
-            <hr>
+            <hr v-if="!fields.length">
             <div v-if="fields.length">
                 <div class="form-elt">
                     <label for="orgIdField">OrgId Field</label>
@@ -539,8 +544,16 @@
             async createUser(displayName, bank, cfg) {
             },
             saveResult() {
+                const data = this.banks
             },
             saveOutput() {
+                const content = this.logtext.join('\n');
+
+                const blob = new Blob([content], {
+                    type: "text/plain;charset=utf-8"
+                });
+
+                FileSaver.saveAs(blob, "log.txt");
             },
         }
     })
