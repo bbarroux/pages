@@ -583,7 +583,7 @@ Disable form on working and checked
             async createUser(displayName, bank, cfg) {
             },
             saveResult() {
-                const csv = Papa.unparse(this.bankTable());
+                const csv = Papa.unparse(this.bankTable);
                 const blob = new Blob([csv], {
                     type: "text/csv;charset=utf-8"
                 });
