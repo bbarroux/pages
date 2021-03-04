@@ -129,7 +129,8 @@ Disable form on working and checked
                 <hr>
                 <div class="form-elt">
                     <label for="prodTenantIdField">PROD Tenant id Field</label>
-                    <select name="prodTenantIdField" id="prodTenantIdField" v-model="prodTenantIdField" :disabled="checked">
+                    <select name="prodTenantIdField" id="prodTenantIdField" v-model="prodTenantIdField"
+                            :disabled="checked">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
@@ -140,14 +141,15 @@ Disable form on working and checked
                 </div>
                 <div class="form-elt">
                     <label for="uatTenantIdField">UAT Tenant id Field</label>
-                    <select name="prodTenantIdField" id="uatTenantIdField" v-model="uatTenantIdField" :disabled="checked">
+                    <select name="prodTenantIdField" id="uatTenantIdField" v-model="uatTenantIdField"
+                            :disabled="checked">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
                 </div>
                 <div v-if="uatTenantIdField === 'formula'" class="form-elt">
                     <label for="uatTenantIdFormula">UAT Tenant id Formula</label>
-                    <input type="text" id="uatTenantIdFormula" v-model="uatTenantIdFormula" >
+                    <input type="text" id="uatTenantIdFormula" v-model="uatTenantIdFormula">
                 </div>
                 <hr>
                 <div class="form-elt">
@@ -158,7 +160,8 @@ Disable form on working and checked
                 </div>
                 <div class="form-elt">
                     <label for="coreProductsField">Cores (MLZ, POS, LOS)</label>
-                    <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField" :disabled="checked">
+                    <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField"
+                            :disabled="checked">
                         <option v-for="f in fields">{{f}}</option>
                     </select>
                 </div>
@@ -255,7 +258,7 @@ Disable form on working and checked
                     uatTenantIdFormula: "",
                     tenantNameField: "",
                     userEmailField: "",
-                    coreProductsField:"",
+                    coreProductsField: "",
                 },
                 orgIdField: "",
                 orgNameField: "",
@@ -267,7 +270,7 @@ Disable form on working and checked
                 uatTenantIdFormula: "",
                 tenantNameField: "",
                 userEmailField: "",
-                coreProductsField:"",
+                coreProductsField: "",
                 cores: {
                     "preprod": [
                         {
@@ -362,7 +365,7 @@ Disable form on working and checked
 
                 row.c_orgCheckDistance = bank.orgCheck ? bank.orgCheck.mostSim.distance : "";
                 row.c_prodTenantCheckDistance = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.distance : "";
-                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.uatTenantCheck.distance : "";
+                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.distance : "";
 
                 row.c_orgCheckMostSim = bank.orgCheck ? bank.orgCheck.mostSim.displayName : "";
                 row.c_prodTenantCheckMostSim = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.name : "";
@@ -542,11 +545,11 @@ Disable form on working and checked
                     this.log(`attached tenant for ${displayName};`)
                     if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
                         const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
-                        for (coreName in coreNames){
-                            const core = this.cores[this.env].filter(c=>c.name===coreName);
-                            if(!core.length){
+                        for (coreName in coreNames) {
+                            const core = this.cores[this.env].filter(c => c.name === coreName);
+                            if (!core.length) {
                                 this.log(`Could not find core ${coreName}`);
-                            }else {
+                            } else {
                                 this.log(`creating routing for ${name} on core ${coreName}`);
                                 await this.createRouting(displayName, bank, name, core[0].backendInstanceIds["prod"], cfg)
                                 bank.createdProdRouting += 1;
@@ -578,13 +581,14 @@ Disable form on working and checked
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
+                    bank.createdUatTenant = 0;
                     if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
                         const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
-                        for (coreName of coreNames){
-                            const core = this.cores[this.env].filter(c=>c.name===coreName);
-                            if(!core.length){
+                        for (coreName of coreNames) {
+                            const core = this.cores[this.env].filter(c => c.name === coreName);
+                            if (!core.length) {
                                 this.log(`Could not find core ${coreName}`);
-                            }else {
+                            } else {
                                 this.log(`creating routing for ${name} on core ${coreName}`);
                                 await this.createRouting(displayName, bank, name, core[0].backendInstanceIds["uat"], cfg)
                                 bank.createdUatRouting += 1;
