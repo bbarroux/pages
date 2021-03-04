@@ -445,7 +445,7 @@ Disable form on working and checked
                 if (nameField === undefined || nameField.length === 0) return undefined;
                 const name = prefix + bank[nameField];
                 const checkResult = {nameField, name, nameAccessor};
-                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "");
+                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "").replaceAll(" ","");
 
                 if (name === undefined || name.length === 0) {
                     checkResult.status = "N/A";
