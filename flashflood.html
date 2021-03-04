@@ -397,7 +397,7 @@ Disable form on working and checked
                 });
             },
             log(msg) {
-                this.logtext.push(new Date().toISOString().replaceAll(/.*T/g,"") + "-" + msg)
+                this.logtext.push(new Date().toISOString().replaceAll(/.*T/g,"") + " - " + msg)
             },
             async post(api, data) {
                 const body = JSON.stringify(data);
