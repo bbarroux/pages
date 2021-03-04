@@ -389,7 +389,7 @@
                 this.log("uat tenant duplicate check complete!");
                 //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
                 this.log("##### Duplicate check complete!");
-                await Promise.all(this.banks.filter(b => b.orgCheck.existing).forEach(b => this.attachExistingTenants(b)));
+                //await Promise.all(this.banks.filter(b => b.orgCheck.existing).map(b => this.attachExistingTenants(b)));
                 this.checked = true;
                 this.working = false;
             },
