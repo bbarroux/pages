@@ -111,13 +111,13 @@ Disable form on working and checked
             <div v-if="fields.length">
                 <div class="form-elt">
                     <label for="orgIdField">OrgId Field</label>
-                    <select name="orgIdField" id="orgIdField" v-model="orgIdField">
+                    <select name="orgIdField" id="orgIdField" v-model="orgIdField" :disabled="checked">
                         <option v-for="f in fields">{{f}}</option>
                     </select>
                 </div>
                 <div class="form-elt">
                     <label for="orgNameField">Org Name Field</label>
-                    <select name="orgNameField" id="orgNameField" v-model="orgNameField">
+                    <select name="orgNameField" id="orgNameField" v-model="orgNameField" :disabled="checked">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
@@ -129,7 +129,7 @@ Disable form on working and checked
                 <hr>
                 <div class="form-elt">
                     <label for="prodTenantIdField">PROD Tenant id Field</label>
-                    <select name="prodTenantIdField" id="prodTenantIdField" v-model="prodTenantIdField">
+                    <select name="prodTenantIdField" id="prodTenantIdField" v-model="prodTenantIdField" :disabled="checked">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
@@ -140,25 +140,25 @@ Disable form on working and checked
                 </div>
                 <div class="form-elt">
                     <label for="uatTenantIdField">UAT Tenant id Field</label>
-                    <select name="prodTenantIdField" id="uatTenantIdField" v-model="uatTenantIdField">
+                    <select name="prodTenantIdField" id="uatTenantIdField" v-model="uatTenantIdField" :disabled="checked">
                         <option value="formula">Formula...</option>
                         <option v-for="f in fields">{{f}}</option>
                     </select>
                 </div>
                 <div v-if="uatTenantIdField === 'formula'" class="form-elt">
                     <label for="uatTenantIdFormula">UAT Tenant id Formula</label>
-                    <input type="text" id="uatTenantIdFormula" v-model="uatTenantIdFormula">
+                    <input type="text" id="uatTenantIdFormula" v-model="uatTenantIdFormula" >
                 </div>
                 <hr>
                 <div class="form-elt">
                     <label for="userEmailField">User Email Field</label>
-                    <select name="userEmailField" id="userEmailField" v-model="userEmailField">
+                    <select name="userEmailField" id="userEmailField" v-model="userEmailField" :disabled="checked">
                         <option v-for="f in fields">{{f}}</option>
                     </select>
                 </div>
                 <div class="form-elt">
                     <label for="coreProductsField">Cores (MLZ, POS, LOS)</label>
-                    <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField">
+                    <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField" :disabled="checked">
                         <option v-for="f in fields">{{f}}</option>
                     </select>
                 </div>
