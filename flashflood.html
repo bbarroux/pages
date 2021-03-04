@@ -157,6 +157,12 @@ Disable form on working and checked
                     </select>
                 </div>
                 <div class="form-elt">
+                    <label for="coreProductsField">Cores (MLZ, POS, LOS)</label>
+                    <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField">
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div class="form-elt">
                     <button @click="loadFfdc" :disabled="checked || orgNameField.length ===0">Check</button>
                     <span v-if="checked">Check complete</span>
                 </div>
@@ -201,12 +207,6 @@ Disable form on working and checked
                     <div class="form-elt">
                         <label for="maxEntries">Max entries</label>
                         <input type="text" id="maxEntries" v-model="processConfig.maxEntries">
-                    </div>
-                    <div class="form-elt">
-                        <label for="selectedCore">Core Product</label>
-                        <select name="selectedCore" id="selectedCore" v-model="processConfig.selectedCore">
-                            <option v-for="c in cores[this.env]" :value="c">{{c.name}}</option>
-                        </select>
                     </div>
                     <div class="form-elt">
                         <label for="confidenceLevel">Confidence Level</label>
@@ -255,6 +255,7 @@ Disable form on working and checked
                     uatTenantIdFormula: "",
                     tenantNameField: "",
                     userEmailField: "",
+                    coreProductsField:"",
                 },
                 orgIdField: "",
                 orgNameField: "",
@@ -325,7 +326,6 @@ Disable form on working and checked
                     attachUser: false,
                     maxEntries: 0,
                     confidenceLevel: "OK",
-                    selectedCore: null
                 },
                 checked: false,
                 working: false,
@@ -359,9 +359,9 @@ Disable form on working and checked
                 row.c_prodTenantCheckStatus = bank.prodTenantCheck ? bank.prodTenantCheck.status : "";
                 row.c_uatTenantCheckSatus = bank.uatTenantCheck ? bank.uatTenantCheck.status : "";
 
-                row.c_orgCheckDistance = bank.orgCheck ? bank.orgCheck.distance : "";
-                row.c_prodTenantCheckDistance = bank.prodTenantCheck ? bank.prodTenantCheck.distance : "";
-                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.uatTenantCheck.distance : "";
+                row.c_orgCheckDistance = bank.orgCheck ? bank.orgCheck.mostSim.distance : "";
+                row.c_prodTenantCheckDistance = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.distance : "";
+                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.mostSim.uatTenantCheck.distance : "";
 
                 row.c_orgCheckMostSim = bank.orgCheck ? bank.orgCheck.mostSim.displayName : "";
                 row.c_prodTenantCheckMostSim = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.name : "";
@@ -539,9 +539,18 @@ Disable form on working and checked
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
-                    if (cfg.createRouting) {
-                        await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["prod"], cfg)
-                        bank.createdProdRouting = true;
+                    if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
+                        const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
+                        for (coreName in coreNames){
+                            const core = this.cores[this.env].filter(c=>c.name===coreName);
+                            if(!core.length){
+                                this.log(`Could not find core ${coreName}`);
+                            }else {
+                                this.log(`creating routing for ${name} on core ${coreName}`);
+                                await this.createRouting(displayName, bank, name, this.cores[env].backendInstanceIds["prod"], cfg)
+                                bank.createdProdRouting += 1;
+                            }
+                        }
                     }
                 }
             },
@@ -568,9 +577,18 @@ Disable form on working and checked
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
-                    if (cfg.createRouting) {
-                        await this.createRouting(displayName, bank, name, cfg.selectedCore.backendInstanceIds["uat"], cfg)
-                        bank.createdUatRouting = true;
+                    if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
+                        const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
+                        for (coreName in coreNames){
+                            const core = this.cores[this.env].filter(c=>c.name===coreName);
+                            if(!core.length){
+                                this.log(`Could not find core ${coreName}`);
+                            }else {
+                                this.log(`creating routing for ${name} on core ${coreName}`);
+                                await this.createRouting(displayName, bank, name, this.cores[env].backendInstanceIds["uat"], cfg)
+                                bank.createdUatRouting += 1;
+                            }
+                        }
                     }
                 }
             },
