@@ -429,11 +429,11 @@ Disable form on working and checked
                 this.working = true;
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
-                this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName));
+                this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName, "FI "));
                 this.log("organizations duplicate check complete!");
-                this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name));
+                this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name, ""));
                 this.log("prod tenant duplicate check complete!");
-                this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name));
+                this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name, ""));
                 this.log("uat tenant duplicate check complete!");
                 //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
                 this.log("##### Duplicate check complete!");
@@ -441,9 +441,9 @@ Disable form on working and checked
                 this.checked = true;
                 this.working = false;
             },
-            checkBank(bank, nameField, coll, nameAccessor) {
+            checkBank(bank, nameField, coll, nameAccessor, prefix) {
                 if (nameField === undefined || nameField.length === 0) return undefined;
-                const name = bank[nameField];
+                const name = prefix + bank[nameField];
                 const checkResult = {nameField, name, nameAccessor};
                 const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "");
 
