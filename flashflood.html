@@ -543,6 +543,7 @@ Disable form on working and checked
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
+                    bank.createdProdRouting = 0;
                     if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
                         const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
                         for (coreName in coreNames) {
@@ -581,7 +582,7 @@ Disable form on working and checked
                     this.log(`attaching tenant ${name} for ${displayName};`)
                     await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
                     this.log(`attached tenant for ${displayName};`)
-                    bank.createdUatTenant = 0;
+                    bank.createdUatRouting = 0;
                     if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
                         const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
                         for (coreName of coreNames) {
