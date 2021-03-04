@@ -362,7 +362,7 @@ Disable form on working and checked
 
                 row.c_orgCheckDistance = bank.orgCheck ? bank.orgCheck.mostSim.distance : "";
                 row.c_prodTenantCheckDistance = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.distance : "";
-                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.mostSim.uatTenantCheck.distance : "";
+                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.uatTenantCheck.distance : "";
 
                 row.c_orgCheckMostSim = bank.orgCheck ? bank.orgCheck.mostSim.displayName : "";
                 row.c_prodTenantCheckMostSim = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.name : "";
@@ -580,7 +580,7 @@ Disable form on working and checked
                     this.log(`attached tenant for ${displayName};`)
                     if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
                         const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
-                        for (coreName in coreNames){
+                        for (coreName of coreNames){
                             const core = this.cores[this.env].filter(c=>c.name===coreName);
                             if(!core.length){
                                 this.log(`Could not find core ${coreName}`);
