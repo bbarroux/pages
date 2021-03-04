@@ -76,7 +76,7 @@
                             <td class="synthetic">
                                 <span v-if="bank.prodTenantCheck.status!=='OK' && bank.prodTenantCheck.mostSim"
                                       style="font-size: 80%">
-                                    ({{bank.prodTenantCheck.mostSim.distance}}){{bank.uatTenantCheck.mostSim.name}}
+                                    ({{bank.prodTenantCheck.mostSim.distance}}){{bank.prodTenantCheck.mostSim.name}}
                                 </span>
                             </td>
                         </template>
@@ -96,7 +96,7 @@
             </table>
         </div>
         <div class="main-form">
-            <label class="text-reader">
+            <label class="text-reader" v-if="!fields.length">
                 Read File
                 <input type="file" @change="loadCsv">
             </label>
@@ -208,7 +208,7 @@
                         </select>
                     </div>
                     <div class="form-elt">
-                        <button @click="process" :disabled="processConfig.maxEntries<=0">Go!</button>
+                        <button @click="process" :disabled="processConfig.maxEntries<=0 || processComplete">Go!</button>
                     </div>
                 </div>
             </div>
