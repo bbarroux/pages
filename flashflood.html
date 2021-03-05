@@ -37,6 +37,7 @@ Disable form on working and checked
                 <tr>
                     <th class="synthetic" v-if="!hideSynthetic">ffid</th>
                     <template v-if="!hideSynthetic && checked ">
+                        <th class="synthetic" v-if="orgNameField">Internal Duplicate</th>
                         <th class="synthetic" v-if="orgNameField">org status</th>
                         <th class="synthetic" v-if="orgNameField">closest org</th>
                         <th class="synthetic" v-if="prodTenantIdField">prod tenant status</th>
@@ -58,6 +59,7 @@ Disable form on working and checked
                 <tr v-for="bank in banks" :key="bank.ffid">
                     <td class="synthetic" v-if="!hideSynthetic">{{bank.ffid}}</td>
                     <template v-if="!hideSynthetic && checked ">
+                        <td>{{bank.internalDuplicate}}</td>
                         <template v-if="bank.orgCheck!==undefined ">
                             <td class="synthetic">{{bank.orgCheck.status}}</td>
                             <td class="synthetic">
@@ -359,6 +361,7 @@ Disable form on working and checked
                 const row = {}
                 row._id = bank.ffid;
                 this.fields.forEach(f => row['f_' + f] = bank[f])
+                row.c_orgInternalDuplicate = bank.internalDuplicate;
                 row.c_orgCheckStatus = bank.orgCheck ? bank.orgCheck.status : "";
                 row.c_prodTenantCheckStatus = bank.prodTenantCheck ? bank.prodTenantCheck.status : "";
                 row.c_uatTenantCheckSatus = bank.uatTenantCheck ? bank.uatTenantCheck.status : "";
@@ -397,7 +400,7 @@ Disable form on working and checked
                 });
             },
             log(msg) {
-                this.logtext.push(new Date().toISOString().replaceAll(/.*T/g,"") + " - " + msg)
+                this.logtext.push(new Date().toISOString().replaceAll(/.*T/g, "") + " - " + msg)
             },
             async post(api, data) {
                 const body = JSON.stringify(data);
@@ -420,15 +423,22 @@ Disable form on working and checked
                 return resp.json();
             },
             loadFfdc() {
+                this.working = true;
                 this.log("Loading ffdc data...")
                 const p1 = this.loadAll(`${TENANT_MGT_API}/tenants`, [], 1).then(items => this.ffdc.tenants = items);
                 const p2 = this.loadAll(`${ORG_ADMIN_API}/organizations`, [], 1).then(items => this.ffdc.organizations = items);
                 Promise.all([p1, p2]).then(this.checkFile)
             },
             async checkFile() {
-                this.working = true;
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
+                if (this.orgNameField === undefined || this.orgNameField.length === 0) return ;
+                const byName = this.banks.reduce(function (r, a) {
+                        r[a[this.orgNameField]] = r[a[this.orgNameField]] || [];
+                        r[a[this.orgNameField]].push(a);
+                        return r;
+                    }, Object.create(null));
+                byName.filter(g => g.length() > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
                 this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName, "FI "));
                 this.log("organizations duplicate check complete!");
                 this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name, ""));
@@ -445,7 +455,7 @@ Disable form on working and checked
                 if (nameField === undefined || nameField.length === 0) return undefined;
                 const name = prefix + bank[nameField];
                 const checkResult = {nameField, name, nameAccessor};
-                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "").replaceAll(" ","");
+                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "").replaceAll(" ", "");
 
                 if (name === undefined || name.length === 0) {
                     checkResult.status = "N/A";
@@ -496,6 +506,7 @@ Disable form on working and checked
                 this.log(`Starting processing for max ${cfg.maxEntries}....`);
                 this.log("processing config : " + JSON.stringify(cfg));
                 for (let i = 0; i < cfg.maxEntries; i++) {
+
                     await this.processBank(this.banks[i], cfg);
                 }
                 this.log("Processing complete.");
@@ -503,8 +514,16 @@ Disable form on working and checked
                 this.working = false;
             },
             async processBank(bank, cfg) {
-                const displayName = "FI "+ bank[this.orgNameField];
-                this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status}`);
+                const displayName = "FI " + bank[this.orgNameField];
+                this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status};uatTenantCheck: ${bank.uatTenantCheck.status};prodTenantCheck: ${bank.orgCheck.status}`);
+                if (bank.orgCheck.status !== "OK" || bank.uatTenantCheck.status !== "OK" || bank.prodTenantCheck.status !== "OK") {
+                    this.log("Skipping since not all statuses OK");
+                    return;
+                }
+                if (bank.internalDuplicate) {
+                    this.log(`Skipping ${displayName} since it's an internal duplicate`);
+                    return;
+                }
                 await this.createOrg(displayName, bank, cfg);
                 await this.createProdTenant(displayName, bank, cfg);
                 await this.createUatTenant(displayName, bank, cfg);
@@ -615,7 +634,7 @@ Disable form on working and checked
                 const blob = new Blob([csv], {
                     type: "text/csv;charset=utf-8"
                 });
-                saveAs(blob, "flashflood_result"+new Date().toISOString().replaceAll(":",".")+".csv")
+                saveAs(blob, "flashflood_result" + new Date().toISOString().replaceAll(":", ".") + ".csv")
             },
             saveOutput() {
                 const content = this.logtext.join('\n');
@@ -624,7 +643,7 @@ Disable form on working and checked
                     type: "text/plain;charset=utf-8"
                 });
 
-                saveAs(blob, "flashflood-log-"+new Date().toISOString().replaceAll(":",".")+".txt");
+                saveAs(blob, "flashflood-log-" + new Date().toISOString().replaceAll(":", ".") + ".txt");
             },
         }
     })
