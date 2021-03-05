@@ -503,7 +503,7 @@ Disable form on working and checked
                 this.working = false;
             },
             async processBank(bank, cfg) {
-                const displayName = bank[this.orgNameField];
+                const displayName = "FI "+ bank[this.orgNameField];
                 this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status}`);
                 await this.createOrg(displayName, bank, cfg);
                 await this.createProdTenant(displayName, bank, cfg);
