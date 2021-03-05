@@ -59,7 +59,7 @@ Disable form on working and checked
                 <tr v-for="bank in banks" :key="bank.ffid">
                     <td class="synthetic" v-if="!hideSynthetic">{{bank.ffid}}</td>
                     <template v-if="!hideSynthetic && checked ">
-                        <td>{{bank.internalDuplicate}}</td>
+                        <td class="synthetic">{{bank.internalDuplicate}}</td>
                         <template v-if="bank.orgCheck!==undefined ">
                             <td class="synthetic">{{bank.orgCheck.status}}</td>
                             <td class="synthetic">
