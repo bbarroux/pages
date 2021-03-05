@@ -338,6 +338,7 @@ Disable form on working and checked
                 processComplete: false,
                 hideSynthetic: false,
                 statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
+                byName:{},
             }
         },
         async created() {
@@ -433,12 +434,12 @@ Disable form on working and checked
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
                 if (this.orgNameField === undefined || this.orgNameField.length === 0) return ;
-                const byName = this.banks.reduce(function (r, a) {
+                this.byName = this.banks.reduce(function (r, a) {
                         r[a[this.orgNameField]] = r[a[this.orgNameField]] || [];
                         r[a[this.orgNameField]].push(a);
                         return r;
                     }, Object.create(null));
-                Object.values(byName).filter(g => g.length > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
+                Object.values(this.byName).filter(g => g.length > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
                 this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName, "FI "));
                 this.log("organizations duplicate check complete!");
                 this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name, ""));
