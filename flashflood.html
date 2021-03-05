@@ -433,10 +433,11 @@ Disable form on working and checked
             async checkFile() {
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
-                if (this.orgNameField === undefined || this.orgNameField.length === 0) return ;
+                const orgNameField = this.orgNameField;
+                if (orgNameField === undefined || orgNameField.length === 0) return ;
                 this.byName = this.banks.reduce(function (r, a) {
-                        r[a[this.orgNameField]] = r[a[this.orgNameField]] || [];
-                        r[a[this.orgNameField]].push(a);
+                        r[a[orgNameField]] = r[a[orgNameField]] || [];
+                        r[a[orgNameField]].push(a);
                         return r;
                     }, Object.create(null));
                 Object.values(this.byName).filter(g => g.length > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
