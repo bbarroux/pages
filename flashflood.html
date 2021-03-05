@@ -438,7 +438,7 @@ Disable form on working and checked
                         r[a[this.orgNameField]].push(a);
                         return r;
                     }, Object.create(null));
-                Object.values(byName).filter(g => g.length() > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
+                Object.values(byName).filter(g => g.length > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
                 this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName, "FI "));
                 this.log("organizations duplicate check complete!");
                 this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name, ""));
