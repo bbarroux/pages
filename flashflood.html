@@ -14,6 +14,11 @@
 Save to csv
 Disable form on working and checked
 ìmplement core product control
+
+
+implement hardcoded product
+implement checkbox override
+implement tenand id formula?
 -->
 <div id="app">
 
@@ -457,7 +462,10 @@ Disable form on working and checked
                 if (nameField === undefined || nameField.length === 0) return undefined;
                 const name = prefix + bank[nameField];
                 const checkResult = {nameField, name, nameAccessor};
-                const relevant = s => s.toLowerCase().replaceAll(/ ?bank/g, "").replaceAll(/ ?union/g, "").replaceAll(" ", "");
+                const relevant = s => s.toLowerCase()
+                    .replaceAll(/\bcu\b/g, "credit union")
+                    .replaceAll(/\bfcu\b/g, "federal credit union")
+                    .replaceAll("&", "and");
 
                 if (name === undefined || name.length === 0) {
                     checkResult.status = "N/A";
@@ -467,7 +475,7 @@ Disable form on working and checked
                         .map(o => ({...o, distance: LEV.distance(relevantName, relevant(nameAccessor(o)))}))
                         .sort((s1, s2) => s1.distance - s2.distance);
 
-                    const mostSim = similar[0]
+                    const mostSim = similar[0];
                     const reldist = mostSim.distance / relevantName.length;
                     checkResult.relDist = reldist;
                     checkResult.mostSim = mostSim;
