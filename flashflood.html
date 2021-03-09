@@ -338,7 +338,7 @@ Disable form on working and checked
                 processComplete: false,
                 hideSynthetic: false,
                 statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
-                byName:{},
+                byName: {},
             }
         },
         async created() {
@@ -434,12 +434,12 @@ Disable form on working and checked
                 this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                 this.log("Checking for duplicates...")
                 const orgNameField = this.orgNameField;
-                if (orgNameField === undefined || orgNameField.length === 0) return ;
+                if (orgNameField === undefined || orgNameField.length === 0) return;
                 this.byName = this.banks.reduce(function (r, a) {
-                        r[a[orgNameField]] = r[a[orgNameField]] || [];
-                        r[a[orgNameField]].push(a);
-                        return r;
-                    }, Object.create(null));
+                    r[a[orgNameField]] = r[a[orgNameField]] || [];
+                    r[a[orgNameField]].push(a);
+                    return r;
+                }, Object.create(null));
                 Object.values(this.byName).filter(g => g.length > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
                 this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName, "FI "));
                 this.log("organizations duplicate check complete!");
@@ -507,11 +507,18 @@ Disable form on working and checked
                 const cfg = this.processConfig;
                 this.log(`Starting processing for max ${cfg.maxEntries}....`);
                 this.log("processing config : " + JSON.stringify(cfg));
-                for (let i = 0; i < cfg.maxEntries; i++) {
-
-                    await this.processBank(this.banks[i], cfg);
+                try {
+                    for (let i = 0; i < cfg.maxEntries; i++) {
+                        this.log(`### Processing ${i} of ${cfg.maxEntries} (${Math.floor(i / cfg.maxEntries)}%)`)
+                        await this.processBank(this.banks[i], cfg);
+                    }
+                    this.log("Processing complete.");
+                }catch (e){
+                    this.log("!! ERROR - Processing interrupted.");
+                    console.log(e);
+                    this.log(e.toString());
                 }
-                this.log("Processing complete.");
+
                 this.processComplete = true;
                 this.working = false;
             },
