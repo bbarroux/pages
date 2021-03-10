@@ -464,6 +464,7 @@ implement tenand id formula?
                 const checkResult = {nameField, name, nameAccessor};
                 const relevant = s => s.toLowerCase()
                     .replaceAll(/\bcu\b/g, "credit union")
+                    .replaceAll(/^fi /g, "")
                     .replaceAll(/\bfcu\b/g, "federal credit union")
                     .replaceAll("&", "and");
 
