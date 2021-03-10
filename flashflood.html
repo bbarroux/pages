@@ -19,6 +19,8 @@ Disable form on working and checked
 implement hardcoded product
 implement checkbox override
 implement tenand id formula?
+retrieve orgid and tenants for created orgs
+maxEntries banks minmax
 -->
 <div id="app">
 
@@ -225,7 +227,9 @@ implement tenand id formula?
                         </select>
                     </div>
                     <div class="form-elt">
-                        <button @click="process" :disabled="processConfig.maxEntries<=0 || processComplete">Go!</button>
+                        <button @click="process" :disabled="processConfig.maxEntries<=0 || processComplete || working">
+                            Go!
+                        </button>
                     </div>
                 </div>
             </div>
@@ -514,15 +518,16 @@ implement tenand id formula?
             async process() {
                 this.working = true;
                 const cfg = this.processConfig;
-                this.log(`Starting processing for max ${cfg.maxEntries}....`);
+                const nbEntries = Math.min(cfg.maxEntries, this.banks.length)
+                this.log(`Starting processing for max ${nbEntries}....`);
                 this.log("processing config : " + JSON.stringify(cfg));
                 try {
-                    for (let i = 0; i < cfg.maxEntries; i++) {
-                        this.log(`### Processing ${i} of ${cfg.maxEntries} (${Math.floor(i / cfg.maxEntries)}%)`)
+                    for (let i = 0; i < nbEntries; i++) {
+                        this.log(`### Processing ${i} of ${nbEntries} (${Math.floor(i / nbEntries)}%)`)
                         await this.processBank(this.banks[i], cfg);
                     }
                     this.log("Processing complete.");
-                }catch (e){
+                } catch (e) {
                     this.log("!! ERROR - Processing interrupted.");
                     console.log(e);
                     this.log(e.toString());
