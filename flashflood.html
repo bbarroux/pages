@@ -528,10 +528,13 @@ maxEntries banks minmax
                 this.log("processing config : " + JSON.stringify(cfg));
                 try {
                     for (let i = 0; i < nbEntries; i++) {
-                        this.log(`###############################################`);
-                        this.log(`###   PROCESSING ${i} of ${nbEntries} (${Math.floor(i * 100/ nbEntries)}%)`)
-                        this.log(`###############################################`);
+                        const start = new Date();
                         await this.processBank(this.banks[i], cfg);
+                        const elapsed = (new Date().getTime() - start)/1000
+                        this.log(`###############################################`);
+                        this.log(`###   PROCESSED ${i+1} of ${nbEntries} (${Math.floor(i * 100/ nbEntries)}%) in ${elapsed}s`)
+                        this.log(`###############################################`);
+
                     }
                     this.log("Processing complete.");
                 } catch (e) {
