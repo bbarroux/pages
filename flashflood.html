@@ -386,7 +386,7 @@ maxEntries banks minmax
 
                 row.c_orgCheckExisingId = bank.orgCheck && bank.orgCheck.existing? bank.orgCheck.existing.orgId : "";
                 row.c_prodTenantCheckExistingId = bank.prodTenantCheck && bank.prodTenantCheck.existing? bank.prodTenantCheck.existing.name : "";
-                row.c_uatTenantCheckExistingId = bank.uatTenantCheck && bank.uatTenantCheck.existing? bank.uatTenantCheck.mostSim.existing.name : "";
+                row.c_uatTenantCheckExistingId = bank.uatTenantCheck && bank.uatTenantCheck.existing? bank.uatTenantCheck.existing.name : "";
 
 
                 row.p_createdOrgId = bank.createdOrg ? bank.createdOrg.orgId : "";
