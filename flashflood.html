@@ -236,7 +236,7 @@ maxEntries banks minmax
 
         </div>
         <div class="console" id="logdiv">
-            <div v-for="l in logtext">{{l}}</div>
+            {{logtext}}
         </div>
     </div>
 </div>
@@ -251,7 +251,7 @@ maxEntries banks minmax
             return {
                 env: "preprod",
                 ffal: null,
-                logtext: ['Welcome on flashflood console'],
+                logtext: 'Welcome on flashflood console\n',
                 fields: [],
                 banks: [],
                 ffdc: {
@@ -359,7 +359,7 @@ maxEntries banks minmax
             setInterval(() => {
                 const elem = document.getElementById('logdiv');
                 if (elem) elem.scrollTop = elem.scrollHeight
-            }, 3000)
+            }, 8000)
         },
         computed: {
             bankTable() {
@@ -383,6 +383,11 @@ maxEntries banks minmax
                 row.c_orgCheckMostSim = bank.orgCheck ? bank.orgCheck.mostSim.displayName : "";
                 row.c_prodTenantCheckMostSim = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.name : "";
                 row.c_uatTenantCheckMostSim = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.name : "";
+
+                row.c_orgCheckExisingId = bank.orgCheck && bank.orgCheck.existing? bank.orgCheck.existing.orgId : "";
+                row.c_prodTenantCheckExistingId = bank.prodTenantCheck && bank.prodTenantCheck.existing? bank.prodTenantCheck.existing.name : "";
+                row.c_uatTenantCheckExistingId = bank.uatTenantCheck && bank.uatTenantCheck.existing? bank.uatTenantCheck.mostSim.existing.name : "";
+
 
                 row.p_createdOrgId = bank.createdOrg ? bank.createdOrg.orgId : "";
                 row.p_createdOrgName = bank.createdOrg ? bank.createdOrg.displayName : "";
@@ -410,7 +415,7 @@ maxEntries banks minmax
                 });
             },
             log(msg) {
-                this.logtext.push(new Date().toISOString().replaceAll(/.*T/g, "") + " - " + msg)
+                this.logtext +=(new Date().toISOString().replaceAll(/.*T/g, "") + " - " + msg + '\n')
             },
             async post(api, data) {
                 const body = JSON.stringify(data);
@@ -523,7 +528,9 @@ maxEntries banks minmax
                 this.log("processing config : " + JSON.stringify(cfg));
                 try {
                     for (let i = 0; i < nbEntries; i++) {
-                        this.log(`### Processing ${i} of ${nbEntries} (${Math.floor(i / nbEntries)}%)`)
+                        this.log(`###############################################`);
+                        this.log(`###   PROCESSING ${i} of ${nbEntries} (${Math.floor(i * 100/ nbEntries)}%)`)
+                        this.log(`###############################################`);
                         await this.processBank(this.banks[i], cfg);
                     }
                     this.log("Processing complete.");
@@ -660,9 +667,8 @@ maxEntries banks minmax
                 saveAs(blob, "flashflood_result" + new Date().toISOString().replaceAll(":", ".") + ".csv")
             },
             saveOutput() {
-                const content = this.logtext.join('\n');
 
-                const blob = new Blob([content], {
+                const blob = new Blob([this.logtext], {
                     type: "text/plain;charset=utf-8"
                 });
 
