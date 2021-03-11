@@ -505,9 +505,9 @@ maxEntries banks minmax
                         checkResult.status = "Duplicate";
                         checkResult.existing = mostSim;
                     } else if (distance < 2) checkResult.status = "Highly suspect";
-                    else if (reldist < 3) checkResult.status = "Very suspect";
-                    else if (reldist < 4) checkResult.status = "Suspect";
-                    else if (reldist < 5) checkResult.status = "Slightly suspect";
+                    else if (distance < 3) checkResult.status = "Very suspect";
+                    else if (distance < 4) checkResult.status = "Suspect";
+                    else if (distance < 5) checkResult.status = "Slightly suspect";
                     else {
                         checkResult.status = "OK";
                         checkResult.checked = true;
