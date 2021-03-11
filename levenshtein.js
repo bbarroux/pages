@@ -108,15 +108,17 @@ LEV.distance = (a, b) => {
     return myers_x(a, b);
 };
 
-LEV.closest = (str, arr) => {
+LEV.closest = (str, arr, transformer) => {
+    if (transformer === undefined) transformer = _ => _
     let min_distance = Infinity;
     let min_index = 0;
     for (let i = 0; i < arr.length; i++) {
-        const distance = this.distance(str, arr[i]);
+        const distance = this.distance(str, transformer(arr[i]));
+        if (distance === 0) return {distance: 0, closest: arr[i], index: i};
         if (distance < min_distance) {
             min_distance = distance;
             min_index = i;
         }
     }
-    return arr[min_index];
+    return {distance: min_distance, closest: arr[min_index], index: min_index};
 };

@@ -466,7 +466,7 @@ maxEntries banks minmax
                     this.log("prod tenant duplicate check complete!");
                     this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name, ""));
                     this.log("uat tenant duplicate check complete!");
-                    //this.banks.sort((b1, b2) => b1.orgCheck.relDist - b2.orgCheck.relDist);
+
                     this.log("##### Duplicate check complete!");
                     //await Promise.all(this.banks.filter(b => b.orgCheck.existing).map(b => this.attachExistingTenants(b)));
                     this.checked = true;
@@ -491,19 +491,15 @@ maxEntries banks minmax
                     checkResult.status = "N/A";
                 } else {
                     const relevantName = relevant(name);
-                    const similar = coll
-                        .map(o => ({...o, distance: LEV.distance(relevantName, relevant(nameAccessor(o)))}))
-                        .sort((s1, s2) => s1.distance - s2.distance);
+                    const closest = LEV.closest(relevantName, coll);
 
-                    const mostSim = similar[0];
-                    const distance = mostSim.distance;
-                    const reldist = mostSim.distance / relevantName.length;
-                    checkResult.relDist = reldist;
-                    checkResult.mostSim = mostSim;
+                    const distance = closest.distance;
+                    checkResult.mostSim = closest.closest;
+                    checkResult.distance = distance;
 
                     if (distance===0) {
                         checkResult.status = "Duplicate";
-                        checkResult.existing = mostSim;
+                        checkResult.existing = checkResult.mostSim;
                     } else if (distance < 2) checkResult.status = "Highly suspect";
                     else if (distance < 3) checkResult.status = "Very suspect";
                     else if (distance < 4) checkResult.status = "Suspect";
