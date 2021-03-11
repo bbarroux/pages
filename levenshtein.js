@@ -109,11 +109,11 @@ LEV.distance = (a, b) => {
 };
 
 LEV.closest = (str, arr, transformer) => {
-    if (transformer === undefined) transformer = _ => _
+    if (transformer === undefined) transformer = _ => _;
     let min_distance = Infinity;
     let min_index = 0;
     for (let i = 0; i < arr.length; i++) {
-        const distance = this.distance(str, transformer(arr[i]));
+        const distance = LEV.distance(str, transformer(arr[i]));
         if (distance === 0) return {distance: 0, closest: arr[i], index: i};
         if (distance < min_distance) {
             min_distance = distance;

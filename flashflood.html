@@ -435,7 +435,7 @@ maxEntries banks minmax
                 this.log("calling " + api)
                 const resp = await this.ffal.fetch(api, req);
                 this.log("received response for " + api + ":" + resp.status + " = ff-trace-id = " + resp.headers.get("ff-trace-id"));
-                if(resp.status>=400) {
+                if (resp.status >= 400) {
                     const jreq = req ? req : {};
                     throw (`Fetch error (${resp.status}) while calling ${api}, ${JSON.stringify(jreq)}`)
                 }
@@ -470,7 +470,7 @@ maxEntries banks minmax
                     this.log("##### Duplicate check complete!");
                     //await Promise.all(this.banks.filter(b => b.orgCheck.existing).map(b => this.attachExistingTenants(b)));
                     this.checked = true;
-                }catch (e){
+                } catch (e) {
                     this.log("$$ ERROR - Checking interrupted.");
                     console.log(e);
                     this.log(e.toString());
@@ -491,13 +491,13 @@ maxEntries banks minmax
                     checkResult.status = "N/A";
                 } else {
                     const relevantName = relevant(name);
-                    const closest = LEV.closest(relevantName, coll);
+                    const closest = LEV.closest(relevantName, coll, o => relevant(nameAccessor(o)));
 
                     const distance = closest.distance;
                     checkResult.mostSim = closest.closest;
                     checkResult.distance = distance;
 
-                    if (distance===0) {
+                    if (distance === 0) {
                         checkResult.status = "Duplicate";
                         checkResult.existing = checkResult.mostSim;
                     } else if (distance < 2) checkResult.status = "Highly suspect";
