@@ -436,7 +436,8 @@ maxEntries banks minmax
                 const resp = await this.ffal.fetch(api, req);
                 this.log("received response for " + api + ":" + resp.status + " = ff-trace-id = " + resp.headers.get("ff-trace-id"));
                 if(resp.status>=400) {
-                    throw (`Fetch error (${resp.status}) while calling ${api}, ${JSON.stringify(req)}`)
+                    const jreq = req ? req : {};
+                    throw (`Fetch error (${resp.status}) while calling ${api}, ${JSON.stringify(jreq)}`)
                 }
                 return resp.json();
             },
