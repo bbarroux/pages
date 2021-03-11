@@ -496,17 +496,18 @@ maxEntries banks minmax
                         .sort((s1, s2) => s1.distance - s2.distance);
 
                     const mostSim = similar[0];
+                    const distance = mostSim.distance;
                     const reldist = mostSim.distance / relevantName.length;
                     checkResult.relDist = reldist;
                     checkResult.mostSim = mostSim;
 
-                    if (reldist === 0) {
+                    if (distance===0) {
                         checkResult.status = "Duplicate";
                         checkResult.existing = mostSim;
-                    } else if (reldist < 0.05) checkResult.status = "Highly suspect";
-                    else if (reldist < 0.1) checkResult.status = "Very suspect";
-                    else if (reldist < 0.15) checkResult.status = "Suspect";
-                    else if (reldist < 0.2) checkResult.status = "Slightly suspect";
+                    } else if (distance < 2) checkResult.status = "Highly suspect";
+                    else if (reldist < 3) checkResult.status = "Very suspect";
+                    else if (reldist < 4) checkResult.status = "Suspect";
+                    else if (reldist < 5) checkResult.status = "Slightly suspect";
                     else {
                         checkResult.status = "OK";
                         checkResult.checked = true;
