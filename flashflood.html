@@ -569,7 +569,7 @@ maxEntries banks minmax
                         this.log("Skipping since not all statuses OK");
                         return;
                     }
-                    if (this.skipField||bank[this.skipField].length){
+                    if (this.skipField && bank[this.skipField].trim().length){
                         this.log(`Skipping ${displayName} since its marked for skipping`);
                         return;
                     }
