@@ -353,7 +353,7 @@ maxEntries banks minmax
                 working: false,
                 processComplete: false,
                 hideSynthetic: false,
-                statuses: ["OK", "Slightly Suspect", "Suspect", "Very Suspect", "Highly Suspect"],
+                statuses: ["OK", "Slightly Suspect", "Suspect", "Highly Suspect"],
                 byName: {},
             }
         },
@@ -508,10 +508,10 @@ maxEntries banks minmax
                     if (distance === 0) {
                         checkResult.status = "Duplicate";
                         checkResult.existing = checkResult.mostSim;
-                    } else if (distance < 2) checkResult.status = "Highly suspect";
-                    else if (distance < 3) checkResult.status = "Very suspect";
-                    else if (distance < 4) checkResult.status = "Suspect";
-                    else if (distance < 5) checkResult.status = "Slightly suspect";
+                    }
+                    else if (distance < 2) checkResult.status = "Highly suspect";
+                    else if (distance < 3) checkResult.status = "Suspect";
+                    else if (distance < 4) checkResult.status = "Slightly suspect";
                     else {
                         checkResult.status = "OK";
                         checkResult.checked = true;
