@@ -175,7 +175,7 @@ maxEntries banks minmax
                     </select>
                 </div>
                 <div class="form-elt">
-                    <button @click="loadFfdc" :disabled="checked || orgNameField.length ===0">Check</button>
+                    <button @click="loadFfdc" :disabled="checked || orgNameField.length ===0|| coreProductsField.length ===0">Check</button>
                     <span v-if="checked">Check complete</span>
                 </div>
 
@@ -560,6 +560,10 @@ maxEntries banks minmax
                     this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status};uatTenantCheck: ${bank.uatTenantCheck.status};prodTenantCheck: ${bank.orgCheck.status}`);
                     if (bank.orgCheck.status !== "OK" || bank.uatTenantCheck.status !== "OK" || bank.prodTenantCheck.status !== "OK") {
                         this.log("Skipping since not all statuses OK");
+                        return;
+                    }
+                    if (!bank[this.coreProductsField]||!bank[this.coreProductsField].length){
+                        this.log(`Skipping ${displayName} since its core product is not defined`);
                         return;
                     }
                     if (bank.internalDuplicate) {
