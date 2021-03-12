@@ -168,6 +168,12 @@ maxEntries banks minmax
                     </select>
                 </div>
                 <div class="form-elt">
+                    <label for="skipField">Skip Field</label>
+                    <select name="skipField" id="skipField" v-model="skipField" :disabled="checked">
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div class="form-elt">
                     <label for="coreProductsField">Cores (MLZ, POS, LOS)</label>
                     <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField"
                             :disabled="checked">
@@ -282,6 +288,7 @@ maxEntries banks minmax
                 tenantNameField: "",
                 userEmailField: "",
                 coreProductsField: "",
+                skipField: "",
                 cores: {
                     "preprod": [
                         {
@@ -562,8 +569,8 @@ maxEntries banks minmax
                         this.log("Skipping since not all statuses OK");
                         return;
                     }
-                    if (!bank[this.coreProductsField]||!bank[this.coreProductsField].length){
-                        this.log(`Skipping ${displayName} since its core product is not defined`);
+                    if (this.skipField||bank[this.skipField].length){
+                        this.log(`Skipping ${displayName} since its marked for skipping`);
                         return;
                     }
                     if (bank.internalDuplicate) {
