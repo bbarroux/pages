@@ -52,7 +52,7 @@ maxEntries banks minmax
             </label>
             <hr v-if="!fields.length">
             <div v-if="fields.length">
-                <ff-field-config v-for="(val, prop) in fieldsConfig" :key=prop" :field="prop" :fields-config="fieldsConfig"></ff-field-config>
+                <ff-field-config v-for="(val, prop) in fieldsConfig" :key="prop" :field="prop" :fields-config="fieldsConfig"></ff-field-config>
 
 
                 <div class="form-elt">
