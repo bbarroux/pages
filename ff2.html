@@ -139,19 +139,23 @@ maxEntries banks minmax
         props: ['customer', 'fieldsConfig', 'pageState'],
         template: `
           <div class="grid-entry-container" style="margin:5px; border: 1px solid #4a8df8">
-          <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
+              <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
+              <label :for="'cb-'+ customer.ffid">Force process</label>
+              <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
 
-          <div>skip:{{ skip }}</div>
-          <div>orgId:{{ orgId }}</div>
-          <div>orgName:{{ orgName }}</div>
-          <div>tenant-uat:{{ uatTenantId }}</div>
-          <div>tenant-prod:{{ prodTenantId }}</div>
-          <div>users:{{ users }}</div>
-          <div>products:{{ products }}</div>
-          </div>
+              <div>skip:{{ skip }}</div>
+              <div>orgId:{{ orgId }}</div>
+              <div>orgName:{{ orgName }}</div>
+              <div>tenant-uat:{{ uatTenantId }}</div>
+              <div>tenant-prod:{{ prodTenantId }}</div>
+              <div>users:{{ users }}</div>
+              <div>products:{{ products }}</div>
+              </div>
         `,
         data() {
-            return {};
+            return {
+                forceCheck:false,
+            };
         },
         computed: {
             skip: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.skip),
