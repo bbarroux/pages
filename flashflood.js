@@ -15,7 +15,7 @@ class Customer {
         this.processReport = undefined;
     }
 
-    getField(field) {
+    get(field) {
         if (!field) return undefined;
         const val = this.fileEntry[field];
         return val && val.trim() ? val.trim() : undefined;
@@ -25,31 +25,11 @@ class Customer {
         return val ? val.split(",") : [];
     }
 
-    get skip() {
-        return this.getField(this.fieldsConfig.skip)
-    }
-
-    get orgId() {
-        return this.getField(this.fieldsConfig.orgId)
-    }
-
-    get orgName() {
-        return this.getField(this.fieldsConfig.orgName)
-    }
-
-    get uatTenantId() {
-        return this.getField(this.fieldsConfig.uatTenantId)
-    }
-
-    get prodTenantId() {
-        return this.getField(this.fieldsConfig.prodTenantId)
-    }
-
-    get users() {
-        return this.split(this.getField(this.fieldsConfig.emails))
-    }
-
-    get products() {
-        return this.split(this.getField(this.fieldsConfig.coreProducts))
+    get tableRow() {
+        const row = {}
+        row._id = this.ffid;
+        Object.entries(this.fileEntry).forEach((key, val) => row['f_' + key] = val)
+        Object.entries(this.fieldsConfig).forEach((key, val) => row['f_' + key] = this.get(key))
+        return row;
     }
 }

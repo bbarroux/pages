@@ -37,7 +37,6 @@ maxEntries banks minmax
         </div>
         <div class="Page-buttons">
             <b style="color: #45297a; font-size: 200%">{{env}}</b> -
-            <button onclick="FFAL.logout()">Sign Out</button>
         </div>
         <div class="main-table">
             <div class="orig-table" v-if="fields.length"></div>
@@ -52,7 +51,8 @@ maxEntries banks minmax
             </label>
             <hr v-if="!fields.length">
             <div v-if="fields.length">
-                <ff-field-config v-for="(val, prop) in fieldsConfig" :key="prop" :field="prop" :fields-config="fieldsConfig" :fields="fields"></ff-field-config>
+                <ff-field-config v-for="(val, prop) in fieldsConfig" :key="prop" :field="prop"
+                                 :fields-config="fieldsConfig" :fields="fields"></ff-field-config>
 
 
                 <div class="form-elt">
@@ -65,7 +65,8 @@ maxEntries banks minmax
                 <hr>
                 <div v-if="checked">
                     <hr>
-                    <ff-step-config v-for="(val,prop) in processConfig.steps" :key="prop" steps-config="processConfig.steps" :step="prop"></ff-step-config>
+                    <ff-step-config v-for="(val,prop) in processConfig.steps" :key="prop"
+                                    steps-config="processConfig.steps" :step="prop"></ff-step-config>
                     <hr>
                     <div class="form-elt">
                         <label for="maxEntries">Max entries</label>
@@ -104,35 +105,26 @@ maxEntries banks minmax
         template: `
           <div class="form-elt">
           <input type="checkbox" :id="step" v-model="stepsConfig[step]">
-          <label :for="step">{{step}}</label>
+          <label :for="step">{{ step }}</label>
           </div>
         `,
 
     });
     Vue.component('ff-customer', {
-        props: ['customer',  'pageState', 'fieldsConfig',],
+        props: ['customer', 'pageState', 'fieldsConfig',],
         template: `
           <div class="grid-entry-container" style="margin:5px; border: 1px solid #4a8df8">
-              <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
-              <label :for="'cb-'+ customer.ffid">Force process</label>
-              <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
-
-              <div>id:{{ customer.ffid }}</div>
-              <div>skip:{{ customer.skip }}</div>
-              <div>orgId:{{ customer.orgId }}</div>
-              <div>orgName:{{ customer.orgName }}</div>
-              <div>tenant-uat:{{ customer.uatTenantId }}</div>
-              <div>tenant-prod:{{ customer.prodTenantId }}</div>
-              <div>users:{{ customer.users }}</div>
-              <div>products:{{ customer.products }}</div>
-              </div>
+          <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
+          <label :for="'cb-'+ customer.ffid" v-model="forceCheck">Force process</label>
+          <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
+          <div v-for="(val, prop) in fieldsConfig" :key="prop">{{ prop }}:{{ customer.get(prop) }}</div>
+          </div>
         `,
         data() {
             return {
-                forceCheck:false,
+                forceCheck: false,
             };
         },
-        methods: {}
     });
     new Vue({
         el: '#app',
@@ -183,56 +175,9 @@ maxEntries banks minmax
                 userEmailField: "",
                 coreProductsField: "",
                 skipField: "",
-                cores: {
-                    "preprod": [
-                        {
-                            name: "LOS",
-                            backendInstanceIds: {
-                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
-                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
-                            }
-                        },
-                        {
-                            name: "POS",
-                            backendInstanceIds: {
-                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
-                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
-                            }
-                        },
-                        {
-                            name: "MLZ",
-                            backendInstanceIds: {
-                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
-                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
-                            }
-                        },
-                    ],
-                    "prod": [
-                        {
-                            name: "LOS",
-                            backendInstanceIds: {
-                                uat: "d18271b6-a698-4603-91b6-133aaca0550c",
-                                prod: "09bd0356-a047-4b89-9366-a36274d62d0a"
-                            }
-                        },
-                        {
-                            name: "POS",
-                            backendInstanceIds: {
-                                uat: "c4cf3c66-3ae1-47be-b70a-7c901f41f17e",
-                                prod: "edf3cf08-9cc0-4ed2-9cad-d128a996610a"
-                            }
-                        },
-                        {
-                            name: "MLZ",
-                            backendInstanceIds: {
-                                uat: "97366e9a-f270-4736-ac3c-98befe73c893",
-                                prod: "4bf5147a-e88a-4cc5-8465-0c2762c8b2f5"
-                            }
-                        },
-                    ]
-                },
+
                 processConfig: {
-                    steps:{
+                    steps: {
                         createOrganization: false,
                         createUatTenant: false,
                         createProdTenant: false,
@@ -255,15 +200,8 @@ maxEntries banks minmax
             }
         },
         async created() {
-            if (window.location.host.startsWith("prod.")) {
-                FFAL.server = "https://be.fficaas.net";
-                this.env = "prod";
-            }
             this.ffal = await FFAL.login("ffdc", "employee");
-            setInterval(() => {
-                const elem = document.getElementById('logdiv');
-                if (elem) elem.scrollTop = elem.scrollHeight
-            }, 8000)
+
         },
         computed: {
             bankTable() {
@@ -271,39 +209,6 @@ maxEntries banks minmax
             }
         },
         methods: {
-            toTableRow(bank) {
-                const row = {}
-                row._id = bank.ffid;
-                this.fields.forEach(f => row['f_' + f] = bank[f])
-                row.c_orgInternalDuplicate = bank.internalDuplicate;
-                row.c_orgCheckStatus = bank.orgCheck ? bank.orgCheck.status : "";
-                row.c_prodTenantCheckStatus = bank.prodTenantCheck ? bank.prodTenantCheck.status : "";
-                row.c_uatTenantCheckSatus = bank.uatTenantCheck ? bank.uatTenantCheck.status : "";
-
-                row.c_orgCheckDistance = bank.orgCheck ? bank.orgCheck.mostSim.distance : "";
-                row.c_prodTenantCheckDistance = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.distance : "";
-                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.distance : "";
-
-                row.c_orgCheckMostSim = bank.orgCheck ? bank.orgCheck.mostSim.displayName : "";
-                row.c_prodTenantCheckMostSim = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.name : "";
-                row.c_uatTenantCheckMostSim = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.name : "";
-
-                row.c_orgCheckExisingId = bank.orgCheck && bank.orgCheck.existing ? bank.orgCheck.existing.orgId : "";
-                row.c_prodTenantCheckExistingId = bank.prodTenantCheck && bank.prodTenantCheck.existing ? bank.prodTenantCheck.existing.name : "";
-                row.c_uatTenantCheckExistingId = bank.uatTenantCheck && bank.uatTenantCheck.existing ? bank.uatTenantCheck.existing.name : "";
-
-
-                row.p_createdOrgId = bank.createdOrg ? bank.createdOrg.orgId : "";
-                row.p_createdOrgName = bank.createdOrg ? bank.createdOrg.displayName : "";
-                row.p_createdProdTenantId = bank.createdProdTenant ? bank.createdProdTenant.name : "";
-                row.p_createdProdTenantName = bank.createdProdTenant ? bank.createdProdTenant.displayName : "";
-                row.p_createdUatTenantId = bank.createdUatTenant ? bank.createdUatTenant.name : "";
-                row.p_createdUatTenantName = bank.createdUatTenant ? bank.createdUatTenant.displayName : "";
-
-                row.p_createdProdRouting = bank.createdProdRouting;
-                row.p_createdUatRouting = bank.createdUatRouting;
-                return row;
-            },
             loadCsv(ev) {
                 this.checked = false;
                 const file = ev.target.files[0];
@@ -319,20 +224,19 @@ maxEntries banks minmax
                 });
             },
             log(msg) {
-                this.logtext += (new Date().toISOString().replaceAll(/.*T/g, "") + " - " + msg + '\n')
+                this.logtext = new Date().toISOString().replaceAll(/.*T/g, "") + " - " + msg + '\n' + this.logtext
             },
             async post(api, data) {
-                const body = JSON.stringify(data);
-                this.log(`Posting on ${api}. data:${body}`)
-                const headers = {'Content-Type': 'application/json'};
-                const req = {method: 'POST', headers, body};
-                return this.fetch(api, req);
+                return this.putPost('POST', api, data);
             },
             async put(api, data) {
+                return this.putPost('PUT', api, data);
+            },
+            async putPost(method, api, data) {
                 const body = JSON.stringify(data);
-                this.log(`Putting on ${api}. data:${body}`)
+                this.log(`${method}ting on ${api}. data:${body}`)
                 const headers = {'Content-Type': 'application/json'};
-                const req = {method: 'PUT', headers, body};
+                const req = {method, headers, body};
                 return this.fetch(api, req);
             },
             async fetch(api, req) {
