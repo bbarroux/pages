@@ -5,7 +5,7 @@ class Check {
 
 class Customer {
     constructor(ffid, fileEntry) {
-        this.index = ffid;
+        this.ffid = ffid;
         this.fileEntry = fileEntry;
         this.selected = false;
         this.checking = false;
