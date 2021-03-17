@@ -34,6 +34,7 @@ class Customer {
     }
 
     get orgName() {
+        console.log("getting orgName from "+this.fieldsConfig.orgName)
         this.getField(this.fieldsConfig.orgName)
     }
 
