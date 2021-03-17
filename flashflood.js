@@ -26,31 +26,31 @@ class Customer {
     }
 
     get skip() {
-        this.getField(this.fieldsConfig.skip)
+        return this.getField(this.fieldsConfig.skip)
     }
 
     get orgId() {
-        this.getField(this.fieldsConfig.orgId)
+        return this.getField(this.fieldsConfig.orgId)
     }
 
     get orgName() {
         console.log("getting orgName from "+this.fieldsConfig.orgName)
-        this.getField(this.fieldsConfig.orgName)
+        return this.getField(this.fieldsConfig.orgName)
     }
 
     get uatTenantId() {
-        this.getField(this.fieldsConfig.uatTenantId)
+        return this.getField(this.fieldsConfig.uatTenantId)
     }
 
     get prodTenantId() {
-        this.getField(this.fieldsConfig.prodTenantId)
+        return this.getField(this.fieldsConfig.prodTenantId)
     }
 
     get users() {
-        this.split(this.getField(this.fieldsConfig.emails))
+        return this.split(this.getField(this.fieldsConfig.emails))
     }
 
     get products() {
-        this.split(this.getField(this.fieldsConfig.coreProducts))
+        return this.split(this.getField(this.fieldsConfig.coreProducts))
     }
 }
