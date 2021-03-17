@@ -138,8 +138,9 @@ maxEntries banks minmax
     Vue.component('ff-customer', {
         props: ['customer', 'fieldsConfig', 'pageState'],
         template: `
-          <div class="grid-entry-container">
+          <div class="grid-entry-container" style="margin:5px; border: 1px solid #4a8df8">
           <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
+
           <div>skip:{{ skip }}</div>
           <div>orgId:{{ orgId }}</div>
           <div>orgName:{{ orgName }}</div>
@@ -154,12 +155,12 @@ maxEntries banks minmax
         },
         computed: {
             skip: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.skip),
-            orgId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgIdField),
-            orgName: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgNameField),
-            uatTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.uatTenantIdField),
+            orgId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgId),
+            orgName: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgName),
+            uatTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.uatTenantId),
             prodTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.prodTenantId),
-            users: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.userEmailField)),
-            products: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.coreProductsField)),
+            users: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.emails)),
+            products: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.coreProducts)),
         },
         methods: {}
     });
