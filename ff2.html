@@ -134,6 +134,10 @@ maxEntries banks minmax
           </select>
           </div>
         `,
+        computed: {
+            orgId : ({customer})=>customer.orgId,
+            orgName : ({customer})=>customer.orgName,
+        }
     });
     Vue.component('ff-customer', {
         props: ['customer',  'pageState'],
