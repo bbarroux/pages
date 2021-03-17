@@ -159,7 +159,7 @@ maxEntries banks minmax
             uatTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.uatTenantIdField),
             prodTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.prodTenantId),
             users: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.userEmailField)),
-            products: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.fileConfig.coreProductsField)),
+            products: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.coreProductsField)),
         },
         methods: {}
     });
