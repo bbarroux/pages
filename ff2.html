@@ -143,28 +143,19 @@ maxEntries banks minmax
               <label :for="'cb-'+ customer.ffid">Force process</label>
               <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
 
-              <div>skip:{{ skip }}</div>
-              <div>orgId:{{ orgId }}</div>
-              <div>orgName:{{ orgName }}</div>
-              <div>tenant-uat:{{ uatTenantId }}</div>
-              <div>tenant-prod:{{ prodTenantId }}</div>
-              <div>users:{{ users }}</div>
-              <div>products:{{ products }}</div>
+              <div>skip:{{ customer.skip }}</div>
+              <div>orgId:{{ customer.orgId }}</div>
+              <div>orgName:{{ customer.orgName }}</div>
+              <div>tenant-uat:{{ customer.uatTenantId }}</div>
+              <div>tenant-prod:{{ customer.prodTenantId }}</div>
+              <div>users:{{ customer.users }}</div>
+              <div>products:{{ customer.products }}</div>
               </div>
         `,
         data() {
             return {
                 forceCheck:false,
             };
-        },
-        computed: {
-            skip: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.skip),
-            orgId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgId),
-            orgName: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgName),
-            uatTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.uatTenantId),
-            prodTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.prodTenantId),
-            users: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.emails)),
-            products: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.coreProducts)),
         },
         methods: {}
     });
@@ -180,8 +171,8 @@ maxEntries banks minmax
                 fieldsConfig: {
                     orgId: undefined,
                     orgName: undefined,
-                    prodTenantId: undefined,
                     uatTenantId: undefined,
+                    prodTenantId: undefined,
                     emails: undefined,
                     skip: undefined,
                     coreProducts: undefined,
