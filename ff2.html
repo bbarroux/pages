@@ -1,0 +1,675 @@
+<html lang="en">
+<head>
+    <title>Flashflood</title>
+    <link rel="icon" href="flashflood.ico">
+    <script src="https://unpkg.com/vue@2.6.12/dist/vue.js"></script>
+    <script src="https://go.fficaas.net/ffal.js"></script>
+    <script src="levenshtein.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-simple-spinner@1.2.10/dist/vue-simple-spinner.min.js"></script>
+    <link rel="stylesheet" href="flashflood.css"/>
+    <script src="flashflood-constants.js"></script>
+    <script src="flashflood.js"></script>
+</head>
+<body>
+<!--  -
+Save to csv
+Disable form on working and checked
+ìmplement core product control
+
+
+implement hardcoded product
+implement checkbox override
+implement tenand id formula?
+retrieve orgid and tenants for created orgs
+maxEntries banks minmax
+-->
+<div id="app">
+
+    <div v-if="ffal" class="grid-container">
+
+        <div class="Table-buttons">
+            <div v-if="fields.length">
+                <button @click="saveResult" v-if="checked">Save Result</button>
+                <button @click="saveOutput">Save Output</button>
+            </div>
+        </div>
+        <div class="Page-buttons">
+            <b style="color: #45297a; font-size: 200%">{{env}}</b> -
+            <button onclick="FFAL.logout()">Sign Out</button>
+        </div>
+        <div class="main-table">
+
+        </div>
+        <div class="main-form">
+            <label class="text-reader" v-if="!fields.length">
+                Read File
+                <input type="file" @change="loadCsv">
+            </label>
+            <hr v-if="!fields.length">
+            <div v-if="fields.length">
+                <div class="form-elt">
+                    <label for="orgIdField">OrgId Field</label>
+                    <select name="orgIdField" id="orgIdField" v-model="orgIdField" :disabled="checked">
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div class="form-elt">
+                    <label for="orgNameField">Org Name Field</label>
+                    <select name="orgNameField" id="orgNameField" v-model="orgNameField" :disabled="checked">
+                        <option value="formula">Formula...</option>
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div v-if="orgNameField === 'formula'" class="form-elt">
+                    <label for="orgNameFormula">OrgName Formula</label>
+                    <input type="text" id="orgNameFormula" v-model="orgNameFormula">
+                </div>
+                <hr>
+                <div class="form-elt">
+                    <label for="prodTenantIdField">PROD Tenant id Field</label>
+                    <select name="prodTenantIdField" id="prodTenantIdField" v-model="prodTenantIdField"
+                            :disabled="checked">
+                        <option value="formula">Formula...</option>
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div v-if="prodTenantIdField === 'formula'" class="form-elt">
+                    <label for="prodTenantIdFormula">PROD Tenant id Formula</label>
+                    <input type="text" id="prodTenantIdFormula" v-model="prodTenantIdFormula">
+                </div>
+                <div class="form-elt">
+                    <label for="uatTenantIdField">UAT Tenant id Field</label>
+                    <select name="prodTenantIdField" id="uatTenantIdField" v-model="uatTenantIdField"
+                            :disabled="checked">
+                        <option value="formula">Formula...</option>
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div v-if="uatTenantIdField === 'formula'" class="form-elt">
+                    <label for="uatTenantIdFormula">UAT Tenant id Formula</label>
+                    <input type="text" id="uatTenantIdFormula" v-model="uatTenantIdFormula">
+                </div>
+                <hr>
+                <div class="form-elt">
+                    <label for="userEmailField">User Email Field</label>
+                    <select name="userEmailField" id="userEmailField" v-model="userEmailField" :disabled="checked">
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div class="form-elt">
+                    <label for="skipField">Skip Field</label>
+                    <select name="skipField" id="skipField" v-model="skipField" :disabled="checked">
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div class="form-elt">
+                    <label for="coreProductsField">Cores (MLZ, POS, LOS)</label>
+                    <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField"
+                            :disabled="checked">
+                        <option v-for="f in fields">{{f}}</option>
+                    </select>
+                </div>
+                <div class="form-elt">
+                    <button @click="loadFfdc"
+                            :disabled="checked || orgNameField.length ===0|| coreProductsField.length ===0">Check
+                    </button>
+                    <span v-if="checked">Check complete</span>
+                </div>
+
+                <hr>
+                <div v-if="checked">
+                    <hr>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createOrg" v-model="processConfig.createOrg">
+                        <label for="createOrg">Create Organizations</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createUatTenant" v-model="processConfig.createUatTenant">
+                        <label for="createUatTenant">Create UAT Tenants</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createProdTenant" v-model="processConfig.createProdTenant">
+                        <label for="createProdTenant">Create PROD Tenants</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createRouting" v-model="processConfig.createRouting">
+                        <label for="createRouting">Weave routing</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="createUser" v-model="processConfig.createUser">
+                        <label for="createUser">Create Users</label>
+                    </div>
+                    <hr>
+                    <div class="form-elt">
+                        <input type="checkbox" id="attachTenant" v-model="processConfig.attachTenant">
+                        <label for="attachTenant">Attach tenants to pre-existing org</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="attachRouting" v-model="processConfig.attachRouting">
+                        <label for="attachRouting">Weave routing for pre-existing tenant</label>
+                    </div>
+                    <div class="form-elt">
+                        <input type="checkbox" id="attachUser" v-model="processConfig.attachUser">
+                        <label for="attachUser">Attach users to pre-existing org</label>
+                    </div>
+                    <hr>
+                    <div class="form-elt">
+                        <label for="maxEntries">Max entries</label>
+                        <input type="text" id="maxEntries" v-model="processConfig.maxEntries">
+                    </div>
+                    <div class="form-elt">
+                        <label for="confidenceLevel">Confidence Level</label>
+                        <select name="confidenceLevel" id="confidenceLevel" v-model="processConfig.confidenceLevel">
+                            <option v-for="s in statuses">{{s}}</option>
+                        </select>
+                    </div>
+                    <div class="form-elt">
+                        <button @click="process" :disabled="processConfig.maxEntries<=0 || processComplete || working">
+                            Go!
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="console" id="logdiv">
+            {{logtext}}
+        </div>
+    </div>
+</div>
+<script>
+    const ORG_ADMIN_API = "org-admin/v1"
+    const TENANT_MGT_API = "tenant-management/v1"
+    const ROUTING_MGT_API = "routing-management/v1"
+    Vue.component('ff-entry', {
+        props: ['customer', 'file-config', 'page-state'],
+        template: `
+          <div class="grid-entry-container">
+              <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
+              <div>skip:{{ skip }}</div>
+              <div>orgId:{{ orgId }}</div>
+              <div>orgName:{{ orgName }}</div>
+              <div>tenant-uat:{{ tenantIds.uat }}</div>
+              <div>users:{{users}}</div>
+              <div>products:{{products}}</div>
+          </div>
+        `,
+        data() {
+            return {};
+        },
+        computed: {
+            skip: ({customer, fileConfig}) => customer.getField(fileConfig.skipField),
+            orgId: v => v.getField(v.fileConfig.orgIdField),
+            orgName: v => v.getField(v.fileConfig.orgNameField),
+            tenantIds: v => ({
+                uat: v.getField(v.fileConfig.uatTenantIdField),
+                prod: v.getField(v.fileConfig.prodTenantIdField),
+            }),
+            users: v => v.split(v.getField(v.fileConfig.userEmailField)),
+            products: v => v.split(v.getField(v.fileConfig.coreProductsField)),
+        },
+        methods: {
+
+        }
+    });
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                env: "preprod",
+                ffal: null,
+                logtext: 'Welcome on flashflood console\n',
+                fields: [],
+                customers:[],
+
+
+                banks: [],
+                ffdc: {
+                    tenants: [],
+                    organizations: []
+                },
+                fileConfig: {
+                    orgIdField: "",
+                    orgNameField: "",
+                    orgNameFormula: "",
+                    prodTenantIdField: "",
+                    prodTenantIdFormula: "",
+
+                    uatTenantIdField: "",
+                    uatTenantIdFormula: "",
+                    tenantNameField: "",
+                    userEmailField: "",
+                    coreProductsField: "",
+                },
+                orgIdField: "",
+                orgNameField: "",
+                orgNameFormula: "",
+                prodTenantIdField: "",
+                prodTenantIdFormula: "",
+
+                uatTenantIdField: "",
+                uatTenantIdFormula: "",
+                tenantNameField: "",
+                userEmailField: "",
+                coreProductsField: "",
+                skipField: "",
+                cores: {
+                    "preprod": [
+                        {
+                            name: "LOS",
+                            backendInstanceIds: {
+                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
+                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
+                            }
+                        },
+                        {
+                            name: "POS",
+                            backendInstanceIds: {
+                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
+                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
+                            }
+                        },
+                        {
+                            name: "MLZ",
+                            backendInstanceIds: {
+                                uat: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce",
+                                prod: "acc5e3c6-223f-49c1-9f0b-2635dc3fddce"
+                            }
+                        },
+                    ],
+                    "prod": [
+                        {
+                            name: "LOS",
+                            backendInstanceIds: {
+                                uat: "d18271b6-a698-4603-91b6-133aaca0550c",
+                                prod: "09bd0356-a047-4b89-9366-a36274d62d0a"
+                            }
+                        },
+                        {
+                            name: "POS",
+                            backendInstanceIds: {
+                                uat: "c4cf3c66-3ae1-47be-b70a-7c901f41f17e",
+                                prod: "edf3cf08-9cc0-4ed2-9cad-d128a996610a"
+                            }
+                        },
+                        {
+                            name: "MLZ",
+                            backendInstanceIds: {
+                                uat: "97366e9a-f270-4736-ac3c-98befe73c893",
+                                prod: "4bf5147a-e88a-4cc5-8465-0c2762c8b2f5"
+                            }
+                        },
+                    ]
+                },
+                processConfig: {
+                    createOrg: false,
+                    createUatTenant: false,
+                    createProdTenant: false,
+                    createRouting: false,
+                    createUser: false,
+                    attachTenant: false,
+                    attachRouting: false,
+                    attachUser: false,
+                    maxEntries: 0,
+                    confidenceLevel: "OK",
+                },
+                checked: false,
+                working: false,
+                processComplete: false,
+                hideSynthetic: false,
+                statuses: ["OK", "Slightly Suspect", "Suspect", "Highly Suspect"],
+                byName: {},
+            }
+        },
+        async created() {
+            if (window.location.host.startsWith("prod.")) {
+                FFAL.server = "https://be.fficaas.net";
+                this.env = "prod";
+            }
+            this.ffal = await FFAL.login("ffdc", "employee");
+            setInterval(() => {
+                const elem = document.getElementById('logdiv');
+                if (elem) elem.scrollTop = elem.scrollHeight
+            }, 8000)
+        },
+        computed: {
+            bankTable() {
+                return this.banks.map(this.toTableRow)
+            }
+        },
+        methods: {
+            toTableRow(bank) {
+                const row = {}
+                row._id = bank.ffid;
+                this.fields.forEach(f => row['f_' + f] = bank[f])
+                row.c_orgInternalDuplicate = bank.internalDuplicate;
+                row.c_orgCheckStatus = bank.orgCheck ? bank.orgCheck.status : "";
+                row.c_prodTenantCheckStatus = bank.prodTenantCheck ? bank.prodTenantCheck.status : "";
+                row.c_uatTenantCheckSatus = bank.uatTenantCheck ? bank.uatTenantCheck.status : "";
+
+                row.c_orgCheckDistance = bank.orgCheck ? bank.orgCheck.mostSim.distance : "";
+                row.c_prodTenantCheckDistance = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.distance : "";
+                row.c_uatTenantCheckDistance = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.distance : "";
+
+                row.c_orgCheckMostSim = bank.orgCheck ? bank.orgCheck.mostSim.displayName : "";
+                row.c_prodTenantCheckMostSim = bank.prodTenantCheck ? bank.prodTenantCheck.mostSim.name : "";
+                row.c_uatTenantCheckMostSim = bank.uatTenantCheck ? bank.uatTenantCheck.mostSim.name : "";
+
+                row.c_orgCheckExisingId = bank.orgCheck && bank.orgCheck.existing ? bank.orgCheck.existing.orgId : "";
+                row.c_prodTenantCheckExistingId = bank.prodTenantCheck && bank.prodTenantCheck.existing ? bank.prodTenantCheck.existing.name : "";
+                row.c_uatTenantCheckExistingId = bank.uatTenantCheck && bank.uatTenantCheck.existing ? bank.uatTenantCheck.existing.name : "";
+
+
+                row.p_createdOrgId = bank.createdOrg ? bank.createdOrg.orgId : "";
+                row.p_createdOrgName = bank.createdOrg ? bank.createdOrg.displayName : "";
+                row.p_createdProdTenantId = bank.createdProdTenant ? bank.createdProdTenant.name : "";
+                row.p_createdProdTenantName = bank.createdProdTenant ? bank.createdProdTenant.displayName : "";
+                row.p_createdUatTenantId = bank.createdUatTenant ? bank.createdUatTenant.name : "";
+                row.p_createdUatTenantName = bank.createdUatTenant ? bank.createdUatTenant.displayName : "";
+
+                row.p_createdProdRouting = bank.createdProdRouting;
+                row.p_createdUatRouting = bank.createdUatRouting;
+                return row;
+            },
+            loadCsv(ev) {
+                this.checked = false;
+                const file = ev.target.files[0];
+                Papa.parse(file, {
+                    header: true,
+                    encoding: "windows-1252",
+                    skipEmptyLines: true,
+                    complete: r => {
+                        this.fields = r.meta.fields;
+                        this.customers = r.data.map((fileEntry, ffid) => (new Customer(ffid, fileEntry)));
+                        this.log(`Loaded csv file. ${this.customers.length} banks, ${this.fields.length} fields`)
+                    }
+                });
+            },
+            log(msg) {
+                this.logtext += (new Date().toISOString().replaceAll(/.*T/g, "") + " - " + msg + '\n')
+            },
+            async post(api, data) {
+                const body = JSON.stringify(data);
+                this.log(`Posting on ${api}. data:${body}`)
+                const headers = {'Content-Type': 'application/json'};
+                const req = {method: 'POST', headers, body};
+                return this.fetch(api, req);
+            },
+            async put(api, data) {
+                const body = JSON.stringify(data);
+                this.log(`Putting on ${api}. data:${body}`)
+                const headers = {'Content-Type': 'application/json'};
+                const req = {method: 'PUT', headers, body};
+                return this.fetch(api, req);
+            },
+            async fetch(api, req) {
+                this.log("calling " + api)
+                const resp = await this.ffal.fetch(api, req);
+                this.log("received response for " + api + ":" + resp.status + " = ff-trace-id = " + resp.headers.get("ff-trace-id"));
+                if (resp.status >= 400) {
+                    const jreq = req ? req : {};
+                    throw (`Fetch error (${resp.status}) while calling ${api}, ${JSON.stringify(jreq)}`)
+                }
+                return resp.json();
+            },
+            loadFfdc() {
+                this.working = true;
+                this.log("Loading ffdc data...")
+                const p1 = this.loadAll(`${TENANT_MGT_API}/tenants`, [], 1).then(items => this.ffdc.tenants = items);
+                const p2 = this.loadAll(`${ORG_ADMIN_API}/organizations`, [], 1).then(items => this.ffdc.organizations = items);
+                Promise.all([p1, p2]).then(this.checkFile)
+            },
+            async checkFile() {
+                try {
+                    this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
+                    this.log("Checking for duplicates...")
+                    const orgNameField = this.orgNameField;
+                    if (orgNameField === undefined || orgNameField.length === 0) return;
+                    this.byName = this.banks.reduce(function (r, a) {
+                        r[a[orgNameField]] = r[a[orgNameField]] || [];
+                        r[a[orgNameField]].push(a);
+                        return r;
+                    }, Object.create(null));
+                    Object.values(this.byName).filter(g => g.length > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
+                    this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName, "FI "));
+                    this.log("organizations duplicate check complete!");
+                    this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name, ""));
+                    this.log("prod tenant duplicate check complete!");
+                    this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name, ""));
+                    this.log("uat tenant duplicate check complete!");
+
+                    this.log("##### Duplicate check complete!");
+                    //await Promise.all(this.banks.filter(b => b.orgCheck.existing).map(b => this.attachExistingTenants(b)));
+                    this.checked = true;
+                } catch (e) {
+                    this.log("$$ ERROR - Checking interrupted.");
+                    console.log(e);
+                    this.log(e.toString());
+                }
+                this.working = false;
+            },
+            checkBank(bank, nameField, coll, nameAccessor, prefix) {
+                if (nameField === undefined || nameField.length === 0) return undefined;
+                const name = prefix + bank[nameField];
+                const checkResult = {nameField, name, nameAccessor};
+                const relevant = s => s.toLowerCase()
+                    .replaceAll(/\bcu\b/g, "credit union")
+                    .replaceAll(/^fi /g, "")
+                    .replaceAll(/\bfcu\b/g, "federal credit union")
+                    .replaceAll("&", "and");
+
+                if (name === undefined || name.length === 0) {
+                    checkResult.status = "N/A";
+                } else {
+                    const relevantName = relevant(name);
+                    const closest = LEV.closest(relevantName, coll, o => relevant(nameAccessor(o)));
+
+                    const distance = closest.distance;
+                    checkResult.mostSim = closest.closest;
+                    checkResult.mostSim.distance = distance;
+                    checkResult.distance = distance;
+
+                    if (distance === 0) {
+                        checkResult.status = "Duplicate";
+                        checkResult.existing = checkResult.mostSim;
+                    } else if (distance < 2) checkResult.status = "Highly suspect";
+                    else if (distance < 3) checkResult.status = "Suspect";
+                    else if (distance < 4) checkResult.status = "Slightly suspect";
+                    else {
+                        checkResult.status = "OK";
+                        checkResult.checked = true;
+                    }
+                    return checkResult
+                }
+
+            },
+            async attachExistingTenants(bank) {
+                this.log(`Getting existing tenants for ${bank.orgCheck.existing.orgId}`)
+                this.fetch(`${ORG_ADMIN_API}/organizations/${bank.orgCheck.existing.orgId}/tenants`)
+                    .then(j => {
+                        bank.existingTenants = j.items;
+                        this.log(`Found ${j.items.length} tenants for ${bank.orgCheck.existing.orgId}`)
+                    });
+            },
+            async loadAll(api, items, totalCount) {
+                if (items.length >= totalCount) return items;
+                const json = await this.fetch(api + "?offset=" + items.length);
+                return json._meta
+                    ? this.loadAll(api, items.concat(json.items), json._meta.totalCount)
+                    : items;
+            },
+            async process() {
+                this.working = true;
+                const cfg = this.processConfig;
+                const nbEntries = Math.min(cfg.maxEntries, this.banks.length)
+                this.log(`Starting processing for max ${nbEntries}....`);
+                this.log("processing config : " + JSON.stringify(cfg));
+                try {
+                    for (let i = 0; i < nbEntries; i++) {
+                        const start = new Date();
+                        await this.processBank(this.banks[i], cfg);
+                        const elapsed = (new Date().getTime() - start) / 1000
+                        this.log(`###############################################`);
+                        this.log(`###   PROCESSED ${i + 1} of ${nbEntries} (${Math.floor(i * 100 / nbEntries)}%) in ${elapsed}s`)
+                        this.log(`###############################################`);
+
+                    }
+                    this.log("Processing complete.");
+                } catch (e) {
+                    this.log("!! ERROR - Processing interrupted.");
+                    console.log(e);
+                    this.log(e.toString());
+                }
+
+                this.processComplete = true;
+                this.working = false;
+            },
+            async processBank(bank, cfg) {
+                const displayName = "FI " + bank[this.orgNameField];
+                try {
+                    this.log(`Processing bank ${displayName}. OrgStatus: ${bank.orgCheck.status};uatTenantCheck: ${bank.uatTenantCheck.status};prodTenantCheck: ${bank.orgCheck.status}`);
+                    if (bank.orgCheck.status !== "OK" || bank.uatTenantCheck.status !== "OK" || bank.prodTenantCheck.status !== "OK") {
+                        this.log("Skipping since not all statuses OK");
+                        return;
+                    }
+                    if (this.skipField && bank[this.skipField].trim().length) {
+                        this.log(`Skipping ${displayName} since its marked for skipping`);
+                        return;
+                    }
+                    if (bank.internalDuplicate) {
+                        this.log(`Skipping ${displayName} since it's an internal duplicate`);
+                        return;
+                    }
+                    await this.createOrg(displayName, bank, cfg);
+                    await this.createProdTenant(displayName, bank, cfg);
+                    await this.createUatTenant(displayName, bank, cfg);
+                    await this.createUser(displayName, bank, cfg);
+                    this.log(`Processing complete for  ${displayName}.`);
+                } catch (e) {
+                    this.log(`Error while processing ${displayName}.`);
+                    console.log(e);
+                    this.log(e.toString());
+                }
+            },
+            async createOrg(displayName, bank, cfg) {
+                if (!cfg.createOrg) {
+                    this.log("Skipping org creation since it's not selected")
+                } else if (!bank.orgCheck.checked) {
+                    this.log("Skipping org creation since it did not pass control checks")
+                } else {
+                    this.log(`Creating org ${displayName};OrgStatus: ${bank.orgCheck.status}`)
+                    const orgJson = await this.post(`${ORG_ADMIN_API}/organizations`, {displayName})
+                    this.log(`Created organization ${JSON.stringify(orgJson)}`)
+                    bank.createdOrg = orgJson;
+                }
+            },
+            async createProdTenant(displayName, bank, cfg) {
+                if (!bank.createdOrg && !cfg.attachTenant) {
+                    this.log("skipping prodTenant creation since org has not been created && attach tenant not created");
+                } else if (!cfg.createProdTenant) {
+                    this.log("Skipping prodTenant creation since it's not selected")
+                } else if (!bank.prodTenantCheck.checked) {
+                    this.log("Skipping prodTenant creation since it did not pass control checks")
+                } else if (!bank.createdOrg && !bank.orgCheck.existing) {
+                    this.log("Skipping prodTenant creation since org is not known")
+                } else {
+                    const tenantName = `${displayName} [PROD]`
+                    const name = bank[this.prodTenantIdField].toLowerCase();
+                    const flavor = "PROD";
+                    this.log(`Creating prodTenant for ${displayName};tenantStatus: ${bank.prodTenantCheck.status}`)
+                    const json = await this.post(`${TENANT_MGT_API}/tenants`, {displayName: tenantName, name, flavor})
+                    this.log(`Created prodTenant ${JSON.stringify(json)}`)
+                    bank.createdProdTenant = json;
+
+                    const orgId = bank.createdOrg ? bank.createdOrg.orgId : bank.orgCheck.existing.orgId;
+                    this.log(`attaching tenant ${name} for ${displayName};`)
+                    await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
+                    this.log(`attached tenant for ${displayName};`)
+                    bank.createdProdRouting = 0;
+                    if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
+                        const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
+                        let coreName;
+                        for (coreName of coreNames) {
+                            const core = this.cores[this.env].filter(c => c.name === coreName);
+                            if (!core.length) {
+                                this.log(`Could not find core ${coreName}`);
+                            } else {
+                                this.log(`creating routing for ${name} on core ${coreName}`);
+                                await this.createRouting(displayName, bank, name, core[0].backendInstanceIds["prod"], cfg)
+                                bank.createdProdRouting += 1;
+                            }
+                        }
+                    }
+                }
+            },
+            async createUatTenant(displayName, bank, cfg) {
+
+                if (!bank.createdOrg && !cfg.attachTenant) {
+                    this.log("skipping uatTenant creation since org has not been created && attach tenant not created");
+                } else if (!cfg.createUatTenant) {
+                    this.log("Skipping uatTenant creation since it's not selected")
+                } else if (!bank.uatTenantCheck.checked) {
+                    this.log("Skipping uatTenant creation since it did not pass control checks")
+                } else if (!bank.createdOrg && !bank.orgCheck.existing) {
+                    this.log("Skipping uatTenant creation since org is not known")
+                } else {
+                    const tenantName = `${displayName} [UAT]`
+                    const name = bank[this.uatTenantIdField].toLowerCase();
+                    const flavor = "UAT";
+                    this.log(`Creating uatTenant for ${displayName};tenantStatus: ${bank.uatTenantCheck.status}`)
+                    const json = await this.post(`${TENANT_MGT_API}/tenants`, {displayName: tenantName, name, flavor})
+                    this.log(`Created uatTenant ${JSON.stringify(json)}`)
+                    bank.createdUatTenant = json;
+
+                    const orgId = bank.createdOrg ? bank.createdOrg.orgId : bank.orgCheck.existing.orgId;
+                    this.log(`attaching tenant ${name} for ${displayName};`)
+                    await this.put(`${ORG_ADMIN_API}/organizations/${orgId}/tenants/${name}`)
+                    this.log(`attached tenant for ${displayName};`)
+                    bank.createdUatRouting = 0;
+                    if (cfg.createRouting && this.coreProductsField.length && bank[this.coreProductsField].length) {
+                        const coreNames = bank[this.coreProductsField].toUpperCase().split(/\s*,\s*/)
+                        let coreName;
+                        for (coreName of coreNames) {
+                            const core = this.cores[this.env].filter(c => c.name === coreName);
+                            if (!core.length) {
+                                this.log(`Could not find core ${coreName}`);
+                            } else {
+                                this.log(`creating routing for ${name} on core ${coreName}`);
+                                await this.createRouting(displayName, bank, name, core[0].backendInstanceIds["uat"], cfg)
+                                bank.createdUatRouting += 1;
+                            }
+                        }
+                    }
+                }
+            },
+            async createRouting(displayName, bank, tenantId, backendId, cfg) {
+                this.log(`Creating routing for ${displayName}`);
+                await this.put(`${ROUTING_MGT_API}/tenants/${tenantId}/back-ends/${backendId}`, {available: true});
+                this.log(`Created routing for ${displayName}`);
+            },
+            async createUser(displayName, bank, cfg) {
+
+            },
+            saveResult() {
+                const csv = Papa.unparse(this.bankTable);
+                const blob = new Blob([csv], {
+                    type: "text/csv;charset=utf-8"
+                });
+                saveAs(blob, "flashflood_result" + new Date().toISOString().replaceAll(":", ".") + ".csv")
+            },
+            saveOutput() {
+
+                const blob = new Blob([this.logtext], {
+                    type: "text/plain;charset=utf-8"
+                });
+
+                saveAs(blob, "flashflood-log-" + new Date().toISOString().replaceAll(":", ".") + ".txt");
+            },
+        }
+    })
+
+</script>
+</body>
+</html>
