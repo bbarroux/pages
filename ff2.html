@@ -42,7 +42,7 @@ maxEntries banks minmax
         <div class="main-table">
             <div class="orig-table" v-if="fields.length"></div>
             <div class="customer-table" v-if="fields.length">
-                <ff-customer v-for="customer in customers" :key="customer.ffid" :customer="customer"></ff-customer>
+                <ff-customer v-for="customer in customers" :key="customer.ffid" :customer="customer" :fields-config="fieldsConfig"></ff-customer>
             </div>
         </div>
         <div class="main-form">
@@ -134,13 +134,10 @@ maxEntries banks minmax
           </select>
           </div>
         `,
-        computed: {
-            orgId : ({customer})=>customer.orgId,
-            orgName : ({customer})=>customer.orgName,
-        }
+
     });
     Vue.component('ff-customer', {
-        props: ['customer',  'pageState'],
+        props: ['customer',  'pageState', 'fieldsConfig',],
         template: `
           <div class="grid-entry-container" style="margin:5px; border: 1px solid #4a8df8">
               <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
