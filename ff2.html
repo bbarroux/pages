@@ -42,7 +42,7 @@ maxEntries banks minmax
         <div class="main-table">
             <div class="orig-table" v-if="fields.length"></div>
             <div class="customer-table" v-if="fields.length">
-                <ff-customer v-for="customer in customers" :key="ffid" :customer="customer"></ff-customer>
+                <ff-customer v-for="customer in customers" :key="ffid" :customer="customer" :fields-config="fieldsConfig"></ff-customer>
             </div>
         </div>
         <div class="main-form">
@@ -52,68 +52,9 @@ maxEntries banks minmax
             </label>
             <hr v-if="!fields.length">
             <div v-if="fields.length">
-                <div class="form-elt">
-                    <label for="orgIdField">OrgId Field</label>
-                    <select name="orgIdField" id="orgIdField" v-model="orgIdField" :disabled="checked">
-                        <option v-for="f in fields">{{f}}</option>
-                    </select>
-                </div>
-                <div class="form-elt">
-                    <label for="orgNameField">Org Name Field</label>
-                    <select name="orgNameField" id="orgNameField" v-model="orgNameField" :disabled="checked">
-                        <option value="formula">Formula...</option>
-                        <option v-for="f in fields">{{f}}</option>
-                    </select>
-                </div>
-                <div v-if="orgNameField === 'formula'" class="form-elt">
-                    <label for="orgNameFormula">OrgName Formula</label>
-                    <input type="text" id="orgNameFormula" v-model="orgNameFormula">
-                </div>
-                <hr>
-                <div class="form-elt">
-                    <label for="prodTenantIdField">PROD Tenant id Field</label>
-                    <select name="prodTenantIdField" id="prodTenantIdField" v-model="prodTenantIdField"
-                            :disabled="checked">
-                        <option value="formula">Formula...</option>
-                        <option v-for="f in fields">{{f}}</option>
-                    </select>
-                </div>
-                <div v-if="prodTenantIdField === 'formula'" class="form-elt">
-                    <label for="prodTenantIdFormula">PROD Tenant id Formula</label>
-                    <input type="text" id="prodTenantIdFormula" v-model="prodTenantIdFormula">
-                </div>
-                <div class="form-elt">
-                    <label for="uatTenantIdField">UAT Tenant id Field</label>
-                    <select name="prodTenantIdField" id="uatTenantIdField" v-model="uatTenantIdField"
-                            :disabled="checked">
-                        <option value="formula">Formula...</option>
-                        <option v-for="f in fields">{{f}}</option>
-                    </select>
-                </div>
-                <div v-if="uatTenantIdField === 'formula'" class="form-elt">
-                    <label for="uatTenantIdFormula">UAT Tenant id Formula</label>
-                    <input type="text" id="uatTenantIdFormula" v-model="uatTenantIdFormula">
-                </div>
-                <hr>
-                <div class="form-elt">
-                    <label for="userEmailField">User Email Field</label>
-                    <select name="userEmailField" id="userEmailField" v-model="userEmailField" :disabled="checked">
-                        <option v-for="f in fields">{{f}}</option>
-                    </select>
-                </div>
-                <div class="form-elt">
-                    <label for="skipField">Skip Field</label>
-                    <select name="skipField" id="skipField" v-model="skipField" :disabled="checked">
-                        <option v-for="f in fields">{{f}}</option>
-                    </select>
-                </div>
-                <div class="form-elt">
-                    <label for="coreProductsField">Cores (MLZ, POS, LOS)</label>
-                    <select name="coreProductsField" id="coreProductsField" v-model="coreProductsField"
-                            :disabled="checked">
-                        <option v-for="f in fields">{{f}}</option>
-                    </select>
-                </div>
+                <ff-field-config v-for="(val, prop) in fieldsConfig" :field="prop" :fields-config="fieldsConfig"></ff-field-config>
+
+
                 <div class="form-elt">
                     <button @click="loadFfdc"
                             :disabled="checked || orgNameField.length ===0|| coreProductsField.length ===0">Check
@@ -183,16 +124,27 @@ maxEntries banks minmax
     </div>
 </div>
 <script>
-
+    Vue.component('ff-field-config', {
+        props: ['field', 'fieldsConfig'],
+        template: `
+          <div class="form-elt">
+          <label :for="field">{{ field }}</label>
+          <select :name="field" id="field" v-model="fieldsConfig[field]">
+            <option v-for="f in fields">{{ f }}</option>
+          </select>
+          </div>
+        `,
+    });
     Vue.component('ff-customer', {
-        props: ['customer', 'file-config', 'page-state'],
+        props: ['customer', 'fieldsConfig', 'pageState'],
         template: `
           <div class="grid-entry-container">
           <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
           <div>skip:{{ skip }}</div>
           <div>orgId:{{ orgId }}</div>
           <div>orgName:{{ orgName }}</div>
-          <div>tenant-uat:{{ tenantIds.uat }}</div>
+          <div>tenant-uat:{{ uatTenantId }}</div>
+          <div>tenant-prod:{{ prodTenantId }}</div>
           <div>users:{{ users }}</div>
           <div>products:{{ products }}</div>
           </div>
@@ -201,15 +153,13 @@ maxEntries banks minmax
             return {};
         },
         computed: {
-            skip: ({customer, fileConfig}) => customer.getField(fileConfig.skipField),
-            orgId: v => v.getField(v.fileConfig.orgIdField),
-            orgName: v => v.getField(v.fileConfig.orgNameField),
-            tenantIds: v => ({
-                uat: v.getField(v.fileConfig.uatTenantIdField),
-                prod: v.getField(v.fileConfig.prodTenantIdField),
-            }),
-            users: v => v.split(v.getField(v.fileConfig.userEmailField)),
-            products: v => v.split(v.getField(v.fileConfig.coreProductsField)),
+            skip: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.skip),
+            orgId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgIdField),
+            orgName: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.orgNameField),
+            uatTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.uatTenantIdField),
+            prodTenantId: ({customer, fieldsConfig}) => customer.getField(fieldsConfig.prodTenantId),
+            users: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.userEmailField)),
+            products: ({customer, fieldsConfig}) => customer.split(customer.getField(fieldsConfig.fileConfig.coreProductsField)),
         },
         methods: {}
     });
@@ -222,7 +172,15 @@ maxEntries banks minmax
                 logtext: 'Welcome on flashflood console\n',
                 fields: [],
                 customers: [],
-
+                fieldsConfig: {
+                    orgId: undefined,
+                    orgName: undefined,
+                    prodTenantId: undefined,
+                    uatTenantId: undefined,
+                    emails: undefined,
+                    skip: undefined,
+                    coreProducts: undefined,
+                },
 
                 banks: [],
                 ffdc: {
