@@ -65,50 +65,13 @@ maxEntries banks minmax
                 <hr>
                 <div v-if="checked">
                     <hr>
-                    <div class="form-elt">
-                        <input type="checkbox" id="createOrg" v-model="processConfig.createOrg">
-                        <label for="createOrg">Create Organizations</label>
-                    </div>
-                    <div class="form-elt">
-                        <input type="checkbox" id="createUatTenant" v-model="processConfig.createUatTenant">
-                        <label for="createUatTenant">Create UAT Tenants</label>
-                    </div>
-                    <div class="form-elt">
-                        <input type="checkbox" id="createProdTenant" v-model="processConfig.createProdTenant">
-                        <label for="createProdTenant">Create PROD Tenants</label>
-                    </div>
-                    <div class="form-elt">
-                        <input type="checkbox" id="createRouting" v-model="processConfig.createRouting">
-                        <label for="createRouting">Weave routing</label>
-                    </div>
-                    <div class="form-elt">
-                        <input type="checkbox" id="createUser" v-model="processConfig.createUser">
-                        <label for="createUser">Create Users</label>
-                    </div>
-                    <hr>
-                    <div class="form-elt">
-                        <input type="checkbox" id="attachTenant" v-model="processConfig.attachTenant">
-                        <label for="attachTenant">Attach tenants to pre-existing org</label>
-                    </div>
-                    <div class="form-elt">
-                        <input type="checkbox" id="attachRouting" v-model="processConfig.attachRouting">
-                        <label for="attachRouting">Weave routing for pre-existing tenant</label>
-                    </div>
-                    <div class="form-elt">
-                        <input type="checkbox" id="attachUser" v-model="processConfig.attachUser">
-                        <label for="attachUser">Attach users to pre-existing org</label>
-                    </div>
+                    <ff-step-config v-for="(val,prop) in processConfig.steps" :key="prop" steps-config="processConfig.steps" :step="prop"></ff-step-config>
                     <hr>
                     <div class="form-elt">
                         <label for="maxEntries">Max entries</label>
                         <input type="text" id="maxEntries" v-model="processConfig.maxEntries">
                     </div>
-                    <div class="form-elt">
-                        <label for="confidenceLevel">Confidence Level</label>
-                        <select name="confidenceLevel" id="confidenceLevel" v-model="processConfig.confidenceLevel">
-                            <option v-for="s in statuses">{{s}}</option>
-                        </select>
-                    </div>
+
                     <div class="form-elt">
                         <button @click="process" :disabled="processConfig.maxEntries<=0 || processComplete || working">
                             Go!
@@ -132,6 +95,16 @@ maxEntries banks minmax
           <select :name="field" id="field" v-model="fieldsConfig[field]">
             <option v-for="f in fields">{{ f }}</option>
           </select>
+          </div>
+        `,
+
+    });
+    Vue.component('ff-step-config', {
+        props: ['step', 'stepsConfig', 'fields'],
+        template: `
+          <div class="form-elt">
+          <input type="checkbox" :id="step" v-model="stepsConfig[step]">
+          <label :for="step">{{step}}</label>
           </div>
         `,
 
@@ -259,14 +232,17 @@ maxEntries banks minmax
                     ]
                 },
                 processConfig: {
-                    createOrg: false,
-                    createUatTenant: false,
-                    createProdTenant: false,
-                    createRouting: false,
-                    createUser: false,
-                    attachTenant: false,
-                    attachRouting: false,
-                    attachUser: false,
+                    steps:{
+                        createOrganization: false,
+                        createUatTenant: false,
+                        createProdTenant: false,
+                        createRouting: false,
+                        createUser: false,
+                        attachTenant: false,
+                        attachRouting: false,
+                        attachUser: false,
+                    },
+
                     maxEntries: 0,
                     confidenceLevel: "OK",
                 },
@@ -290,9 +266,6 @@ maxEntries banks minmax
             }, 8000)
         },
         computed: {
-            fieldsConfigHash(){
-                return Object.values(this.fieldsConfig).join(';')
-            },
             bankTable() {
                 return this.banks.map(this.toTableRow)
             }
