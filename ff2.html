@@ -335,7 +335,7 @@ maxEntries banks minmax
                     skipEmptyLines: true,
                     complete: r => {
                         this.fields = r.meta.fields;
-                        this.customers = r.data.map((fileEntry, ffid) => (new Customer(ffid, fileEntry)));
+                        this.customers = r.data.map((fileEntry, ffid) => (new Customer(ffid, fileEntry, this.fieldsConfig)));
                         this.log(`Loaded csv file. ${this.customers.length} banks, ${this.fields.length} fields`)
                     }
                 });
