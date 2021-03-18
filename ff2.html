@@ -171,7 +171,7 @@ maxEntries banks minmax
                 working: false,
                 processComplete: false,
                 hideSynthetic: false,
-                statuses: ["Highly Suspect", "Suspect", "Slightly Suspect", "OK",]
+                statuses: ["Highly Suspect", "Suspect", "Slightly Suspect", "OK",],
             }
         },
         async created() {
@@ -268,7 +268,7 @@ maxEntries banks minmax
                     uatTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "uatTenantId"),
                     prodTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "prodTenantId"),
                     get allChecked() {
-                        return this.orgCheck.checked && this.uatTenantCheck. && this.prodTenantCheck;
+                        return this.orgCheck.checked && this.uatTenantCheck.checked && this.prodTenantCheck.checked;
                     }
                 }
             },
