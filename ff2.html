@@ -57,7 +57,7 @@ maxEntries banks minmax
 
                 <div class="form-elt">
                     <button @click="loadFfdc"
-                            :disabled="checked || orgNameField.length ===0|| coreProductsField.length ===0">Check
+                            :disabled="checked || fieldsConfig.orgName || fieldsConfig.product">Check
                     </button>
                     <span v-if="checked">Check complete</span>
                 </div>
