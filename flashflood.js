@@ -18,6 +18,7 @@ class Customer {
     get(field) {
         if (!field) return undefined;
         const val = this.fileEntry[field];
+        console.log("found val:"+val)
         return val && val.trim() ? val.trim() : undefined;
     }
 
