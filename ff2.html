@@ -41,7 +41,7 @@ maxEntries banks minmax
         <div class="main-table">
             <div class="orig-table" v-if="fields.length"></div>
             <div class="customer-table" v-if="fields.length">
-                <ff-customer v-for="customer in customers" :key="customer.ffid" :customer="customer"></ff-customer>
+                <ff-customer v-for="customer in customers" :key="customer.ffid" :customer="customer" :fields-config="fieldsConfig"></ff-customer>
             </div>
         </div>
         <div class="main-form">
@@ -116,7 +116,7 @@ maxEntries banks minmax
           <div class="grid-entry-container" style="margin:5px; border: 1px solid #4a8df8">
           <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
           <label :for="'cb-'+ customer.ffid">Force process</label>
-          <div v-for="(_, prop) in fieldsConfig" :key="prop">{{ prop }}:{{ customer.get(prop) }}</div>
+          <div v-for="(_, prop) in fieldsConfig" :key="prop">--{{ prop }}:{{ customer.get(prop) }}</div>
           <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
           </div>
         `,
