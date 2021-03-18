@@ -130,11 +130,14 @@ maxEntries banks minmax
         el: '#app',
         data() {
             return {
-                env: "preprod",
                 ffal: null,
                 logtext: 'Welcome on flashflood console\n',
                 fields: [],
                 customers: [],
+                ffdc: {
+                    tenants: [],
+                    organizations: []
+                },
                 fieldsConfig: {
                     orgId: undefined,
                     orgName: undefined,
@@ -144,38 +147,6 @@ maxEntries banks minmax
                     skip: undefined,
                     coreProducts: undefined,
                 },
-
-                banks: [],
-                ffdc: {
-                    tenants: [],
-                    organizations: []
-                },
-                fileConfig: {
-                    orgIdField: "",
-                    orgNameField: "",
-                    orgNameFormula: "",
-                    prodTenantIdField: "",
-                    prodTenantIdFormula: "",
-
-                    uatTenantIdField: "",
-                    uatTenantIdFormula: "",
-                    tenantNameField: "",
-                    userEmailField: "",
-                    coreProductsField: "",
-                },
-                orgIdField: "",
-                orgNameField: "",
-                orgNameFormula: "",
-                prodTenantIdField: "",
-                prodTenantIdFormula: "",
-
-                uatTenantIdField: "",
-                uatTenantIdFormula: "",
-                tenantNameField: "",
-                userEmailField: "",
-                coreProductsField: "",
-                skipField: "",
-
                 processConfig: {
                     steps: {
                         createOrganization: false,
@@ -189,14 +160,11 @@ maxEntries banks minmax
                     },
 
                     maxEntries: 0,
-                    confidenceLevel: "OK",
                 },
                 checked: false,
                 working: false,
                 processComplete: false,
                 hideSynthetic: false,
-                statuses: ["OK", "Slightly Suspect", "Suspect", "Highly Suspect"],
-                byName: {},
             }
         },
         async created() {
@@ -204,9 +172,6 @@ maxEntries banks minmax
 
         },
         computed: {
-            bankTable() {
-                return this.banks.map(this.toTableRow)
-            }
         },
         methods: {
             loadCsv(ev) {
@@ -252,31 +217,32 @@ maxEntries banks minmax
             loadFfdc() {
                 this.working = true;
                 this.log("Loading ffdc data...")
-                const p1 = this.loadAll(`${TENANT_MGT_API}/tenants`, [], 1).then(items => this.ffdc.tenants = items);
-                const p2 = this.loadAll(`${ORG_ADMIN_API}/organizations`, [], 1).then(items => this.ffdc.organizations = items);
+                const p1 = this.loadAll(`${TENANT_MGT_API}/tenants`, [], 1)
+                    .then(items => this.ffdc.tenants = items.map(this.normalizeTenant));
+                const p2 = this.loadAll(`${ORG_ADMIN_API}/organizations`, [], 1)
+                    .then(items => this.ffdc.organizations = items.map(this.normalizeOrg));
                 Promise.all([p1, p2]).then(this.checkFile)
             },
+            relevantName: s => s.toLowerCase()
+                .replaceAll(/\bcu\b/g, "credit union")
+                .replaceAll(/^fi /g, "")
+                .replaceAll(/\bfcu\b/g, "federal credit union")
+                .replaceAll("&", "and")
+                .replaceAll(" ", ""),
+
+            normalizeTenant(tenant) {
+                return {name: tenant.displayName, id: tenant.name, relevantName: this.relevantName(tenant.name), tenant}
+            },
+            normalizeOrg(org) {
+                return {name: org.displayName, id: org.orgId, relevantName: this.relevantName(org.displayName), org}
+            },
+
             async checkFile() {
                 try {
                     this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                     this.log("Checking for duplicates...")
-                    const orgNameField = this.orgNameField;
-                    if (orgNameField === undefined || orgNameField.length === 0) return;
-                    this.byName = this.banks.reduce(function (r, a) {
-                        r[a[orgNameField]] = r[a[orgNameField]] || [];
-                        r[a[orgNameField]].push(a);
-                        return r;
-                    }, Object.create(null));
-                    Object.values(this.byName).filter(g => g.length > 1).forEach(g => g.forEach(b => b.internalDuplicate = true));
-                    this.banks.forEach(b => b.orgCheck = this.checkBank(b, this.orgNameField, this.ffdc.organizations, i => i.displayName, "FI "));
-                    this.log("organizations duplicate check complete!");
-                    this.banks.forEach(b => b.prodTenantCheck = this.checkBank(b, this.prodTenantIdField, this.ffdc.tenants, i => i.name, ""));
-                    this.log("prod tenant duplicate check complete!");
-                    this.banks.forEach(b => b.uatTenantCheck = this.checkBank(b, this.uatTenantIdField, this.ffdc.tenants, i => i.name, ""));
-                    this.log("uat tenant duplicate check complete!");
-
+                    this.customers.forEach(c=>c.check = this.checkCustomer(c));
                     this.log("##### Duplicate check complete!");
-                    //await Promise.all(this.banks.filter(b => b.orgCheck.existing).map(b => this.attachExistingTenants(b)));
                     this.checked = true;
                 } catch (e) {
                     this.log("$$ ERROR - Checking interrupted.");
@@ -285,40 +251,36 @@ maxEntries banks minmax
                 }
                 this.working = false;
             },
-            checkBank(bank, nameField, coll, nameAccessor, prefix) {
-                if (nameField === undefined || nameField.length === 0) return undefined;
-                const name = prefix + bank[nameField];
-                const checkResult = {nameField, name, nameAccessor};
-                const relevant = s => s.toLowerCase()
-                    .replaceAll(/\bcu\b/g, "credit union")
-                    .replaceAll(/^fi /g, "")
-                    .replaceAll(/\bfcu\b/g, "federal credit union")
-                    .replaceAll("&", "and");
+            checkCustomer(customer){
+              return{
+                  orgCheck:this.checkDuplicate(customer,this.ffdc.organizations, "orgName"),
+                  uatTenantCheck: this.checkDuplicate(customer,this.ffdc.tenants, "uatTenantId"),
+                  prodTenantCheck: this.checkDuplicate(customer,this.ffdc.tenants, "prodTenantId"),
+                  get allChecked(){
+                      return this.orgCheck && this.uatTenantCheck && this.prodTenantCheck;
+                  }
+              }
+            },
+            checkDuplicate(customer, coll, field) {
+                const checkResult = {status: "N/A"};
+                const name = customer.get(field);
+                const relevantName = this.relevantName(name);
 
-                if (name === undefined || name.length === 0) {
-                    checkResult.status = "N/A";
-                } else {
-                    const relevantName = relevant(name);
-                    const closest = LEV.closest(relevantName, coll, o => relevant(nameAccessor(o)));
+                checkResult.internalDuplicate = this.customers.filter(c => c.get(field) === name && c.ffid !== customer.ffid).some();
+                checkResult.closest = LEV.closest(relevantName, coll, o => o.relevantName);
+                checkResult.status = this.getDistanceFlag(checkResult.closest.displayName);
+                if (checkResult.status === "Duplicate") checkResult.existing = checkResult.mostSim;
+                if (checkResult.status === "OK" && !checkResult.internalDuplicate) checkResult.checked = true;
 
-                    const distance = closest.distance;
-                    checkResult.mostSim = closest.closest;
-                    checkResult.mostSim.distance = distance;
-                    checkResult.distance = distance;
+                return checkResult;
 
-                    if (distance === 0) {
-                        checkResult.status = "Duplicate";
-                        checkResult.existing = checkResult.mostSim;
-                    } else if (distance < 2) checkResult.status = "Highly suspect";
-                    else if (distance < 3) checkResult.status = "Suspect";
-                    else if (distance < 4) checkResult.status = "Slightly suspect";
-                    else {
-                        checkResult.status = "OK";
-                        checkResult.checked = true;
-                    }
-                    return checkResult
-                }
-
+            },
+            getDistanceFlag(distance) {
+                if (distance === 0) return "Duplicate";
+                else if (distance < 2) return "Highly suspect";
+                else if (distance < 3) return "Suspect";
+                else if (distance < 4) return "Slightly suspect";
+                else return "OK";
             },
             async attachExistingTenants(bank) {
                 this.log(`Getting existing tenants for ${bank.orgCheck.existing.orgId}`)
@@ -479,7 +441,7 @@ maxEntries banks minmax
                     }
                 }
             },
-            async createRouting(displayName, bank, tenantId, backendId, cfg) {
+            async createRouting(displayName, bank, tenantId, backendId) {
                 this.log(`Creating routing for ${displayName}`);
                 await this.put(`${ROUTING_MGT_API}/tenants/${tenantId}/back-ends/${backendId}`, {available: true});
                 this.log(`Created routing for ${displayName}`);
