@@ -57,7 +57,7 @@ maxEntries banks minmax
 
                 <div class="form-elt">
                     <button @click="loadFfdc"
-                            :disabled="checked || !fieldsConfig.orgName || !fieldsConfig.coreProducts">Check
+                            :disabled="!checkReady">Check
                     </button>
                     <span v-if="checked">Check complete</span>
                 </div>
@@ -173,6 +173,10 @@ maxEntries banks minmax
 
         },
         computed: {
+            checkReady(){
+                const fc = this.fieldsConfig;
+                return !this.checked && fc.orgName && fc.uatTenantId && fc.prodTenantId && fc.coreProducts;
+            }
         },
         methods: {
             loadCsv(ev) {
