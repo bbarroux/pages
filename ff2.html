@@ -116,8 +116,8 @@ maxEntries banks minmax
           <div class="grid-entry-container" style="margin:5px; border: 1px solid #4a8df8">
           <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
           <label :for="'cb-'+ customer.ffid">Force process</label>
-          <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
           <div v-for="(_, prop) in fieldsConfig" :key="prop">{{ prop }}:{{ customer.get(prop) }}</div>
+          <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
           </div>
         `,
         data() {
