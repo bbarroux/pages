@@ -41,7 +41,8 @@ maxEntries banks minmax
         <div class="main-table">
             <div class="orig-table" v-if="fields.length"></div>
             <div class="customer-table" v-if="fields.length">
-                <ff-customer v-for="customer in customers" :key="customer.ffid" :customer="customer" :fields-config="fieldsConfig"></ff-customer>
+                <ff-customer v-for="customer in customers" :key="customer.ffid" :customer="customer"
+                             :fields-config="fieldsConfig"></ff-customer>
             </div>
         </div>
         <div class="main-form">
@@ -82,9 +83,7 @@ maxEntries banks minmax
             </div>
 
         </div>
-        <div class="console" id="logdiv">
-            {{logtext}}
-        </div>
+        <div class="console" id="logdiv">{{logtext}}</div>
     </div>
 </div>
 <script>
@@ -117,6 +116,12 @@ maxEntries banks minmax
           <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
           <label :for="'cb-'+ customer.ffid">Force process</label>
           <div v-for="(_, prop) in fieldsConfig" :key="prop">--{{ prop }}:{{ customer.get(prop) }}</div>
+          <div v-if="customer.checkReport">
+            <div v-if="customer.checkReport.allChecked">All Good!</div>
+            <div>Org:{{customer.checkReport.orgCheck.status}}</div>
+            <div>Uat:{{customer.checkReport.uatTenantCheck.status}}</div>
+            <div>Prod:{{customer.checkReport.prodTenantCheck.status}}</div>
+          </div>
           <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
           </div>
         `,
@@ -166,6 +171,7 @@ maxEntries banks minmax
                 working: false,
                 processComplete: false,
                 hideSynthetic: false,
+                statuses: ["Highly Suspect", "Suspect", "Slightly Suspect", "OK",]
             }
         },
         async created() {
@@ -173,7 +179,7 @@ maxEntries banks minmax
 
         },
         computed: {
-            checkReady(){
+            checkReady() {
                 const fc = this.fieldsConfig;
                 return !this.checked && fc.orgName && fc.uatTenantId && fc.prodTenantId && fc.coreProducts;
             }
@@ -246,7 +252,7 @@ maxEntries banks minmax
                 try {
                     this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                     this.log("Checking for duplicates...")
-                    this.customers.forEach(c=>c.checkReport = this.checkCustomer(c));
+                    this.customers.forEach(c => c.checkReport = this.checkCustomer(c));
                     this.log("##### Duplicate check complete!");
                     this.checked = true;
                 } catch (e) {
@@ -256,15 +262,15 @@ maxEntries banks minmax
                 }
                 this.working = false;
             },
-            checkCustomer(customer){
-              return{
-                  orgCheck:this.checkDuplicate(customer,this.ffdc.organizations, "orgName"),
-                  uatTenantCheck: this.checkDuplicate(customer,this.ffdc.tenants, "uatTenantId"),
-                  prodTenantCheck: this.checkDuplicate(customer,this.ffdc.tenants, "prodTenantId"),
-                  get allChecked(){
-                      return this.orgCheck && this.uatTenantCheck && this.prodTenantCheck;
-                  }
-              }
+            checkCustomer(customer) {
+                return {
+                    orgCheck: this.checkDuplicate(customer, this.ffdc.organizations, "orgName"),
+                    uatTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "uatTenantId"),
+                    prodTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "prodTenantId"),
+                    get allChecked() {
+                        return this.orgCheck.checked && this.uatTenantCheck. && this.prodTenantCheck;
+                    }
+                }
             },
             checkDuplicate(customer, coll, field) {
                 const checkResult = {status: "N/A"};
@@ -273,19 +279,12 @@ maxEntries banks minmax
 
                 checkResult.internalDuplicate = this.customers.some(c => c.get(field) === name && c.ffid !== customer.ffid);
                 checkResult.closest = LEV.closest(relevantName, coll, o => o.relevantName);
-                checkResult.status = this.getDistanceFlag(checkResult.closest.displayName);
+                checkResult.status = this.statuses[Math.min(checkResult.closest.distance, this.statuses.length - 1)];
                 if (checkResult.status === "Duplicate") checkResult.existing = checkResult.mostSim;
                 if (checkResult.status === "OK" && !checkResult.internalDuplicate) checkResult.checked = true;
 
                 return checkResult;
 
-            },
-            getDistanceFlag(distance) {
-                if (distance === 0) return "Duplicate";
-                else if (distance < 2) return "Highly suspect";
-                else if (distance < 3) return "Suspect";
-                else if (distance < 4) return "Slightly suspect";
-                else return "OK";
             },
             async attachExistingTenants(bank) {
                 this.log(`Getting existing tenants for ${bank.orgCheck.existing.orgId}`)
