@@ -271,7 +271,7 @@ maxEntries banks minmax
                 const name = customer.get(field);
                 const relevantName = this.relevantName(name);
 
-                checkResult.internalDuplicate = this.customers.filter(c => c.get(field) === name && c.ffid !== customer.ffid).some();
+                checkResult.internalDuplicate = this.customers.some(c => c.get(field) === name && c.ffid !== customer.ffid);
                 checkResult.closest = LEV.closest(relevantName, coll, o => o.relevantName);
                 checkResult.status = this.getDistanceFlag(checkResult.closest.displayName);
                 if (checkResult.status === "Duplicate") checkResult.existing = checkResult.mostSim;
