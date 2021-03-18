@@ -20,7 +20,6 @@ class Customer {
         const prop = this.fieldsConfig[field];
         if (!prop) return undefined;
         const val = this.fileEntry[prop];
-        console.log("found val:"+val)
         return val && val.trim() ? val.trim() : undefined;
     }
 
@@ -32,7 +31,7 @@ class Customer {
         const row = {}
         row._id = this.ffid;
         Object.entries(this.fileEntry).forEach((key, val) => row['f_' + key] = val)
-        Object.entries(this.fieldsConfig).forEach((key, val) => row['f_' + key] = this.get(key))
+        Object.entries(this.fieldsConfig).forEach((key, _) => row['f_' + key] = this.get(key))
         return row;
     }
 }

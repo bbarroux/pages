@@ -242,7 +242,7 @@ maxEntries banks minmax
                 try {
                     this.log(`ffdc data loaded. ${this.ffdc.organizations.length} organizations, ${this.ffdc.tenants.length}  tenants`)
                     this.log("Checking for duplicates...")
-                    this.customers.forEach(c=>c.check = this.checkCustomer(c));
+                    this.customers.forEach(c=>c.checkReport = this.checkCustomer(c));
                     this.log("##### Duplicate check complete!");
                     this.checked = true;
                 } catch (e) {
