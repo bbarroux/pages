@@ -17,7 +17,9 @@ class Customer {
 
     get(field) {
         if (!field) return undefined;
-        const val = this.fileEntry[field];
+        const prop = this.fieldsConfig[field];
+        if (!prop) return undefined;
+        const val = this.fileEntry[prop];
         console.log("found val:"+val)
         return val && val.trim() ? val.trim() : undefined;
     }
