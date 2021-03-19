@@ -113,16 +113,18 @@ maxEntries banks minmax
         props: ['customer', 'pageState', 'fieldsConfig',],
         template: `
           <div class="grid-entry-container" style="margin:5px; border: 1px solid #4a8df8">
-          <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
-          <label :for="'cb-'+ customer.ffid">Force process</label>
-          <div v-for="(_, prop) in fieldsConfig" :key="prop">--{{ prop }}:{{ customer.get(prop) }}</div>
-          <div v-if="customer.checkReport">
-            <div v-if="customer.checkReport.allChecked">All Good!</div>
-            <div>Org:{{customer.checkReport.orgCheck.status}}</div>
-            <div>Uat:{{customer.checkReport.uatTenantCheck.status}}</div>
-            <div>Prod:{{customer.checkReport.prodTenantCheck.status}}</div>
-          </div>
-          <vue-simple-spinner size="tiny" message="Checking..."></vue-simple-spinner>
+              <input type="checkbox" :id="'cb-'+ customer.ffid" v-model="forceCheck">
+              <label :for="'cb-'+ customer.ffid">Force process</label>
+              <div v-for="(_, prop) in fieldsConfig" :key="prop">--{{ prop }}:{{ customer.get(prop) }}</div>
+              <div v-if="customer.checkReport">
+                <div v-if="customer.checkReport.allChecked">All Good!</div>
+                <div v-else>
+                  <ff-check :customer="customer" :check="customer.checkReport.orgCheck" check-name="Organization"></ff-check>
+                  <ff-check :customer="customer" :check="customer.checkReport.uatTenantCheck" check-name="UAT Tenant"></ff-check>
+                  <ff-check :customer="customer" :check="customer.checkReport.prodTenantCheck" check-name="Prod Tenant"></ff-check>
+                </div>
+              </div>
+              <vue-simple-spinner v-else-if="customer.checking" size="tiny" message="Checking..."></vue-simple-spinner>
           </div>
         `,
         data() {
@@ -130,6 +132,26 @@ maxEntries banks minmax
                 forceCheck: false,
             };
         },
+    });
+    Vue.component('ff-check', {
+        props: ['customer', 'check', 'checkName',],
+        template: `
+          <div class="grid-check-container" style="margin:5px; border: 1px solid #999999">
+              <div>{{checkName}} Check Report</div>
+              <div v-if="check.status==='OK'">OK</div>
+              <div v-else-if="check.status==='Duplicate'">
+                  <div>Found Duplicate</div>
+                  <div>id:{{check.existing.id}}</div>
+                  <div>id:{{check.existing.name}}</div>
+              </div>
+              <div v-else>
+                  <div>{{check.status}}</div>
+                  <div>Closest match ({{check.closest.distance}})</div>
+                  <div>id: ({{check.closest.closest.id}})</div>
+                  <div>id: ({{check.closest.closest.name}})</div>
+              </div>
+          </div>
+        `,
     });
     new Vue({
         el: '#app',
@@ -263,7 +285,8 @@ maxEntries banks minmax
                 this.working = false;
             },
             checkCustomer(customer) {
-                return {
+                customer.checking = true;
+                const checkReport = {
                     orgCheck: this.checkDuplicate(customer, this.ffdc.organizations, "orgName"),
                     uatTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "uatTenantId"),
                     prodTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "prodTenantId"),
@@ -271,6 +294,8 @@ maxEntries banks minmax
                         return this.orgCheck.checked && this.uatTenantCheck.checked && this.prodTenantCheck.checked;
                     }
                 }
+                customer.checking = false;
+                return checkReport;
             },
             checkDuplicate(customer, coll, field) {
                 const checkResult = {status: "N/A"};
