@@ -27,7 +27,7 @@ html, body, .grid-container {
 
 .main-table {
     grid-area: main-table;
-    font-size: 40%;
+    font-size: 60%;
 }
 
 .main-table td, .main-table th {
