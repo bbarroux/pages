@@ -141,8 +141,8 @@ maxEntries banks minmax
               <div v-if="check.status==='OK'">OK</div>
               <div v-else-if="check.status==='Duplicate'">
                   <div>Found Duplicate</div>
-                  <div>id:{{check.existing.id}}</div>
-                  <div>id:{{check.existing.name}}</div>
+                  <div>id:{{check.closest.closest.id}}</div>
+                  <div>id:{{check.closest.closest.name}}</div>
               </div>
               <div v-else>
                   <div>{{check.status}}</div>
@@ -291,7 +291,7 @@ maxEntries banks minmax
                     uatTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "uatTenantId"),
                     prodTenantCheck: this.checkDuplicate(customer, this.ffdc.tenants, "prodTenantId"),
                     get allChecked() {
-                        return this.orgCheck.checked && this.uatTenantCheck.checked && this.prodTenantCheck.checked;
+                        return this.orgCheck.status==="OK" && this.uatTenantCheck.status==="OK" && this.prodTenantCheck.status==="OK";
                     }
                 }
                 customer.checking = false;
@@ -305,8 +305,6 @@ maxEntries banks minmax
                 checkResult.internalDuplicate = this.customers.some(c => c.get(field) === name && c.ffid !== customer.ffid);
                 checkResult.closest = LEV.closest(relevantName, coll, o => o.relevantName);
                 checkResult.status = this.statuses[Math.min(checkResult.closest.distance, this.statuses.length - 1)];
-                if (checkResult.status === "Duplicate") checkResult.existing = checkResult.mostSim;
-                if (checkResult.status === "OK" && !checkResult.internalDuplicate) checkResult.checked = true;
 
                 return checkResult;
 
